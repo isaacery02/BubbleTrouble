@@ -16,18 +16,6 @@
 
     <div class="game-container">
         <h1>Theo's Bubble Trouble</h1>
-        
-        <div class="game-info">
-            <div class="player-stats">
-                <div>Player 1 - Score: <span id="score1">0</span> | Lives: <span id="lives1">3</span></div>
-                <div>Player 2 - Score: <span id="score2">0</span> | Lives: <span id="lives2">3</span></div>
-            </div>
-            
-            <div class="level-info">
-                Level: <span id="level">1</span>
-                <button id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</button>
-            </div>
-        </div>
 
         <canvas id="gameCanvas" width="800" height="600"></canvas>
         
@@ -71,31 +59,79 @@
 
         <!-- Power-ups section -->
         <div class="powerups-info">
-            <h3>🎁 Power-Ups</h3>
+            <h3>⚡ Power-ups</h3>
             <div class="powerup-grid">
-                <div class="powerup-item">
-                    <div class="powerup-icon wide-shot">W</div>
-                    <div class="powerup-description">
-                        <strong>Wide Shot</strong><br>
-                        Fires wider projectiles for easier bubble hitting
-                    </div>
-                </div>
                 <div class="powerup-item">
                     <div class="powerup-icon rapid-fire">R</div>
                     <div class="powerup-description">
-                        <strong>Rapid Fire</strong><br>
-                        Shoot faster and up to 10 bullets at once for 5 seconds
+                        <strong>Rapid Fire</strong>
+                        Shoot much faster for 10 seconds. Perfect for clearing multiple bubbles quickly!
                     </div>
                 </div>
+                
+                <div class="powerup-item">
+                    <div class="powerup-icon wide-shot">W</div>
+                    <div class="powerup-description">
+                        <strong>Wide Shot</strong>
+                        Projectiles are 3x wider for 10 seconds. Makes hitting bubbles much easier!
+                    </div>
+                </div>
+                
                 <div class="powerup-item">
                     <div class="powerup-icon shield">S</div>
                     <div class="powerup-description">
-                        <strong>Shield</strong><br>
-                        Temporary protection from bubble collisions
+                        <strong>Shield</strong>
+                        Immunity to bubble collisions for 10 seconds. Walk through bubbles safely!
+                    </div>
+                </div>
+                
+                <div class="powerup-item">
+                    <div class="powerup-icon extra-life">L</div>
+                    <div class="powerup-description">
+                        <strong>Extra Life</strong>
+                        Gain one additional life instantly. No timer - permanent effect!
                     </div>
                 </div>
             </div>
-            <p class="powerup-note">💡 Power-ups drop randomly when bubbles are popped and last for 5 seconds!</p>
+            <p class="powerup-note">Power-ups appear randomly when bubbles are popped. Collect them quickly before they disappear!</p>
+        </div>
+
+        <!-- How to Play section (boxed version) -->
+        <div class="powerups-info">
+            <h3>🎮 How to Play</h3>
+            <div class="powerup-grid">
+                <div class="powerup-item">
+                    <div class="powerup-icon controls-icon">🎮</div>
+                    <div class="powerup-description">
+                        <strong>Controls</strong>
+                        Use WASD to move, SPACE to shoot. On mobile, use the control buttons at the bottom of the screen.
+                    </div>
+                </div>
+                
+                <div class="powerup-item">
+                    <div class="powerup-icon goal-icon">🎯</div>
+                    <div class="powerup-description">
+                        <strong>Goal</strong>
+                        Pop all bubbles to advance to the next level. Each level gets progressively more challenging!
+                    </div>
+                </div>
+                
+                <div class="powerup-item">
+                    <div class="powerup-icon lives-icon">❤️</div>
+                    <div class="powerup-description">
+                        <strong>Lives</strong>
+                        You have 3 lives. Losing all lives ends the game. Collect extra life power-ups to survive longer!
+                    </div>
+                </div>
+                
+                <div class="powerup-item">
+                    <div class="powerup-icon strategy-icon">🧠</div>
+                    <div class="powerup-description">
+                        <strong>Strategy</strong>
+                        Avoid touching bubbles! Use walls to bounce projectiles and hit hard-to-reach bubbles.
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

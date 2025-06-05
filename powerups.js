@@ -1,7 +1,7 @@
 // Power-up system - Fixed version
 
 function createPowerUp(x, y) {
-    const types = ['rapid_fire', 'wide_shot', 'shield'];
+    const types = ['rapid_fire', 'wide_shot', 'shield', 'extra_life']; // Add extra_life here
     const randomType = types[Math.floor(Math.random() * types.length)];
     
     const powerUp = {
@@ -148,7 +148,7 @@ function drawPowerUps() {
                 glowColor = 'rgba(69, 183, 209, 0.5)';
                 break;
             case 'extra_life':
-                color = '#f9ca24'; // Yellow
+                color = '#f9ca24'; // Yellow/Gold
                 glowColor = 'rgba(249, 202, 36, 0.5)';
                 break;
         }
@@ -207,7 +207,7 @@ function drawPowerUps() {
                 symbol = 'S';
                 break;
             case 'extra_life':
-                symbol = '+';
+                symbol = 'L'; // Change from '+' to 'L' for Life
                 break;
         }
         
@@ -263,6 +263,11 @@ function applyPowerUp(playerObj, powerUpType) {
     if (playerObj.powerUpTimer) {
         clearTimeout(playerObj.powerUpTimer);
         playerObj.powerUpTimer = null;
+    }
+    
+    // Play powerup sound
+    if (typeof playSound === 'function') {
+        playSound('powerup');
     }
     
     // Set the active power-up

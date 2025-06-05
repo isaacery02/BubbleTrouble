@@ -141,9 +141,8 @@ function checkPowerUpCollisions() {
         for (let i = powerUps.length - 1; i >= 0; i--) {
             const p = powerUps[i];
             if (playerCollidesWithPowerUp(playerObj, p)) {
-                applyPowerUp(playerObj, p.type);
+                collectPowerUp(playerObj, p);
                 powerUps.splice(i, 1);
-                if (typeof playSound === 'function') playSound('powerup');
             }
         }
     });
@@ -152,6 +151,13 @@ function checkPowerUpCollisions() {
 function playerCollidesWithPowerUp(player, p) {
     return player.x < p.x + p.width && player.x + player.width > p.x &&
            player.y < p.y + p.height && player.y + player.height > p.y;
+}
+
+function collectPowerUp(player, powerUp) {
+    applyPowerUp(player, powerUp.type);
+    if (typeof playSound === 'function') {
+        playSound('powerup');
+    }
 }
 
 function applyPowerUp(player, type) {

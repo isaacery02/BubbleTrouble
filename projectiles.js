@@ -2,36 +2,42 @@
 
 function shootProjectile(playerObj) {
     const currentTime = Date.now();
-    
+
     // Check cooldown
     if (currentTime - playerObj.lastShotTime < playerObj.shootCooldown) {
         return;
     }
-    
+
     // Check projectile limit (use player's current max projectiles)
     const maxProjectiles = playerObj.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
     if (playerObj.projectiles.length >= maxProjectiles) {
         return;
     }
-    
+
+    // Use projectileSpeedMultiplier for fast bullets powerup
+    let speed = PROJECTILE_SPEED;
+    if (playerObj.projectileSpeedMultiplier) {
+        speed *= playerObj.projectileSpeedMultiplier;
+    }
+
     // Create projectile shooting UPWARD
     const projectile = {
         x: playerObj.x + playerObj.width / 2 - playerObj.currentProjectileWidth / 2,
         y: playerObj.y,
         width: playerObj.currentProjectileWidth,
         height: PROJECTILE_HEIGHT,
-        dy: -PROJECTILE_SPEED, // NEGATIVE for upward movement
+        dy: -speed, // NEGATIVE for upward movement
         playerId: playerObj.id
     };
-    
+
     playerObj.projectiles.push(projectile);
     playerObj.lastShotTime = currentTime;
-    
+
     // Play shoot sound
     if (typeof playSound === 'function') {
         playSound('shoot');
     }
-    
+
     console.log(`Player ${playerObj.id} shot projectile upward. Total: ${playerObj.projectiles.length}/${maxProjectiles}`);
 }
 
@@ -39,16 +45,16 @@ function updateProjectiles() {
     players.forEach(playerObj => {
         for (let i = playerObj.projectiles.length - 1; i >= 0; i--) {
             const projectile = playerObj.projectiles[i];
-            
+
             // Move projectile upward
             projectile.y += projectile.dy;
-            
+
             // Remove projectile if it goes off screen
             if (projectile.y + projectile.height < 0) {
                 playerObj.projectiles.splice(i, 1);
                 continue;
             }
-            
+
             // Check collision with obstacles
             if (typeof checkProjectileObstacleCollision === 'function') {
                 if (checkProjectileObstacleCollision(projectile)) {
@@ -66,7 +72,7 @@ function drawProjectiles() {
             // Draw projectile as a vertical line/rectangle
             ctx.fillStyle = playerObj.color;
             ctx.fillRect(projectile.x, projectile.y, projectile.width, projectile.height);
-            
+
             // Add glow effect
             ctx.shadowBlur = 5;
             ctx.shadowColor = playerObj.color;

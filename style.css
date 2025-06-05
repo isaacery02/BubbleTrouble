@@ -292,28 +292,68 @@ h1 {
     white-space: pre-line;
 }
 
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    margin-left: 60px; /* Add left margin to push button further right */
+}
+
 #actionButton {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
     color: white;
     border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 0.5rem;
-    font-size: 1rem;
+    padding: 15px 30px;
+    font-size: 18px;
     font-weight: 600;
+    border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-width: 150px;
+    margin-left: 20px; /* Additional margin for more spacing */
 }
 
 #actionButton:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #44a08d 0%, #4ecdc4 100%);
 }
 
 #actionButton:active {
     transform: translateY(0);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* Keep the existing message container styles */
+.message-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    max-width: 500px;
+    min-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Keep the spacing between text and button area */
+}
+
+#messageText {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    white-space: pre-line;
+    text-align: left; /* Align text to left for better contrast with right-aligned button */
+}
+
+/* Rest of existing styles remain the same... */
 .mobile-controls {
     position: fixed;
     bottom: 2rem;

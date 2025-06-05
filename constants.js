@@ -19,8 +19,8 @@ let particles = [];
 let obstacles = [];
 
 // ========== PHYSICS CONSTANTS ==========
-const bubbleGravity = 0.15; // Reduced gravity for more airtime
-const bubbleBounceFactor = 0.9; // Higher bounce factor for more energy retention
+const bubbleGravity = 0.08; // Reduced gravity for longer airtime
+const bubbleBounceFactor = 0.92; // Increased bounce retention for longer bouncing
 
 // ========== PLAYER CONSTANTS ==========
 const PLAYER_SPEED = 5;

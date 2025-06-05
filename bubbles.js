@@ -5,223 +5,102 @@ class Bubble {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.speed = speed || 1;
-        this.dx = (Math.random() - 0.5) * 5 * this.speed; // Increased initial speed
-        this.dy = Math.random() * -4 - 2; // Stronger initial upward velocity
-        this.color = this.getRandomColor();
-        this.bounceCount = 0;
-        this.minSpeed = 1.0; // Increased minimum speed
-        this.maxSpeed = 8.0; // Maximum speed to prevent chaos
-    }
-
-    getRandomColor() {
-        const colors = [
-            '#ff6b6b', '#4ecdc4', '#45b7d1', 
-            '#f9ca24', '#f0932b', '#eb4d4b',
-            '#6c5ce7', '#a29bfe', '#fd79a8'
-        ];
-        return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    update() {
-        // Apply gravity (reduced for more bouncing)
-        this.dy += bubbleGravity;
+        this.baseSpeed = speed;
         
-        // Limit maximum falling speed
-        if (this.dy > this.maxSpeed) {
-            this.dy = this.maxSpeed;
-        }
+        // Much stronger initial velocity
+        this.dx = (Math.random() - 0.5) * 6; // Increased horizontal variation
+        this.dy = -Math.random() * 4 - 2; // Always start with strong upward velocity
+        
+        // Visual properties
+        this.color = this.getColorForSize(radius);
+        this.pulsePhase = Math.random() * Math.PI * 2;
+        
+        // Physics properties
+        this.bounces = 0;
+        this.lastBounceTime = 0;
+    }
+    
+    update() {
+        // Apply gravity
+        this.dy += bubbleGravity;
         
         // Update position
         this.x += this.dx;
         this.y += this.dy;
         
-        // Bounce off left wall
-        if (this.x - this.radius <= 0) {
-            this.x = this.radius;
-            this.dx = Math.abs(this.dx) * bubbleBounceFactor;
-            // Ensure minimum speed and add some variation
-            if (Math.abs(this.dx) < this.minSpeed) {
-                this.dx = this.minSpeed + Math.random() * 0.5;
-            }
-            // Add slight upward boost on wall bounce
-            this.dy -= 0.5;
-        }
+        // Update visual effects
+        this.pulsePhase += 0.1;
         
-        // Bounce off right wall
-        if (this.x + this.radius >= canvas.width) {
-            this.x = canvas.width - this.radius;
-            this.dx = -Math.abs(this.dx) * bubbleBounceFactor;
-            // Ensure minimum speed and add some variation
-            if (Math.abs(this.dx) < this.minSpeed) {
-                this.dx = -(this.minSpeed + Math.random() * 0.5);
-            }
-            // Add slight upward boost on wall bounce
-            this.dy -= 0.5;
-        }
-        
-        // Bounce off ground (more energetic)
-        if (this.y + this.radius >= canvas.height) {
-            this.y = canvas.height - this.radius;
-            
-            // More energetic ground bounce
-            this.dy = -Math.abs(this.dy) * (bubbleBounceFactor + 0.1);
-            this.bounceCount++;
-            
-            // Ensure strong minimum bounce
-            if (Math.abs(this.dy) < this.minSpeed * 3) {
-                this.dy = -(this.minSpeed * 3 + Math.random() * 2);
-            }
-            
-            // Add horizontal variation to prevent repetitive bouncing
-            this.dx += (Math.random() - 0.5) * 1.0;
-            
-            // Limit horizontal speed
-            if (Math.abs(this.dx) > this.maxSpeed) {
-                this.dx = this.dx > 0 ? this.maxSpeed : -this.maxSpeed;
-            }
-        }
-        
-        // Bounce off ceiling
-        if (this.y - this.radius <= 0) {
-            this.y = this.radius;
-            this.dy = Math.abs(this.dy) * bubbleBounceFactor;
-            // Ensure minimum downward speed
-            if (this.dy < this.minSpeed) {
-                this.dy = this.minSpeed + Math.random() * 0.5;
-            }
-        }
-        
-        // Handle obstacle collisions
-        this.checkObstacleCollisions();
-        
-        // Prevent bubbles from getting too slow
-        if (Math.abs(this.dx) < this.minSpeed * 0.5) {
-            this.dx = this.dx > 0 ? this.minSpeed : -this.minSpeed;
-        }
-        if (Math.abs(this.dy) < this.minSpeed * 0.3 && this.dy > 0) {
-            this.dy = this.minSpeed * 0.5;
+        // Reduce damping significantly - only apply to very small movements
+        if (Math.abs(this.dx) < 0.5 && Math.abs(this.dy) < 0.5) {
+            this.dx *= 0.98; // Much less damping
+            this.dy *= 0.98;
         }
     }
-
-    checkObstacleCollisions() {
-        if (typeof obstacles === 'undefined' || !obstacles.length) return;
-        
-        obstacles.forEach(obstacle => {
-            // Check if bubble collides with obstacle
-            const closestX = Math.max(obstacle.x, Math.min(this.x, obstacle.x + obstacle.width));
-            const closestY = Math.max(obstacle.y, Math.min(this.y, obstacle.y + obstacle.height));
-            
-            const distance = Math.sqrt(
-                (this.x - closestX) * (this.x - closestX) + 
-                (this.y - closestY) * (this.y - closestY)
-            );
-            
-            if (distance < this.radius) {
-                // Collision detected - determine which side was hit
-                const centerX = obstacle.x + obstacle.width / 2;
-                const centerY = obstacle.y + obstacle.height / 2;
-                
-                const deltaX = this.x - centerX;
-                const deltaY = this.y - centerY;
-                
-                // Calculate overlap
-                const overlapX = (obstacle.width / 2 + this.radius) - Math.abs(deltaX);
-                const overlapY = (obstacle.height / 2 + this.radius) - Math.abs(deltaY);
-                
-                if (overlapX < overlapY) {
-                    // Hit from left or right
-                    if (deltaX > 0) {
-                        // Hit from right
-                        this.x = obstacle.x + obstacle.width + this.radius;
-                        this.dx = Math.abs(this.dx) * (bubbleBounceFactor + 0.1);
-                    } else {
-                        // Hit from left
-                        this.x = obstacle.x - this.radius;
-                        this.dx = -Math.abs(this.dx) * (bubbleBounceFactor + 0.1);
-                    }
-                    
-                    // Ensure strong horizontal bounce
-                    if (Math.abs(this.dx) < this.minSpeed * 1.5) {
-                        this.dx = this.dx > 0 ? this.minSpeed * 1.5 : -this.minSpeed * 1.5;
-                    }
-                } else {
-                    // Hit from top or bottom
-                    if (deltaY > 0) {
-                        // Hit from bottom
-                        this.y = obstacle.y + obstacle.height + this.radius;
-                        this.dy = Math.abs(this.dy) * (bubbleBounceFactor + 0.1);
-                    } else {
-                        // Hit from top
-                        this.y = obstacle.y - this.radius;
-                        this.dy = -Math.abs(this.dy) * (bubbleBounceFactor + 0.1);
-                    }
-                    
-                    // Ensure strong vertical bounce
-                    if (Math.abs(this.dy) < this.minSpeed * 1.5) {
-                        this.dy = this.dy > 0 ? this.minSpeed * 1.5 : -this.minSpeed * 1.5;
-                    }
-                }
-                
-                // Add energetic random variation
-                this.dx += (Math.random() - 0.5) * 0.8;
-                this.dy += (Math.random() - 0.5) * 0.8;
-            }
-        });
+    
+    getColorForSize(radius) {
+        if (radius > 40) return '#ff6b6b';      // Large - Red
+        if (radius > 25) return '#4ecdc4';      // Medium - Cyan  
+        return '#f6e05e';                       // Small - Yellow
     }
-
+    
     draw() {
-        // Draw bubble with gradient
-        const gradient = ctx.createRadialGradient(
-            this.x - this.radius * 0.3, 
-            this.y - this.radius * 0.3, 
+        // Enhanced bubble drawing with better effects
+        const currentRadius = this.radius + Math.sin(this.pulsePhase) * 2;
+        
+        // Outer glow
+        const glowGradient = ctx.createRadialGradient(
+            this.x, this.y, 0,
+            this.x, this.y, currentRadius + 8
+        );
+        glowGradient.addColorStop(0, this.color + '40');
+        glowGradient.addColorStop(1, this.color + '00');
+        
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, currentRadius + 8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Main bubble body
+        const bodyGradient = ctx.createRadialGradient(
+            this.x - currentRadius * 0.3, 
+            this.y - currentRadius * 0.3, 
             0,
-            this.x, 
-            this.y, 
-            this.radius
+            this.x, this.y, currentRadius
         );
-        gradient.addColorStop(0, this.color);
-        gradient.addColorStop(1, this.adjustBrightness(this.color, -30));
+        bodyGradient.addColorStop(0, this.color + 'CC');
+        bodyGradient.addColorStop(0.7, this.color + '99');
+        bodyGradient.addColorStop(1, this.color + '66');
         
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = bodyGradient;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
         ctx.fill();
         
-        // Add shine effect
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.beginPath();
-        ctx.arc(
-            this.x - this.radius * 0.3, 
-            this.y - this.radius * 0.3, 
-            this.radius * 0.3, 
-            0, 
-            Math.PI * 2
+        // Highlight
+        const highlightGradient = ctx.createRadialGradient(
+            this.x - currentRadius * 0.4,
+            this.y - currentRadius * 0.4,
+            0,
+            this.x - currentRadius * 0.4,
+            this.y - currentRadius * 0.4,
+            currentRadius * 0.6
         );
+        highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.fillStyle = highlightGradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
         ctx.fill();
         
-        // Add border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.lineWidth = 1;
+        // Border
+        ctx.strokeStyle = this.color + 'BB';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
         ctx.stroke();
     }
-
-    adjustBrightness(color, percent) {
-        const num = parseInt(color.slice(1), 16);
-        const amt = Math.round(2.55 * percent);
-        const R = (num >> 16) + amt;
-        const G = (num >> 8 & 0x00FF) + amt;
-        const B = (num & 0x0000FF) + amt;
-        return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-            (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
-    }
-}
-
-function updateBubbles() {
-    bubbles.forEach(bubble => bubble.update());
 }
 
 function drawBubbles() {
@@ -301,6 +180,262 @@ function initializeBubbles() {
     
     // Add a global variable to track this
     window.currentBubbleCount = bubbles.length;
+}
+
+function calculatePoints(radius) {
+    if (radius > 40) return 100;
+    if (radius > 25) return 200;
+    return 300;
+}
+
+function handleBubbleHit(bubble, bubbleIndex, playerObj) {
+    // Award points
+    const points = calculatePoints(bubble.radius);
+    playerObj.score += points;
+    
+    // Create hit particles
+    if (typeof createParticles === 'function') {
+        createParticles(bubble.x, bubble.y, bubble.color, 8);
+    }
+    
+    // Play pop sound
+    if (typeof playSound === 'function') {
+        playSound('pop');
+    }
+    
+    // Check if bubble should split
+    const minRadius = 15;
+    if (bubble.radius > minRadius) {
+        // Create two smaller bubbles with much stronger explosive physics
+        const newRadius = bubble.radius * 0.7;
+        const explosiveForce = 6 + (bubble.radius / 8); // Much stronger explosive force
+        const upwardForce = 4 + (bubble.radius / 12); // Strong upward component
+        
+        // Create left bubble with explosive force
+        const leftBubble = new Bubble(
+            bubble.x - newRadius * 0.8, // Slightly closer spawn
+            bubble.y,
+            newRadius,
+            bubble.baseSpeed
+        );
+        // Strong leftward and upward velocity
+        leftBubble.dx = -explosiveForce + (Math.random() - 0.5) * 2;
+        leftBubble.dy = -upwardForce + (Math.random() - 0.5) * 1;
+        
+        // Create right bubble with explosive force
+        const rightBubble = new Bubble(
+            bubble.x + newRadius * 0.8, // Slightly closer spawn
+            bubble.y,
+            newRadius,
+            bubble.baseSpeed
+        );
+        // Strong rightward and upward velocity
+        rightBubble.dx = explosiveForce + (Math.random() - 0.5) * 2;
+        rightBubble.dy = -upwardForce + (Math.random() - 0.5) * 1;
+        
+        // Add both bubbles to the array
+        bubbles.push(leftBubble, rightBubble);
+        
+        console.log(`Bubble split with explosive force! Left: dx=${leftBubble.dx.toFixed(2)}, dy=${leftBubble.dy.toFixed(2)} | Right: dx=${rightBubble.dx.toFixed(2)}, dy=${rightBubble.dy.toFixed(2)}`);
+    }
+    
+    // Remove the original bubble
+    bubbles.splice(bubbleIndex, 1);
+    
+    // Chance to drop power-up
+    if (Math.random() < POWER_UP_DROP_CHANCE && typeof createPowerUp === 'function') {
+        createPowerUp(bubble.x, bubble.y);
+    }
+    
+    console.log(`Bubble popped! Player ${playerObj.id} scored ${points} points`);
+}
+
+function updateBubbles() {
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+        const bubble = bubbles[i];
+        
+        if (!bubble || typeof bubble.update !== 'function') {
+            console.warn(`Invalid bubble at index ${i}:`, bubble);
+            bubbles.splice(i, 1);
+            continue;
+        }
+        
+        // Store previous position for collision detection
+        const prevX = bubble.x;
+        const prevY = bubble.y;
+        
+        // Update bubble physics
+        bubble.update();
+        
+        // Enhanced bounce physics with energy retention
+        handleEnhancedBubbleBouncing(bubble, prevX, prevY);
+        
+        // Remove bubbles that are stuck or invalid
+        if (!isFinite(bubble.x) || !isFinite(bubble.y) || 
+            !isFinite(bubble.dx) || !isFinite(bubble.dy)) {
+            console.warn(`Removing invalid bubble:`, bubble);
+            bubbles.splice(i, 1);
+        }
+    }
+}
+
+function handleEnhancedBubbleBouncing(bubble, prevX, prevY) {
+    // Enhanced floor bouncing with much better energy retention
+    if (bubble.y + bubble.radius >= canvas.height) {
+        bubble.y = canvas.height - bubble.radius;
+        bubble.dy = -Math.abs(bubble.dy) * bubbleBounceFactor;
+        
+        // Add horizontal movement if bubble is moving too slowly
+        if (Math.abs(bubble.dx) < 1.0) {
+            bubble.dx += (Math.random() - 0.5) * 3;
+        }
+        
+        // Higher minimum bounce velocity to keep bubbles very active
+        if (Math.abs(bubble.dy) < 2.5) {
+            bubble.dy = -3.5; // Much stronger minimum bounce
+        }
+        
+        console.log(`Floor bounce: dy=${bubble.dy.toFixed(2)}, dx=${bubble.dx.toFixed(2)}`);
+    }
+    
+    // Enhanced wall bouncing with more force
+    if (bubble.x - bubble.radius <= 0) {
+        bubble.x = bubble.radius;
+        bubble.dx = Math.abs(bubble.dx) * bubbleBounceFactor;
+        
+        // Add significant upward force on wall bounce
+        bubble.dy -= 1.5;
+        
+        // Ensure minimum horizontal velocity
+        if (bubble.dx < 1.5) {
+            bubble.dx = 2.0;
+        }
+    } else if (bubble.x + bubble.radius >= canvas.width) {
+        bubble.x = canvas.width - bubble.radius;
+        bubble.dx = -Math.abs(bubble.dx) * bubbleBounceFactor;
+        
+        // Add significant upward force on wall bounce
+        bubble.dy -= 1.5;
+        
+        // Ensure minimum horizontal velocity
+        if (bubble.dx > -1.5) {
+            bubble.dx = -2.0;
+        }
+    }
+    
+    // Enhanced ceiling bouncing
+    if (bubble.y - bubble.radius <= 0) {
+        bubble.y = bubble.radius;
+        bubble.dy = Math.abs(bubble.dy) * bubbleBounceFactor;
+        
+        // Ensure minimum downward velocity after ceiling bounce
+        if (bubble.dy < 1.5) {
+            bubble.dy = 2.0;
+        }
+    }
+    
+    // Obstacle collision with enhanced bouncing
+    if (typeof obstacles !== 'undefined' && obstacles.length > 0) {
+        handleObstacleBouncing(bubble, prevX, prevY);
+    }
+}
+
+function handleObstacleBouncing(bubble, prevX, prevY) {
+    obstacles.forEach(obstacle => {
+        if (bubbleCollidesWithObstacle(bubble, obstacle)) {
+            // Determine collision side based on previous position
+            const bubbleLeft = bubble.x - bubble.radius;
+            const bubbleRight = bubble.x + bubble.radius;
+            const bubbleTop = bubble.y - bubble.radius;
+            const bubbleBottom = bubble.y + bubble.radius;
+            
+            const obstacleLeft = obstacle.x;
+            const obstacleRight = obstacle.x + obstacle.width;
+            const obstacleTop = obstacle.y;
+            const obstacleBottom = obstacle.y + obstacle.height;
+            
+            // Calculate overlap distances
+            const overlapLeft = bubbleRight - obstacleLeft;
+            const overlapRight = obstacleRight - bubbleLeft;
+            const overlapTop = bubbleBottom - obstacleTop;
+            const overlapBottom = obstacleBottom - bubbleTop;
+            
+            // Find minimum overlap to determine collision side
+            const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+            
+            if (minOverlap === overlapTop) {
+                // Hit from above
+                bubble.y = obstacleTop - bubble.radius;
+                bubble.dy = -Math.abs(bubble.dy) * bubbleBounceFactor;
+                // Add stronger horizontal deflection
+                bubble.dx += (Math.random() - 0.5) * 3;
+                
+                // Ensure strong bounce
+                if (Math.abs(bubble.dy) < 2.0) {
+                    bubble.dy = -3.0;
+                }
+            } else if (minOverlap === overlapBottom) {
+                // Hit from below
+                bubble.y = obstacleBottom + bubble.radius;
+                bubble.dy = Math.abs(bubble.dy) * bubbleBounceFactor;
+                // Add stronger horizontal deflection
+                bubble.dx += (Math.random() - 0.5) * 3;
+                
+                // Ensure strong bounce
+                if (bubble.dy < 2.0) {
+                    bubble.dy = 3.0;
+                }
+            } else if (minOverlap === overlapLeft) {
+                // Hit from left
+                bubble.x = obstacleLeft - bubble.radius;
+                bubble.dx = -Math.abs(bubble.dx) * bubbleBounceFactor;
+                // Add stronger upward force
+                bubble.dy -= 1.5;
+                
+                // Ensure minimum velocity
+                if (bubble.dx > -1.5) {
+                    bubble.dx = -2.5;
+                }
+            } else if (minOverlap === overlapRight) {
+                // Hit from right
+                bubble.x = obstacleRight + bubble.radius;
+                bubble.dx = Math.abs(bubble.dx) * bubbleBounceFactor;
+                // Add stronger upward force
+                bubble.dy -= 1.5;
+                
+                // Ensure minimum velocity
+                if (bubble.dx < 1.5) {
+                    bubble.dx = 2.5;
+                }
+            }
+            
+            // Ensure bubbles always have strong minimum velocity
+            if (Math.abs(bubble.dx) < 1.5) {
+                bubble.dx = bubble.dx < 0 ? -2.0 : 2.0;
+            }
+            if (Math.abs(bubble.dy) < 1.5) {
+                bubble.dy = bubble.dy < 0 ? -2.0 : 2.0;
+            }
+        }
+    });
+}
+
+// Add the missing collision detection function
+function bubbleCollidesWithObstacle(bubble, obstacle) {
+    const bubbleLeft = bubble.x - bubble.radius;
+    const bubbleRight = bubble.x + bubble.radius;
+    const bubbleTop = bubble.y - bubble.radius;
+    const bubbleBottom = bubble.y + bubble.radius;
+    
+    const obstacleLeft = obstacle.x;
+    const obstacleRight = obstacle.x + obstacle.width;
+    const obstacleTop = obstacle.y;
+    const obstacleBottom = obstacle.y + obstacle.height;
+    
+    return bubbleRight > obstacleLeft &&
+           bubbleLeft < obstacleRight &&
+           bubbleBottom > obstacleTop &&
+           bubbleTop < obstacleBottom;
 }
 
 console.log("=== BUBBLES.JS LOADED ===");

@@ -16,8 +16,13 @@ resizeCanvas();
 
 // Initialize and start the game when page loads
 window.addEventListener('load', () => {
-    console.log("=== WINDOW LOADED - GAME STARTING ===");
+    console.log('=== WINDOW LOADED - GAME STARTING ===');
     
+    // Start the game
+    setupGame();
+});
+
+function setupGame() {
     const messageBox = document.getElementById('messageBox');
     const messageText = document.getElementById('messageText');
     const actionButton = document.getElementById('actionButton');
@@ -29,21 +34,6 @@ window.addEventListener('load', () => {
     
     setupMobileControls();
     
-    // Set initial audio button state
-    const soundToggle = document.getElementById('soundToggle');
-    if (soundToggle) {
-        if (soundEnabled) {
-            soundToggle.textContent = '🔊';
-            soundToggle.classList.remove('audio-disabled');
-        } else {
-            soundToggle.textContent = '🔇';
-            soundToggle.classList.add('audio-disabled');
-        }
-        
-        // Add sound toggle event listener
-        soundToggle.addEventListener('click', toggleSound);
-    }
-    
     showMessage(
         "Welcome to Theo's Bubble Trouble!\nReady to start?",
         'Start Game',
@@ -53,7 +43,7 @@ window.addEventListener('load', () => {
             gameLoop();
         }
     );
-});
+}
 
 function gameLoop() {
     if (!gameRunning || gamePaused) {
@@ -70,20 +60,17 @@ function gameLoop() {
     }
     
     // Update game objects
-    if (typeof updateBubbles === 'function') {
-        updateBubbles();
-    }
     if (typeof updatePlayers === 'function') {
         updatePlayers();
+    }
+    if (typeof updateBubbles === 'function') {
+        updateBubbles();
     }
     if (typeof updateProjectiles === 'function') {
         updateProjectiles();
     }
     if (typeof updatePowerUps === 'function') {
-        updatePowerUps();
-    }
-    if (typeof updatePlayerPowerUps === 'function') {
-        updatePlayerPowerUps();
+        updatePowerUps(); // Add this line to update power-up timers
     }
     if (typeof updateParticles === 'function') {
         updateParticles();

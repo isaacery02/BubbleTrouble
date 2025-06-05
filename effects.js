@@ -2,8 +2,6 @@
 
 // Sound loading and management
 function loadSound(name, src) {
-    if (!soundEnabled) return;
-    
     try {
         sounds[name] = new Audio(src);
         sounds[name].preload = 'auto';
@@ -23,23 +21,31 @@ function loadSound(name, src) {
 }
 
 function playSound(name) {
-    if (!soundEnabled || !sounds[name]) {
+    console.log(`playSound called with: ${name}`);
+    
+    if (!soundEnabled) {
+        console.log('Sound disabled, not playing:', name);
+        return;
+    }
+    
+    if (!sounds[name]) {
+        console.error(`Sound not found: ${name}`);
         return;
     }
     
     try {
-        if (sounds[name].play && typeof sounds[name].play === 'function') {
-            sounds[name].currentTime = 0;
-            const playPromise = sounds[name].play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // Silently handle play errors
-                });
-            }
+        console.log(`Playing sound: ${name}`);
+        sounds[name].currentTime = 0;
+        const playPromise = sounds[name].play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log(`Successfully played: ${name}`);
+            }).catch(error => {
+                console.error(`Play error for ${name}:`, error);
+            });
         }
     } catch (error) {
-        // Silently handle errors
+        console.error(`Error playing sound: ${name}`, error);
     }
 }
 
@@ -65,9 +71,6 @@ function toggleSound() {
 }
 
 function initializeSounds() {
-    if (!soundEnabled) return;
-    
-    // Load all game sounds (will create silent placeholders if files don't exist)
     loadSound('shoot', 'media/shoot.wav');
     loadSound('pop', 'media/pop.wav');
     loadSound('hit', 'media/hit.wav');

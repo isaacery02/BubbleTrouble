@@ -141,6 +141,11 @@ function checkPowerUpCollisions() {
                     applyPowerUp(playerObj, powerUp.type);
                 }
                 
+                // Play powerup sound - THIS WAS MISSING!
+                if (typeof playSound === 'function') {
+                    playSound('powerup');
+                }
+                
                 // Remove power-up
                 powerUps.splice(i, 1);
                 console.log(`Player ${playerObj.id} collected ${powerUp.type} power-up!`);

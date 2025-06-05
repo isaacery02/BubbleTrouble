@@ -29,50 +29,56 @@ function createPowerUp(x, y) {
 }
 
 function updatePowerUps() {
-    [player1, player2].forEach(playerObj => {
-        if (playerObj.activePowerUp && playerObj.powerUpEndTime && Date.now() > playerObj.powerUpEndTime) {
-            console.log(`Power-up ${playerObj.activePowerUp} expired for player ${playerObj.id}`);
-            removePowerUp(playerObj);
-        }
-    });
-
+    // Update power-up physics and animations
     for (let i = powerUps.length - 1; i >= 0; i--) {
-        const p = powerUps[i];
-        p.dx = p.dx ?? 0;
-        p.dy = p.dy ?? 2;
-        p.dy += 0.3;
-        p.x += p.dx;
-        p.y += p.dy;
-
-        // Bounce off floor
-        if (p.y + p.height >= canvas.height) {
-            p.y = canvas.height - p.height;
-            p.dy = -p.dy * 0.6;
-            p.dx *= 0.8;
+        const powerUp = powerUps[i];
+        
+        // Update animation
+        if (powerUp.pulsePhase !== undefined) {
+            powerUp.pulsePhase += 0.1;
         }
-        // Bounce off walls
-        if (p.x <= 0) {
-            p.x = 1;
-            p.dx = Math.abs(p.dx) * 0.7;
-        } else if (p.x + p.width >= canvas.width) {
-            p.x = canvas.width - p.width - 1;
-            p.dx = -Math.abs(p.dx) * 0.7;
+        
+        // Apply physics - movement and gravity
+        powerUp.x += powerUp.dx;
+        powerUp.y += powerUp.dy;
+        powerUp.dy += 0.5; // Gravity
+        powerUp.dx *= 0.98; // Air resistance
+        
+        // Bounce off canvas edges
+        if (powerUp.x <= 0 || powerUp.x + powerUp.width >= canvas.width) {
+            powerUp.dx *= -0.7;
+            powerUp.x = Math.max(0, Math.min(canvas.width - powerUp.width, powerUp.x));
         }
-        // Remove expired or off-screen
-        if (p.y > canvas.height + 50 || (p.createdAt && Date.now() - p.createdAt > p.lifeTime)) {
+        
+        // Bounce off ground
+        if (powerUp.y + powerUp.height >= canvas.height) {
+            powerUp.y = canvas.height - powerUp.height;
+            powerUp.dy *= -0.6;
+            powerUp.dx *= 0.8;
+            
+            // Stop bouncing if velocity is too low
+            if (Math.abs(powerUp.dy) < 1) {
+                powerUp.dy = 0;
+            }
+        }
+        
+        // Remove power-ups that are too old
+        if (Date.now() - powerUp.createdAt > powerUp.lifeTime) {
             powerUps.splice(i, 1);
             continue;
         }
-        // Remove after settling
-        if (Math.abs(p.dy) < 0.5 && p.y + p.height >= canvas.height - 5 && Math.abs(p.dx) < 0.5) {
-            if (!p.fadeStartTime) p.fadeStartTime = Date.now();
-            if (Date.now() - p.fadeStartTime > 8000) {
-                powerUps.splice(i, 1);
-                continue;
-            }
-        }
-        p.pulsePhase = (p.pulsePhase ?? 0) + 0.1;
     }
+    
+    // Check for power-up collisions
+    checkPowerUpCollisions();
+    
+    // Handle power-up expiration for players
+    players.forEach(player => {
+        if (player.powerUpEndTime && Date.now() > player.powerUpEndTime) {
+            removePowerUp(player);
+            console.log(`Power-up ${player.activePowerUp} expired for player ${player.id}`);
+        }
+    });
 }
 
 function drawPowerUps() {
@@ -154,9 +160,20 @@ function playerCollidesWithPowerUp(player, p) {
 }
 
 function collectPowerUp(player, powerUp) {
+    console.log('Powerup collected:', powerUp.type); // Debug line
+    
+    // Add debugging for sound function
+    console.log('playSound function exists:', typeof playSound);
+    console.log('playSound function:', playSound);
+    
     applyPowerUp(player, powerUp.type);
+    
     if (typeof playSound === 'function') {
+        console.log('Attempting to play powerup sound...');
         playSound('powerup');
+        console.log('playSound called');
+    } else {
+        console.error('playSound is not a function!', typeof playSound);
     }
 }
 

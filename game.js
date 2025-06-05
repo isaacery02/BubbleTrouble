@@ -6,7 +6,7 @@ ctx = canvas.getContext('2d');
 
 // Canvas management
 function resizeCanvas() {
-    canvas.width = Math.min(window.innerWidth * 0.9, 800);
+    canvas.width = Math.min(window.innerWidth * 0.98, 1200); // Wider: up to 1200px or 98% of window
     canvas.height = Math.min(window.innerHeight * 0.7, 600);
     console.log("Canvas resized to:", canvas.width, "x", canvas.height);
 }
@@ -40,7 +40,10 @@ function gameLoop() {
         animationFrameId = requestAnimationFrame(gameLoop);
         return;
     }
+    // Only clear old game objects, do NOT fill with color or draw a background image!
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw your game objects (bubbles, players, etc) here
     updateGameSystems();
     checkLevelComplete();
     checkGameOver();
@@ -203,6 +206,51 @@ function resetPlayers() {
     player2.invincible = false;
 
     console.log("Players reset. Player 1 speed:", player1.speed, "Player 2 speed:", player2.speed);
+}
+
+const backgroundImage = new Image();
+backgroundImage.src = 'media/your-castle.gif'; // Use your actual image file name
+
+function drawBackground() {
+    if (backgroundImage.complete) {
+        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+    } else {
+        backgroundImage.onload = () => {
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        };
+    }
+}
+
+function initializeObstacles() {
+    obstacles = [];
+    const numObstacles = 3;
+    // Scale obstacle size to 30% of original
+    const scaledWidth = OBSTACLE_WIDTH * 0.3;
+    const scaledHeight = OBSTACLE_HEIGHT * 0.3;
+
+    for (let i = 0; i < numObstacles; i++) {
+        // Random x within canvas, leaving a margin so obstacles don't go offscreen
+        const margin = 40;
+        const x = Math.random() * (canvas.width - scaledWidth - margin * 2) + margin;
+        // Random y within middle 60% of canvas height
+        const y = Math.random() * (canvas.height * 0.6 - scaledHeight) + canvas.height * 0.2;
+        obstacles.push({
+            x,
+            y,
+            width: scaledWidth,
+            height: scaledHeight,
+            draw: function() {
+                ctx.save();
+                ctx.fillStyle = "#444";
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 2;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                ctx.restore();
+            }
+        });
+    }
+    console.log('Three obstacles initialized:', obstacles);
 }
 
 console.log("=== GAME.JS FULLY LOADED ===");

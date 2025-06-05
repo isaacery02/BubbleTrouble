@@ -166,12 +166,12 @@ function startLevel(level) {
         return;
     }
     
-    // Update level display - ADD SAFETY CHECK
-    const levelElement = document.getElementById('level');
-    if (levelElement) {
-        levelElement.textContent = currentLevel;
+    // Update level display
+    const levelDisplay = document.getElementById('levelDisplay');
+    if (levelDisplay) {
+        levelDisplay.textContent = `Level ${currentLevel}`;
     } else {
-        console.warn('Level display element not found - skipping UI update');
+        console.log("Level display element not found - skipping UI update");
     }
     
     // Clear existing game objects

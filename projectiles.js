@@ -81,13 +81,12 @@ function createProjectile(player) {
     if (player.projectileSpeedMultiplier) {
         speed *= player.projectileSpeedMultiplier;
     }
-    // Create the projectile object using the calculated speed
     const projectile = {
         x: player.x + player.width / 2 - PROJECTILE_WIDTH / 2,
         y: player.y,
         width: player.currentProjectileWidth || PROJECTILE_WIDTH,
         height: PROJECTILE_HEIGHT,
-        dy: -speed // Negative because projectiles move up
+        dy: -speed // Negative for upward movement
     };
     player.projectiles.push(projectile);
     if (typeof playSound === 'function') playSound('shoot');

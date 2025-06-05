@@ -33,7 +33,7 @@ h1, .awesome-heading {
 
 /* ========== LAYOUT ========== */
 .game-container {
-    max-width: 900px;
+    max-width: 1000px; /* Wider container */
     width: 100%;
     background: rgba(0, 0, 0, 0.2);
     border-radius: 1rem;
@@ -57,11 +57,13 @@ h1, .awesome-heading {
 
 /* ========== GAME CANVAS ========== */
 #gameCanvas {
+    max-width: 900px; /* Prevents overflow on very large screens */
+    width: 100%;
     display: block;
     margin: 0 auto;
     border: 3px solid rgba(255, 255, 255, 0.2);
     border-radius: 0.5rem;
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    background: url('media/your-castle.gif') center/cover no-repeat, #1a202c;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 

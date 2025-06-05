@@ -92,43 +92,46 @@ h1 {
 .sound-toggle {
     background: none;
     border: none;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    margin-left: 1rem;
     color: #e2e8f0;
-    transition: transform 0.2s;
-    padding: 0.2rem;
-    border-radius: 0.25rem;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
     position: relative;
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 3rem;
+    height: 3rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .sound-toggle:hover {
-    transform: scale(1.1);
-    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sound-toggle:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
 }
 
-/* Cross overlay when audio is disabled */
+/* Enhanced X overlay when audio is disabled */
 .sound-toggle.audio-disabled::after {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 120%;
-    height: 2px;
-    background: #f56565;
+    width: 150%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff4757, #ff3742);
     transform: translate(-50%, -50%) rotate(45deg);
-    z-index: 1;
-    border-radius: 1px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(255, 71, 87, 0.4);
 }
 
 .sound-toggle.audio-disabled::before {
@@ -136,19 +139,25 @@ h1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 120%;
-    height: 2px;
-    background: #f56565;
+    width: 150%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff4757, #ff3742);
     transform: translate(-50%, -50%) rotate(-45deg);
-    z-index: 1;
-    border-radius: 1px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(255, 71, 87, 0.4);
 }
 
-/* Dim the icon when audio is disabled */
+/* Dim and change color when audio is disabled */
 .sound-toggle.audio-disabled {
-    opacity: 0.6;
-    color: #a0aec0;
+    background: rgba(255, 71, 87, 0.1);
+    border-color: rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+}
+
+.sound-toggle.audio-disabled:hover {
+    background: rgba(255, 71, 87, 0.15);
+    transform: scale(1.05);
 }
 
 #gameCanvas {

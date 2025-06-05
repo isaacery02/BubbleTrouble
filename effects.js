@@ -47,17 +47,21 @@ function toggleSound() {
     soundEnabled = !soundEnabled;
     const soundToggle = document.getElementById('soundToggle');
     
-    if (soundEnabled) {
-        soundToggle.textContent = '🔊';
-        soundToggle.classList.remove('audio-disabled');
-        console.log('Sound enabled');
-        // Load sounds when enabled
-        initializeSounds();
-    } else {
-        soundToggle.textContent = '🔇';
-        soundToggle.classList.add('audio-disabled');
-        console.log('Sound disabled');
+    if (soundToggle) {
+        if (soundEnabled) {
+            soundToggle.textContent = '🔊';
+            soundToggle.classList.remove('audio-disabled');
+            console.log('Sound enabled');
+            // Load sounds when enabled
+            initializeSounds();
+        } else {
+            soundToggle.textContent = '🔇';
+            soundToggle.classList.add('audio-disabled');
+            console.log('Sound disabled');
+        }
     }
+    
+    return soundEnabled; // Return the current state
 }
 
 function initializeSounds() {
@@ -129,5 +133,25 @@ function drawParticles() {
 if (soundEnabled) {
     initializeSounds();
 }
+
+function initializeSoundToggle() {
+    const soundToggle = document.getElementById('soundToggle');
+    if (soundToggle) {
+        // Just add the click listener, let toggleSound handle the rest
+        soundToggle.addEventListener('click', toggleSound);
+        
+        // Set initial state
+        if (soundEnabled) {
+            soundToggle.textContent = '🔊';
+            soundToggle.classList.remove('audio-disabled');
+        } else {
+            soundToggle.textContent = '🔇';
+            soundToggle.classList.add('audio-disabled');
+        }
+    }
+}
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', initializeSoundToggle);
 
 console.log("=== EFFECTS.JS LOADED ===");

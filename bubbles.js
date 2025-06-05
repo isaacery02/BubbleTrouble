@@ -1,28 +1,62 @@
 // Bubble management system
 
+function resetBubbleSpeed() {
+    // Reset BUBBLE_SPEED to the unchanging BUBBLE_BASE_SPEED
+    if (typeof BUBBLE_BASE_SPEED !== 'undefined') {
+        BUBBLE_SPEED = BUBBLE_BASE_SPEED; 
+    } else {
+        BUBBLE_SPEED = 2; // Fallback if BUBBLE_BASE_SPEED is somehow undefined
+    }
+
+    // Reset multiplier
+    if (typeof bubbleSpeedMultiplier !== 'undefined') {
+        bubbleSpeedMultiplier = 1.0;
+    } else {
+        bubbleSpeedMultiplier = 1.0; // Fallback
+    }
+
+    // IMPORTANT: If bubbleGravity is 'let' and can change, reset it here too.
+    // If bubbleGravity is 'const' in constants.js, this line is not needed.
+    // if (typeof bubbleGravity !== 'undefined' && typeof ORIGINAL_BUBBLE_GRAVITY !== 'undefined') { // Assuming ORIGINAL_BUBBLE_GRAVITY = 0.08
+    //     bubbleGravity = ORIGINAL_BUBBLE_GRAVITY;
+    // } else if (typeof bubbleGravity !== 'undefined') {
+    //     bubbleGravity = 0.08; // Fallback
+    // }
+
+    console.log('Global bubble speed variables reset. BUBBLE_SPEED:', BUBBLE_SPEED, 'Multiplier:', bubbleSpeedMultiplier);
+}
+
 class Bubble {
-    constructor(x, y, radius, speed) {
+    constructor(x, y, radius, speed) { // The 'speed' parameter will now be effectively ignored for dx/dy calculation
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.baseSpeed = speed;
         
-        // Much stronger initial velocity
-        this.dx = (Math.random() - 0.5) * 6; // Increased horizontal variation
-        this.dy = -Math.random() * 4 - 2; // Always start with strong upward velocity
-        
-        // Visual properties
+        // --- MODIFICATION START ---
+        // Directly use BUBBLE_BASE_SPEED from the global scope for initial velocity calculations.
+        // This ensures that regardless of what 'speed' is passed, or what global BUBBLE_SPEED might be,
+        // the initial dx/dy are based on the original constant BUBBLE_BASE_SPEED.
+        const initialCalculationSpeed = (typeof BUBBLE_BASE_SPEED !== 'undefined') ? BUBBLE_BASE_SPEED : 2; // Default to 2 if undefined
+
+        // You can still store the passed 'speed' if it's used for other logic,
+        // but it won't affect the initial dx/dy here.
+        this.currentBubbleSpeed = speed; 
+
+        this.dx = (Math.random() - 0.5) * initialCalculationSpeed * 3; 
+        this.dy = -Math.random() * initialCalculationSpeed * 1.5 - (initialCalculationSpeed * 0.5);
+        // --- MODIFICATION END ---
+
+        // The rest of your constructor remains the same
         this.color = this.getColorForSize(radius);
         this.pulsePhase = Math.random() * Math.PI * 2;
-        
-        // Physics properties
         this.bounces = 0;
         this.lastBounceTime = 0;
     }
     
     update() {
         // Apply gravity
-        this.dy += bubbleGravity;
+        // Ensure bubbleGravity is a const or also reset if it's a let
+        this.dy += bubbleGravity; 
         
         // Update position
         this.x += this.dx;
@@ -441,11 +475,29 @@ function bubbleCollidesWithObstacle(bubble, obstacle) {
 // Add this function to bubbles.js to reset bubble speeds
 
 function resetBubbleSpeed() {
-    // Reset all bubble speed variables to initial values
-    BUBBLE_SPEED = BUBBLE_BASE_SPEED;
-    bubbleSpeedMultiplier = 1.0;
-    
-    console.log('Bubble speeds reset to initial values');
+    // Reset BUBBLE_SPEED to the unchanging BUBBLE_BASE_SPEED
+    if (typeof BUBBLE_BASE_SPEED !== 'undefined') {
+        BUBBLE_SPEED = BUBBLE_BASE_SPEED; 
+    } else {
+        BUBBLE_SPEED = 2; // Fallback if BUBBLE_BASE_SPEED is somehow undefined
+    }
+
+    // Reset multiplier
+    if (typeof bubbleSpeedMultiplier !== 'undefined') {
+        bubbleSpeedMultiplier = 1.0;
+    } else {
+        bubbleSpeedMultiplier = 1.0; // Fallback
+    }
+
+    // IMPORTANT: If bubbleGravity is 'let' and can change, reset it here too.
+    // If bubbleGravity is 'const' in constants.js, this line is not needed.
+    // if (typeof bubbleGravity !== 'undefined' && typeof ORIGINAL_BUBBLE_GRAVITY !== 'undefined') { // Assuming ORIGINAL_BUBBLE_GRAVITY = 0.08
+    //     bubbleGravity = ORIGINAL_BUBBLE_GRAVITY;
+    // } else if (typeof bubbleGravity !== 'undefined') {
+    //     bubbleGravity = 0.08; // Fallback
+    // }
+
+    console.log('Global bubble speed variables reset. BUBBLE_SPEED:', BUBBLE_SPEED, 'Multiplier:', bubbleSpeedMultiplier);
 }
 
 function setBubbleSpeedForLevel(level) {

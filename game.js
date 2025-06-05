@@ -170,31 +170,38 @@ function showGameOverMessage() {
 function startNewGame() {
     console.log('Starting new game...');
     
-    // Reset game state
+    // 1. RESET CORE SPEED VARIABLES ABSOLUTELY FIRST
+    if (typeof resetBubbleSpeed === 'function') {
+        resetBubbleSpeed(); 
+    } else {
+        console.error("CRITICAL: resetBubbleSpeed function is not defined!");
+        // Manual fallback for critical resets if function is missing
+        if (typeof BUBBLE_BASE_SPEED !== 'undefined') BUBBLE_SPEED = BUBBLE_BASE_SPEED; else BUBBLE_SPEED = 2;
+        if (typeof bubbleSpeedMultiplier !== 'undefined') bubbleSpeedMultiplier = 1.0; else bubbleSpeedMultiplier = 1.0;
+        // if (typeof bubbleGravity !== 'undefined') bubbleGravity = 0.08; // If bubbleGravity is 'let'
+    }
+
+    // 2. Reset game state
     gameRunning = true;
     gamePaused = false;
     gameOver = false;
     levelTransitioning = false;
-    currentLevel = 1; // Reset to level 1
+    currentLevel = 1; // Crucial for getLevelConfig to fetch level 1 settings
     
-    // Reset bubble speeds FIRST
-    if (typeof resetBubbleSpeed === 'function') {
-        resetBubbleSpeed();
-    }
-    
-    // Reset both players
+    // 3. Reset players (positions, scores, lives, etc.)
     resetPlayers();
     
-    // Start level 1 - use startLevel instead of loadLevel
+    // 4. Start level 1, which will call initializeBubbles
+    // initializeBubbles should use getLevelConfig(currentLevel)
+    // getLevelConfig(1) should return a speed based on BUBBLE_BASE_SPEED
     if (typeof startLevel === 'function') {
-        startLevel(1);
+        startLevel(1); 
     } else {
-        console.error('startLevel function not found!');
-        // Fallback: initialize level directly
-        initializeLevel();
+        console.error('startLevel function not found! Attempting direct initializeLevel.');
+        initializeLevel(); // Fallback
     }
     
-    console.log('New game started');
+    console.log('New game started. Initial BUBBLE_SPEED should be based on BUBBLE_BASE_SPEED.');
 }
 
 // Helper functions
@@ -226,7 +233,19 @@ function resetPlayers() {
     player1.score = 0;
     player1.active = true;
     player1.projectiles = [];
-    
+    if (typeof PLAYER_SPEED !== 'undefined') { // Ensure PLAYER_SPEED is defined
+        player1.speed = PLAYER_SPEED; // Reset player speed
+    }
+    player1.dx = 0; // Reset horizontal movement
+    // Reset any other player-specific properties that might affect speed or state
+    player1.activePowerUp = null;
+    player1.powerUpTimer = null;
+    player1.powerUpEndTime = null;
+    player1.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
+    player1.shootCooldown = 500; // Or a default player shoot cooldown constant
+    player1.hasShield = false;
+    player1.invincible = false;
+
     // Reset player 2
     player2.x = canvas.width / 4;
     player2.y = canvas.height - 40;
@@ -234,6 +253,20 @@ function resetPlayers() {
     player2.score = 0;
     player2.active = true;
     player2.projectiles = [];
+    if (typeof PLAYER_SPEED !== 'undefined') { // Ensure PLAYER_SPEED is defined
+        player2.speed = PLAYER_SPEED; // Reset player speed
+    }
+    player2.dx = 0; // Reset horizontal movement
+    // Reset any other player-specific properties for player 2
+    player2.activePowerUp = null;
+    player2.powerUpTimer = null;
+    player2.powerUpEndTime = null;
+    player2.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
+    player2.shootCooldown = 500; // Or a default player shoot cooldown constant
+    player2.hasShield = false;
+    player2.invincible = false;
+
+    console.log("Players reset. Player 1 speed:", player1.speed, "Player 2 speed:", player2.speed);
 }
 
 console.log("=== GAME.JS FULLY LOADED ===");

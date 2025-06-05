@@ -19,23 +19,22 @@ let particles = [];
 let obstacles = [];
 
 // ========== BUBBLE CONSTANTS ==========
-const BUBBLE_BASE_SPEED = 2;        // Initial base speed
-const BUBBLE_MIN_SPEED = 1;         // Minimum speed
-const BUBBLE_MAX_SPEED = 6;         // Maximum speed
-let BUBBLE_SPEED = BUBBLE_BASE_SPEED; // Current speed (can be modified)
-let bubbleSpeedMultiplier = 1.0;     // Speed multiplier (resets each game)
+const BUBBLE_BASE_SPEED = 2;        // THIS SHOULD BE CONST
+let BUBBLE_SPEED = BUBBLE_BASE_SPEED; // This is 'let', reset by resetBubbleSpeed()
+let bubbleSpeedMultiplier = 1.0;    // This is 'let', reset by resetBubbleSpeed()
 
 // ========== PHYSICS CONSTANTS ==========
-const bubbleGravity = 0.08; // Reduced gravity for longer airtime
-const bubbleBounceFactor = 0.92; // Increased bounce retention for longer bouncing
+const bubbleGravity = 0.08;
+const bubbleBounceFactor = 0.92; // <--- ADD THIS LINE
+                                    // If it's 'let' and changes, it MUST be reset in startNewGame or resetBubbleSpeed
 
 // ========== PLAYER CONSTANTS ==========
-const PLAYER_SPEED = 5;
+const PLAYER_SPEED = 5;             // THIS SHOULD BE CONST
 const PLAYER_WIDTH = 30;
 const PLAYER_HEIGHT = 30;
 
 // ========== PROJECTILE CONSTANTS ==========
-const PROJECTILE_SPEED = 8;
+const PROJECTILE_SPEED = 8;         // THIS SHOULD BE CONST
 const PROJECTILE_WIDTH = 4;
 const PROJECTILE_HEIGHT = 20;
 const MAX_PROJECTILES_PER_PLAYER = 3; // Default limit

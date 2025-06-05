@@ -18,6 +18,13 @@ let powerUps = [];
 let particles = [];
 let obstacles = [];
 
+// ========== BUBBLE CONSTANTS ==========
+const BUBBLE_BASE_SPEED = 2;        // Initial base speed
+const BUBBLE_MIN_SPEED = 1;         // Minimum speed
+const BUBBLE_MAX_SPEED = 6;         // Maximum speed
+let BUBBLE_SPEED = BUBBLE_BASE_SPEED; // Current speed (can be modified)
+let bubbleSpeedMultiplier = 1.0;     // Speed multiplier (resets each game)
+
 // ========== PHYSICS CONSTANTS ==========
 const bubbleGravity = 0.08; // Reduced gravity for longer airtime
 const bubbleBounceFactor = 0.92; // Increased bounce retention for longer bouncing

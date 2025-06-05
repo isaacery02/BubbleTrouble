@@ -438,4 +438,22 @@ function bubbleCollidesWithObstacle(bubble, obstacle) {
            bubbleTop < obstacleBottom;
 }
 
+// Add this function to bubbles.js to reset bubble speeds
+
+function resetBubbleSpeed() {
+    // Reset all bubble speed variables to initial values
+    BUBBLE_SPEED = BUBBLE_BASE_SPEED;
+    bubbleSpeedMultiplier = 1.0;
+    
+    console.log('Bubble speeds reset to initial values');
+}
+
+function setBubbleSpeedForLevel(level) {
+    // Calculate level-based speed increase (starts fresh each game)
+    const levelBonus = (level - 1) * 0.3; // Gradual increase per level
+    BUBBLE_SPEED = BUBBLE_BASE_SPEED + levelBonus;
+    
+    console.log(`Level ${level} bubble speed set to: ${BUBBLE_SPEED}`);
+}
+
 console.log("=== BUBBLES.JS LOADED ===");

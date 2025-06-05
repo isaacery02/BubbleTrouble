@@ -166,8 +166,13 @@ function startLevel(level) {
         return;
     }
     
-    // Update level display
-    document.getElementById('level').textContent = currentLevel;
+    // Update level display - ADD SAFETY CHECK
+    const levelElement = document.getElementById('level');
+    if (levelElement) {
+        levelElement.textContent = currentLevel;
+    } else {
+        console.warn('Level display element not found - skipping UI update');
+    }
     
     // Clear existing game objects
     bubbles = [];
@@ -177,7 +182,9 @@ function startLevel(level) {
     
     // Reset player projectiles
     player1.projectiles = [];
-    player2.projectiles = [];
+    if (player2) {
+        player2.projectiles = [];
+    }
     
     // Initialize level
     if (typeof initializeObstacles === 'function') {
@@ -188,6 +195,8 @@ function startLevel(level) {
     // Resume game
     gameRunning = true;
     gamePaused = false;
+    
+    console.log(`Level ${currentLevel} started with ${bubbles.length} bubbles`);
 }
 
 console.log("=== LEVELS.JS LOADED ===");

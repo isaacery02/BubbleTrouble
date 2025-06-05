@@ -1,58 +1,79 @@
-// Projectile management
+// Projectile system
 
-function shootProjectile(player) {
-    // Check if player already has maximum projectiles
-    if (player.projectiles.length >= MAX_PROJECTILES_PER_PLAYER) {
-        return; // Don't shoot if at limit
+function shootProjectile(playerObj) {
+    const currentTime = Date.now();
+    
+    // Check cooldown
+    if (currentTime - playerObj.lastShotTime < playerObj.shootCooldown) {
+        return;
     }
     
-    player.projectiles.push({
-        x: player.x + player.width / 2 - player.currentProjectileWidth / 2,
-        y: player.y,
-        width: player.currentProjectileWidth,
-        height: PROJECTILE_HEIGHT,
-        dy: PROJECTILE_SPEED
-    });
-    player.lastShotTime = Date.now();
-    playSound('shoot');
-}
-
-function updateProjectilesForAllPlayers() {
-    players.forEach(player => {
-        updateProjectilesForPlayer(player.projectiles, player);
-    });
-}
-
-function updateProjectilesForPlayer(projectilesArray, playerObj) {
-    for (let i = projectilesArray.length - 1; i >= 0; i--) {
-        const p = projectilesArray[i];
-        p.y -= p.dy;
-
-        // Remove if off screen
-        if (p.y < 0) {
-            projectilesArray.splice(i, 1);
-        }
+    // Check projectile limit (use player's current max projectiles)
+    const maxProjectiles = playerObj.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
+    if (playerObj.projectiles.length >= maxProjectiles) {
+        return;
     }
+    
+    // Create projectile shooting UPWARD
+    const projectile = {
+        x: playerObj.x + playerObj.width / 2 - playerObj.currentProjectileWidth / 2,
+        y: playerObj.y,
+        width: playerObj.currentProjectileWidth,
+        height: PROJECTILE_HEIGHT,
+        dy: -PROJECTILE_SPEED, // NEGATIVE for upward movement
+        playerId: playerObj.id
+    };
+    
+    playerObj.projectiles.push(projectile);
+    playerObj.lastShotTime = currentTime;
+    
+    // Play shoot sound
+    if (typeof playSound === 'function') {
+        playSound('shoot');
+    }
+    
+    console.log(`Player ${playerObj.id} shot projectile upward. Total: ${playerObj.projectiles.length}/${maxProjectiles}`);
 }
 
-function drawProjectilesForAllPlayers() {
-    players.forEach(player => {
-        drawProjectilesForPlayer(player.projectiles, player.projectileColor);
-    });
-}
-
-function drawProjectilesForPlayer(projectilesArray, color) {
-    projectilesArray.forEach(p => {
-        ctx.fillStyle = color;
-        ctx.fillRect(p.x, p.y, p.width, p.height);
-    });
-}
-
-// Main update and draw functions for projectiles
 function updateProjectiles() {
-    updateProjectilesForAllPlayers();
+    players.forEach(playerObj => {
+        for (let i = playerObj.projectiles.length - 1; i >= 0; i--) {
+            const projectile = playerObj.projectiles[i];
+            
+            // Move projectile upward
+            projectile.y += projectile.dy;
+            
+            // Remove projectile if it goes off screen
+            if (projectile.y + projectile.height < 0) {
+                playerObj.projectiles.splice(i, 1);
+                continue;
+            }
+            
+            // Check collision with obstacles
+            if (typeof checkProjectileObstacleCollision === 'function') {
+                if (checkProjectileObstacleCollision(projectile)) {
+                    playerObj.projectiles.splice(i, 1);
+                    continue;
+                }
+            }
+        }
+    });
 }
 
 function drawProjectiles() {
-    drawProjectilesForAllPlayers();
+    players.forEach(playerObj => {
+        playerObj.projectiles.forEach(projectile => {
+            // Draw projectile as a vertical line/rectangle
+            ctx.fillStyle = playerObj.color;
+            ctx.fillRect(projectile.x, projectile.y, projectile.width, projectile.height);
+            
+            // Add glow effect
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = playerObj.color;
+            ctx.fillRect(projectile.x, projectile.y, projectile.width, projectile.height);
+            ctx.shadowBlur = 0;
+        });
+    });
 }
+
+console.log("=== PROJECTILES.JS LOADED ===");

@@ -1,127 +1,171 @@
 // Power-up system
 
-const powerUpTypes = ['WIDE_SHOT', 'RAPID_FIRE', 'SHIELD'];
-
 class PowerUp {
     constructor(x, y, type) {
         this.x = x;
         this.y = y;
-        this.width = 20;
-        this.height = 20;
-        this.type = type || powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        this.width = 30;
+        this.height = 30;
+        this.type = type;
         this.dy = 2; // Fall speed
-        this.color = this.getColor();
-        this.lifetime = 10000; // 10 seconds
-        this.created = Date.now();
+        this.lifeTime = 10000; // 10 seconds before disappearing
+        this.createdAt = Date.now();
+        this.color = this.getColorForType(type);
     }
 
-    getColor() {
-        switch (this.type) {
-            case 'WIDE_SHOT': return '#f6e05e';
-            case 'RAPID_FIRE': return '#f093fb';
-            case 'SHIELD': return '#4ecdc4';
-            default: return '#white';
+    getColorForType(type) {
+        switch (type) {
+            case 'rapid_fire': return '#ff6b6b';
+            case 'wide_shot': return '#4ecdc4';
+            case 'shield': return '#45b7d1';
+            case 'extra_life': return '#f9ca24';
+            default: return '#ffffff';
         }
     }
 
     update() {
+        // Fall down
         this.y += this.dy;
         
-        // Remove if fallen off screen or expired
-        if (this.y > canvas.height || Date.now() - this.created > this.lifetime) {
+        // Remove if off screen or expired
+        if (this.y > canvas.height || Date.now() - this.createdAt > this.lifeTime) {
             return false; // Mark for removal
         }
-        return true; // Keep
+        
+        return true; // Keep alive
     }
 
     draw() {
+        // Draw power-up icon
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
-        // Draw icon based on type
-        ctx.fillStyle = 'black';
+        // Add glow effect
+        ctx.save();
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
+        
+        // Draw type indicator
+        ctx.fillStyle = 'white';
         ctx.font = '12px Arial';
         ctx.textAlign = 'center';
         
-        let icon = '';
+        let symbol = '';
         switch (this.type) {
-            case 'WIDE_SHOT': icon = 'W'; break;
-            case 'RAPID_FIRE': icon = 'R'; break;
-            case 'SHIELD': icon = 'S'; break;
+            case 'rapid_fire': symbol = 'R'; break;
+            case 'wide_shot': symbol = 'W'; break;
+            case 'shield': symbol = 'S'; break;
+            case 'extra_life': symbol = '+'; break;
         }
         
-        ctx.fillText(icon, this.x + this.width/2, this.y + this.height/2 + 4);
+        ctx.fillText(symbol, this.x + this.width/2, this.y + this.height/2 + 4);
     }
 }
 
-function createPowerUp(x, y, type) {
-    if (typeof powerUps !== 'undefined') {
-        const powerUp = new PowerUp(x, y, type);
-        powerUps.push(powerUp);
-        console.log(`Created power-up: ${powerUp.type} at (${x}, ${y})`);
-    }
+function createPowerUp(x, y) {
+    const types = ['rapid_fire', 'wide_shot', 'shield', 'extra_life'];
+    const randomType = types[Math.floor(Math.random() * types.length)];
+    const powerUp = new PowerUp(x, y, randomType);
+    powerUps.push(powerUp);
+    console.log(`Created ${randomType} power-up at (${x}, ${y})`);
 }
 
 function updatePowerUps() {
-    if (typeof powerUps !== 'undefined') {
-        for (let i = powerUps.length - 1; i >= 0; i--) {
-            if (!powerUps[i].update()) {
-                powerUps.splice(i, 1);
-            }
+    for (let i = powerUps.length - 1; i >= 0; i--) {
+        if (!powerUps[i].update()) {
+            powerUps.splice(i, 1); // Remove expired power-ups
         }
     }
 }
 
 function drawPowerUps() {
-    if (typeof powerUps !== 'undefined') {
-        powerUps.forEach(powerUp => powerUp.draw());
-    }
-}
-
-function applyPowerUp(playerObj, type) {
-    console.log(`Applying power-up ${type} to player ${playerObj.id}`);
-    
-    // Remove existing power-up
-    removePowerUp(playerObj);
-    
-    playerObj.activePowerUp = {
-        type: type,
-        endTime: Date.now() + POWER_UP_DURATION
-    };
-    
-    switch (type) {
-        case 'WIDE_SHOT':
-            playerObj.currentProjectileWidth = PROJECTILE_WIDTH * 3;
-            break;
-        case 'RAPID_FIRE':
-            playerObj.shootCooldown = 150;
-            break;
-        case 'SHIELD':
-            playerObj.hasShield = true;
-            break;
-    }
-    
-    playSound('powerup');
-}
-
-function removePowerUp(playerObj) {
-    if (playerObj.activePowerUp) {
-        console.log(`Removing power-up ${playerObj.activePowerUp.type} from player ${playerObj.id}`);
-        
-        // Reset player stats
-        playerObj.currentProjectileWidth = PROJECTILE_WIDTH;
-        playerObj.shootCooldown = 500;
-        playerObj.hasShield = false;
-        playerObj.activePowerUp = null;
-    }
+    powerUps.forEach(powerUp => powerUp.draw());
 }
 
 function updatePlayerPowerUps() {
+    const currentTime = Date.now();
+    
     players.forEach(playerObj => {
-        if (playerObj.activePowerUp && Date.now() > playerObj.activePowerUp.endTime) {
-            removePowerUp(playerObj);
+        // Check if power-up duration has expired
+        if (playerObj.activePowerUp && playerObj.powerUpEndTime && currentTime > playerObj.powerUpEndTime) {
+            console.log(`Player ${playerObj.id} power-up ${playerObj.activePowerUp} expired`);
+            
+            // Reset to defaults
+            playerObj.activePowerUp = null;
+            playerObj.currentProjectileWidth = PROJECTILE_WIDTH;
+            playerObj.shootCooldown = 500;
+            playerObj.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
+            playerObj.hasShield = false;
+            playerObj.powerUpEndTime = null;
         }
     });
+}
+
+function applyPowerUp(playerObj, type) {
+    console.log(`Applying ${type} power-up to Player ${playerObj.id}`);
+    
+    // Set the power-up
+    playerObj.activePowerUp = type;
+    
+    switch (type) {
+        case 'rapid_fire':
+            playerObj.shootCooldown = 100;
+            playerObj.maxProjectiles = RAPID_FIRE_MAX_PROJECTILES;
+            playerObj.powerUpEndTime = Date.now() + POWER_UP_DURATION;
+            break;
+            
+        case 'wide_shot':
+            playerObj.currentProjectileWidth = PROJECTILE_WIDTH * 3;
+            playerObj.powerUpEndTime = Date.now() + POWER_UP_DURATION;
+            break;
+            
+        case 'shield':
+            playerObj.hasShield = true;
+            playerObj.powerUpEndTime = Date.now() + POWER_UP_DURATION;
+            break;
+            
+        case 'extra_life':
+            playerObj.lives++;
+            playerObj.activePowerUp = null; // Instant effect, no duration
+            playerObj.powerUpEndTime = null;
+            console.log(`Player ${playerObj.id} gained extra life! Lives: ${playerObj.lives}`);
+            return; // Don't set timer for instant effects
+    }
+    
+    console.log(`Player ${playerObj.id} power-up ${type} will expire in ${POWER_UP_DURATION}ms`);
+    
+    // Play power-up sound
+    if (typeof playSound === 'function') {
+        playSound('powerup');
+    }
+}
+
+function checkPowerUpCollisions() {
+    players.forEach(playerObj => {
+        if (!playerObj.active) return;
+        
+        for (let i = powerUps.length - 1; i >= 0; i--) {
+            const powerUp = powerUps[i];
+            
+            if (playerCollidesWithPowerUp(playerObj, powerUp)) {
+                // Apply power-up effect
+                applyPowerUp(playerObj, powerUp.type);
+                
+                // Remove power-up
+                powerUps.splice(i, 1);
+                console.log(`Player ${playerObj.id} collected ${powerUp.type} power-up!`);
+            }
+        }
+    });
+}
+
+function playerCollidesWithPowerUp(playerObj, powerUp) {
+    return playerObj.x < powerUp.x + powerUp.width &&
+           playerObj.x + playerObj.width > powerUp.x &&
+           playerObj.y < powerUp.y + powerUp.height &&
+           playerObj.y + playerObj.height > powerUp.y;
 }
 
 console.log("=== POWERUPS.JS LOADED ===");

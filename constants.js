@@ -1,44 +1,102 @@
-// Game constants and shared variables
+// Game constants and global variables
 
-// Canvas and context (will be initialized in game.js)
-let canvas, ctx;
+// ========== CANVAS AND CONTEXT ==========
+let canvas;
+let ctx;
 
-// Game state variables
-let gameOver = false;
-let gameStarted = false;
+// ========== GAME STATE VARIABLES ==========
 let gameRunning = false;
 let gamePaused = false;
+let gameOver = false;
+let levelTransitioning = false;
+let currentLevel = 1;
+let levelStartTime = 0;
 
-// Projectile constants
-const MAX_PROJECTILES_PER_PLAYER = 3;
+// ========== GAME OBJECTS ARRAYS ==========
+let bubbles = [];
+let powerUps = [];
+let particles = [];
+let obstacles = [];
+
+// ========== PHYSICS CONSTANTS ==========
+const bubbleGravity = 0.15; // Reduced gravity for more airtime
+const bubbleBounceFactor = 0.9; // Higher bounce factor for more energy retention
+
+// ========== PLAYER CONSTANTS ==========
+const PLAYER_SPEED = 5;
+const PLAYER_WIDTH = 30;
+const PLAYER_HEIGHT = 30;
+
+// ========== PROJECTILE CONSTANTS ==========
 const PROJECTILE_SPEED = 8;
 const PROJECTILE_WIDTH = 4;
 const PROJECTILE_HEIGHT = 20;
+const MAX_PROJECTILES_PER_PLAYER = 3; // Default limit
+const RAPID_FIRE_MAX_PROJECTILES = 10; // Rapid fire limit
 
-// Power-up constants
-const POWER_UP_DURATION = 5000;
-const POWER_UP_DROP_CHANCE = 0.2;
+// ========== POWER-UP CONSTANTS ==========
+const POWER_UP_DURATION = 5000; // 5 seconds
+const POWER_UP_DROP_CHANCE = 0.3; // 30% chance
 
-// Bubble constants
-const bubbleGravity = 0.1;
-const bubbleBounceFactor = -0.98;
+// ========== OBSTACLE CONSTANTS ==========
+const OBSTACLE_WIDTH = 80;
+const OBSTACLE_HEIGHT = 20;
 
-// Obstacle constants
-const OBSTACLE_WIDTH = 60;
-const OBSTACLE_HEIGHT = 80;
+// ========== SOUND SYSTEM ==========
+let soundEnabled = true;
+let sounds = {}; // Sound objects storage
 
-// Level variables
-let currentLevel = 1;
-let levelStartTime = 0;
-let levelTransitioning = false;
+// ========== PLAYER OBJECTS ==========
+let player1 = {
+    id: 1,
+    x: 0,
+    y: 0,
+    width: PLAYER_WIDTH,
+    height: PLAYER_HEIGHT,
+    dx: 0,
+    speed: PLAYER_SPEED,
+    color: '#667eea',
+    score: 0,
+    lives: 3,
+    active: true,
+    projectiles: [],
+    lastShotTime: 0,
+    activePowerUp: null,
+    powerUpTimer: null,
+    powerUpEndTime: null,
+    currentProjectileWidth: PROJECTILE_WIDTH,
+    shootCooldown: 500,
+    maxProjectiles: MAX_PROJECTILES_PER_PLAYER,
+    hasShield: false,
+    invincible: false
+};
 
-// Game arrays
-let bubbles = [];
-const powerUps = [];
-const particles = [];
-let obstacles = []; // Add obstacles array
+let player2 = {
+    id: 2,
+    x: 0,
+    y: 0,
+    width: PLAYER_WIDTH,
+    height: PLAYER_HEIGHT,
+    dx: 0,
+    speed: PLAYER_SPEED,
+    color: '#f093fb',
+    score: 0,
+    lives: 3,
+    active: true,
+    projectiles: [],
+    lastShotTime: 0,
+    activePowerUp: null,
+    powerUpTimer: null,
+    powerUpEndTime: null,
+    currentProjectileWidth: PROJECTILE_WIDTH,
+    shootCooldown: 500,
+    maxProjectiles: MAX_PROJECTILES_PER_PLAYER,
+    hasShield: false,
+    invincible: false
+};
 
-// Input handling
-const keys = {};
+// ========== PLAYERS ARRAY ==========
+// Array for easier iteration over both players
+let players = [player1, player2];
 
 console.log("=== CONSTANTS.JS LOADED ===");

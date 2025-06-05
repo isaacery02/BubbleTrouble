@@ -79,24 +79,23 @@ class Obstacle {
     }
 }
 
-// Add this function to check if a position conflicts with obstacles
+// Add this function if it doesn't exist
 
 function checkObstacleConflict(x, y, radius) {
-    for (const obstacle of obstacles) {
+    if (typeof obstacles === 'undefined' || !obstacles.length) return false;
+    
+    return obstacles.some(obstacle => {
         // Check if bubble would overlap with obstacle
         const closestX = Math.max(obstacle.x, Math.min(x, obstacle.x + obstacle.width));
         const closestY = Math.max(obstacle.y, Math.min(y, obstacle.y + obstacle.height));
         
-        const distance = Math.sqrt((x - closestX) ** 2 + (y - closestY) ** 2);
+        const distance = Math.sqrt(
+            (x - closestX) * (x - closestX) + 
+            (y - closestY) * (y - closestY)
+        );
         
-        // Add some extra buffer space to prevent getting stuck
-        const bufferZone = radius + 30; // Extra space beyond bubble radius
-        
-        if (distance < bufferZone) {
-            return true; // Conflict detected
-        }
-    }
-    return false; // No conflict
+        return distance < radius + 5; // Add 5px buffer
+    });
 }
 
 function getRandomObstaclePosition() {

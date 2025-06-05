@@ -1,135 +1,159 @@
 // Collision detection system
 
-function detectCollisions() {
+function checkCollisions() {
+    // Check projectile-bubble collisions
     players.forEach(playerObj => {
-        if (!playerObj.active) return;
-
-        // Projectile vs Bubble collision
         for (let i = playerObj.projectiles.length - 1; i >= 0; i--) {
-            const p = playerObj.projectiles[i];
-            let projectileHit = false;
+            const projectile = playerObj.projectiles[i];
             
             for (let j = bubbles.length - 1; j >= 0; j--) {
-                const b = bubbles[j];
-                const closestX = Math.max(p.x, Math.min(b.x, p.x + p.width));
-                const closestY = Math.max(p.y, Math.min(b.y, p.y + p.height));
-                const distance = Math.sqrt((b.x - closestX) ** 2 + (b.y - closestY) ** 2);
-
-                if (distance < b.radius) {
-                    popBubble(b, j, playerObj);
+                const bubble = bubbles[j];
+                
+                if (projectileHitsBubble(projectile, bubble)) {
+                    // Remove projectile
                     playerObj.projectiles.splice(i, 1);
-                    projectileHit = true;
-                    break;
-                }
-            }
-            
-            if (projectileHit) break;
-        }
-    });
-
-    // Player vs Bubble collision
-    players.forEach(playerObj => {
-        if (!playerObj.active) return;
-
-        for (let i = bubbles.length - 1; i >= 0; i--) {
-            const b = bubbles[i];
-            const dx = Math.abs(playerObj.x + playerObj.width / 2 - b.x);
-            const dy = Math.abs(playerObj.y + playerObj.height / 2 - b.y);
-
-            if (dx < (playerObj.width / 2 + b.radius) && dy < (playerObj.height / 2 + b.radius)) {
-                const testX = Math.max(playerObj.x, Math.min(b.x, playerObj.x + playerObj.width));
-                const testY = Math.max(playerObj.y, Math.min(b.y, playerObj.y + playerObj.height));
-                const distance = Math.sqrt((b.x - testX) * (b.x - testX) + (b.y - testY) * (b.y - testY));
-
-                if (distance < b.radius) {
-                    console.log(`Player ${playerObj.id} hit by bubble! Lives before: ${playerObj.lives}`);
                     
-                    if (!playerObj.hasShield) {
-                        loseLife(playerObj);
-                        console.log(`Player ${playerObj.id} lives after: ${playerObj.lives}`);
-                    } else {
-                        console.log(`Player ${playerObj.id} protected by shield!`);
-                    }
-                    
-                    // Bubble bounce back
-                    b.dx *= -1;
-                    b.dy = -Math.abs(b.dy);
-                    b.x += b.dx * 5;
-                    b.y += b.dy * 5;
+                    // Handle bubble hit
+                    handleBubbleHit(bubble, j, playerObj);
+                    break; // Exit bubble loop since projectile is gone
                 }
             }
         }
     });
-
-    // Player vs Power-up collision (only if powerUps exist)
-    if (typeof powerUps !== 'undefined' && powerUps.length > 0) {
-        players.forEach(playerObj => {
-            if (!playerObj.active) return;
-
-            for (let i = powerUps.length - 1; i >= 0; i--) {
-                const pu = powerUps[i];
-
-                if (playerObj.x < pu.x + pu.width &&
-                    playerObj.x + playerObj.width > pu.x &&
-                    playerObj.y < pu.y + pu.height &&
-                    playerObj.y + playerObj.height > pu.y) {
-                    
-                    // Only apply power-up if the function exists
-                    if (typeof applyPowerUp === 'function') {
-                        applyPowerUp(playerObj, pu.type);
-                    }
-                    powerUps.splice(i, 1);
-                }
-            }
-        });
+    
+    // Check player-bubble collisions
+    detectCollisions();
+    
+    // Check power-up collisions
+    if (typeof checkPowerUpCollisions === 'function') {
+        checkPowerUpCollisions();
     }
 }
 
-function checkCollisions() {
-    detectCollisions();
+function detectCollisions() {
+    players.forEach(playerObj => {
+        if (!playerObj.active || playerObj.invincible) return; // Skip if invincible
+        
+        bubbles.forEach(bubble => {
+            if (playerCollidesWith(playerObj, bubble)) {
+                // Use handlePlayerHit instead of loseLife
+                handlePlayerHit(playerObj);
+            }
+        });
+    });
 }
 
-function popBubble(bubble, bubbleIndex, playerObj) {
-    console.log(`Bubble popped! Remaining bubbles: ${bubbles.length - 1}`);
+function playerCollidesWith(playerObj, bubble) {
+    const playerCenterX = playerObj.x + playerObj.width / 2;
+    const playerCenterY = playerObj.y + playerObj.height / 2;
     
-    // Create particle effects
-    createParticles(bubble.x, bubble.y, bubble.color, 12);
+    const dx = playerCenterX - bubble.x;
+    const dy = playerCenterY - bubble.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    return distance < (Math.min(playerObj.width, playerObj.height) / 2 + bubble.radius);
+}
+
+function projectileHitsBubble(projectile, bubble) {
+    const projectileCenterX = projectile.x + projectile.width / 2;
+    const projectileCenterY = projectile.y + projectile.height / 2;
+    
+    const dx = projectileCenterX - bubble.x;
+    const dy = projectileCenterY - bubble.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    return distance < bubble.radius + Math.max(projectile.width, projectile.height) / 2;
+}
+
+function handleBubbleHit(bubble, bubbleIndex, playerObj) {
+    // Award points
+    const points = Math.floor(100 / bubble.radius * 10);
+    playerObj.score += points;
+    
+    // Update score display
+    const scoreElement = document.getElementById(`score${playerObj.id}`);
+    if (scoreElement) {
+        scoreElement.textContent = playerObj.score;
+    }
+    
+    // Create particles
+    if (typeof createParticles === 'function') {
+        createParticles(bubble.x, bubble.y, bubble.color, 15);
+    }
     
     // Play pop sound
-    playSound('pop');
+    if (typeof playSound === 'function') {
+        playSound('pop');
+    }
     
-    // Add score to player
-    const scoreValue = Math.floor(1000 / bubble.radius * 10);
-    playerObj.score += scoreValue;
-    document.getElementById(`score${playerObj.id}`).textContent = playerObj.score;
-    
-    // Create smaller bubbles if this one is big enough
+    // Split bubble if large enough
     if (bubble.radius > 15) {
-        const newRadius = bubble.radius * 0.6;
+        const newRadius = bubble.radius / 2;
         const newSpeed = bubble.speed * 1.2;
         
         // Create two smaller bubbles
-        const bubble1 = new Bubble(bubble.x - 20, bubble.y, newRadius, newSpeed);
-        const bubble2 = new Bubble(bubble.x + 20, bubble.y, newRadius, newSpeed);
+        const bubble1 = new Bubble(
+            bubble.x - newRadius,
+            bubble.y,
+            newRadius,
+            newSpeed
+        );
+        bubble1.dx = -Math.abs(bubble.dx) - 1;
+        bubble1.dy = bubble.dy - 2;
         
-        bubble1.dx = -Math.abs(bubble.dx);
-        bubble2.dx = Math.abs(bubble.dx);
-        bubble1.dy = bubble.dy;
-        bubble2.dy = bubble.dy;
+        const bubble2 = new Bubble(
+            bubble.x + newRadius,
+            bubble.y,
+            newRadius,
+            newSpeed
+        );
+        bubble2.dx = Math.abs(bubble.dx) + 1;
+        bubble2.dy = bubble.dy - 2;
         
         bubbles.push(bubble1, bubble2);
-        console.log(`Split bubble into 2 smaller ones. Total bubbles: ${bubbles.length + 1}`);
+    }
+    
+    // Chance to drop power-up
+    if (Math.random() < POWER_UP_DROP_CHANCE) {
+        if (typeof createPowerUp === 'function') {
+            createPowerUp(bubble.x, bubble.y);
+        }
     }
     
     // Remove the original bubble
     bubbles.splice(bubbleIndex, 1);
     
-    // Only try to create power-up if the function exists
-    if (typeof createPowerUp === 'function' && Math.random() < POWER_UP_DROP_CHANCE) {
-        createPowerUp(bubble.x, bubble.y);
-    } else {
-        console.log('createPowerUp function not available, skipping power-up drop');
-    }
+    console.log(`Bubble popped! Player ${playerObj.id} scored ${points} points. Score: ${playerObj.score}`);
+}
+
+function checkPowerUpCollisions() {
+    if (typeof powerUps === 'undefined') return;
+    
+    players.forEach(playerObj => {
+        if (!playerObj.active) return;
+        
+        for (let i = powerUps.length - 1; i >= 0; i--) {
+            const powerUp = powerUps[i];
+            
+            if (playerCollidesWithPowerUp(playerObj, powerUp)) {
+                // Apply power-up effect
+                if (typeof applyPowerUp === 'function') {
+                    applyPowerUp(playerObj, powerUp.type);
+                }
+                
+                // Remove power-up
+                powerUps.splice(i, 1);
+                console.log(`Player ${playerObj.id} collected ${powerUp.type} power-up!`);
+            }
+        }
+    });
+}
+
+function playerCollidesWithPowerUp(playerObj, powerUp) {
+    return playerObj.x < powerUp.x + powerUp.width &&
+           playerObj.x + playerObj.width > powerUp.x &&
+           playerObj.y < powerUp.y + powerUp.height &&
+           playerObj.y + playerObj.height > powerUp.y;
 }
 
 console.log("=== COLLISION.JS LOADED ===");

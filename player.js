@@ -1,121 +1,125 @@
-// Player definitions and management
+// Player management and update functions
 
-// Player 1 variables
-const player1 = {
-    id: 1,
-    width: 60,
-    height: 20,
-    x: 0, // Will be set in startNewGame
-    y: 0,
-    dx: 0,
-    speed: 5,
-    score: 0,
-    lives: 3,
-    color: '#48bb78',
-    projectileColor: '#f6e05e',
-    projectiles: [],
-    lastShotTime: 0,
-    shootCooldown: 500,
-    currentProjectileWidth: PROJECTILE_WIDTH,
-    activePowerUp: null,
-    active: true
-};
-
-// Player 2 variables
-const player2 = {
-    id: 2,
-    width: 60,
-    height: 20,
-    x: 0, // Will be set in startNewGame
-    y: 0,
-    dx: 0,
-    speed: 5,
-    score: 0,
-    lives: 3,
-    color: '#ed8936',
-    projectileColor: '#63b3ed',
-    projectiles: [],
-    lastShotTime: 0,
-    shootCooldown: 500,
-    currentProjectileWidth: PROJECTILE_WIDTH,
-    activePowerUp: null,
-    active: true
-};
-
-const players = [player1, player2];
-
-// Draw player
-function drawPlayer(playerObj) {
-    if (!playerObj.active) return;
-
-    ctx.fillStyle = playerObj.color;
-    ctx.fillRect(playerObj.x, playerObj.y, playerObj.width, playerObj.height);
-    ctx.beginPath();
-    ctx.arc(playerObj.x + playerObj.width / 2, playerObj.y, playerObj.width / 4, 0, Math.PI * 2);
-    ctx.fillStyle = playerObj.color;
-    ctx.fill();
-    ctx.closePath();
+function updatePlayers() {
+    players.forEach(updatePlayer);
 }
 
-// Update player position
 function updatePlayer(playerObj) {
     if (!playerObj.active) return;
-
+    
+    // Update position
     playerObj.x += playerObj.dx;
-
-    // Wall detection
+    
+    // Keep player within canvas bounds
     if (playerObj.x < 0) {
         playerObj.x = 0;
-    }
-    if (playerObj.x + playerObj.width > canvas.width) {
+    } else if (playerObj.x + playerObj.width > canvas.width) {
         playerObj.x = canvas.width - playerObj.width;
     }
 }
 
-// Update and draw all players
-function updatePlayers() {
-    players.forEach(player => updatePlayer(player));
-}
-
 function drawPlayers() {
-    players.forEach(player => drawPlayer(player));
+    players.forEach(drawPlayer);
 }
 
-// Lose a life
-function loseLife(playerObj) {
-    console.log(`loseLife called for player ${playerObj.id}, current lives: ${playerObj.lives}`);
+function drawPlayer(playerObj) {
+    if (!playerObj.active) return;
     
-    // Play hit sound immediately when player gets hit
-    playSound('hit');
+    // Draw player body
+    ctx.fillStyle = playerObj.color;
+    
+    // Draw player with shield effect if active
+    if (playerObj.hasShield) {
+        // Draw shield glow
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#4ecdc4';
+        ctx.fillRect(playerObj.x, playerObj.y, playerObj.width, playerObj.height);
+        ctx.restore();
+        
+        // Draw shield border
+        ctx.strokeStyle = '#4ecdc4';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(playerObj.x - 2, playerObj.y - 2, playerObj.width + 4, playerObj.height + 4);
+    } else {
+        // Normal player drawing
+        ctx.fillRect(playerObj.x, playerObj.y, playerObj.width, playerObj.height);
+    }
+    
+    // Draw player number
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(playerObj.id.toString(), 
+        playerObj.x + playerObj.width / 2, 
+        playerObj.y + playerObj.height / 2 + 6);
+    
+    // Draw a small arrow on top to show direction
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.moveTo(playerObj.x + playerObj.width / 2, playerObj.y - 5);
+    ctx.lineTo(playerObj.x + playerObj.width / 2 - 5, playerObj.y - 15);
+    ctx.lineTo(playerObj.x + playerObj.width / 2 + 5, playerObj.y - 15);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function resetPlayerPositions() {
+    player1.x = canvas.width / 4 - PLAYER_WIDTH / 2;
+    player1.y = canvas.height - PLAYER_HEIGHT - 10;
+    player1.dx = 0;
+    
+    player2.x = canvas.width * 3 / 4 - PLAYER_WIDTH / 2;
+    player2.y = canvas.height - PLAYER_HEIGHT - 10;
+    player2.dx = 0;
+}
+
+function handlePlayerHit(playerObj) {
+    if (playerObj.hasShield) {
+        // Shield protects player
+        console.log(`Player ${playerObj.id} protected by shield!`);
+        return false; // No damage taken
+    }
+    
+    // Only reduce lives if player is active
+    if (!playerObj.active) return false;
     
     playerObj.lives--;
+    console.log(`Player ${playerObj.id} hit! Lives remaining: ${playerObj.lives}`);
     
-    // Update the HTML display
-    const livesElement = document.getElementById(`lives${playerObj.id}`);
-    if (livesElement) {
-        livesElement.textContent = playerObj.lives;
-        console.log(`Updated lives display for player ${playerObj.id}: ${playerObj.lives}`);
-    } else {
-        console.error(`Lives element not found: lives${playerObj.id}`);
+    // Create hit particles
+    if (typeof createParticles === 'function') {
+        createParticles(
+            playerObj.x + playerObj.width / 2,
+            playerObj.y + playerObj.height / 2,
+            '#ff6b6b',
+            12
+        );
     }
-
+    
+    // Play hit sound
+    if (typeof playSound === 'function') {
+        playSound('hit');
+    }
+    
+    // Check if player is out
     if (playerObj.lives <= 0) {
         playerObj.active = false;
-        playerObj.dx = 0;
+        console.log(`Player ${playerObj.id} is out!`);
+        
+        // Clear projectiles when player is out
         playerObj.projectiles = [];
-        removePowerUp(playerObj);
         
-        console.log(`Player ${playerObj.id} is out of lives`);
-        
-        // Don't immediately show game over - let checkGameOver() handle it
-        // This allows for proper score comparison and winner determination
-        
-    } else {
-        // Reset player position after losing a life
-        playerObj.x = canvas.width / 2 - playerObj.width / 2 + (playerObj.id === 1 ? -canvas.width / 4 : canvas.width / 4);
-        playerObj.y = canvas.height - playerObj.height - 10;
-        playerObj.dx = 0;
+        return true; // Player eliminated
     }
+    
+    // Give player brief invincibility
+    playerObj.invincible = true;
+    setTimeout(() => {
+        playerObj.invincible = false;
+    }, 1000); // 1 second of invincibility
+    
+    return false; // Player still active
 }
 
 console.log("=== PLAYER.JS LOADED ===");

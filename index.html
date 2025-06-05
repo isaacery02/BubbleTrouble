@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo's Bubble Trouble</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Changed from center to flex-start */
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 1rem; /* Add some top padding */
+            overflow: hidden;
+        }
+        
+        .panda-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            z-index: 10;
+            margin-top: 0; /* Ensure no top margin */
+        }
+        
+        .panda-header img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: block;
+            margin: 0 auto; /* Center the image */
+        }
+        
+        canvas {
+            background-color: #2d3748; /* Slightly lighter dark for canvas */
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+            display: block;
+            touch-action: none; /* Prevent default touch actions like scrolling */
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background-color: #2a4365; /* Dark blue container */
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.7);
+            margin-top: 0; /* Remove any top margin */
+        }
+        .game-info {
+            color: #e2e8f0;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 1rem;
+        }
+        .player-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .player-stats span {
+            font-weight: bold;
+        }
+        .level-info {
+            color: #e2e8f0;
+            font-size: 1.25rem;
+            align-self: center; /* Center the level display */
+            flex-grow: 1; /* Allows it to take available space */
+            text-align: center;
+        }
+        .controls-info {
+            color: #cbd5e0;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+        .message-box button {
+            background-color: #4299e1;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            cursor: pointer;
+            border: none;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease;
+        }
+        .message-box button:hover {
+            background-color: #3182ce;
+        }
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 20px;
+            z-index: 1000;
+        }
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(66, 153, 225, 0.8);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        .control-btn:active {
+            background-color: rgba(66, 153, 225, 1);
+            transform: scale(0.95);
+        }
+        .shoot-btn {
+            background-color: rgba(245, 101, 101, 0.8);
+        }
+        .shoot-btn:active {
+            background-color: rgba(245, 101, 101, 1);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .game-container {
+                width: 90%;
+                padding: 1rem;
+            }
+            .game-info {
+                flex-direction: column;
+                align-items: center;
+            }
+            .level-info {
+                margin: 0.5rem 0;
+            }
+            .controls-info {
+                font-size: 0.8rem;
+            }
+            .mobile-controls {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="panda-header">
+        <img src="media/panda.gif" alt="Panda Animation">
+    </div>
+    
+    <div class="game-container">
+        <div class="game-info">
+            <div class="player-stats">
+                <div>Player 1 Score: <span id="score1">0</span></div>
+                <div>Player 1 Lives: <span id="lives1">3</span></div>
+            </div>
+            <div class="level-info">
+                Level: <span id="level">1</span>
+            </div>
+            <div class="player-stats">
+                <div>Player 2 Score: <span id="score2">0</span></div>
+                <div>Player 2 Lives: <span id="lives2">3</span></div>
+            </div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div class="controls-info">
+            **Player 1:** Move with **Left/Right Arrow Keys**, Shoot with **Up Arrow Key**.
+            <br>
+            **Player 2:** Move with **A/D Keys**, Shoot with **W Key**.
+            <br>
+            On mobile, use the control buttons below.
+        </div>
+    </div>
+
+    <!-- Message box for game states -->
+    <div class="message-box" id="messageBox">
+        <div id="messageText">Welcome to Theo's Bubble Trouble!</div>
+        <button id="actionButton">Start Game</button>
+    </div>
+
+    <!-- Mobile controls -->
+    <div class="mobile-controls" id="mobileControls">
+        <button id="leftBtn" class="control-btn">←</button>
+        <button id="shootBtn" class="control-btn shoot-btn">🔥</button>
+        <button id="rightBtn" class="control-btn">→</button>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

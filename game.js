@@ -26,6 +26,7 @@ function setupGame() {
         'Start Game',
         () => {
             hideMessage();
+            if (typeof playSound === 'function') playSound('start'); // <-- Play start sound here
             startNewGame();
         }
     );
@@ -97,7 +98,7 @@ function checkGameOver() {
         gameRunning = false;
         gameOver = true;
         if (typeof resetPlayerPowerUps === 'function') resetPlayerPowerUps();
-        if (typeof playSound === 'function') playSound('gameover');
+        if (typeof playSound === 'function') playSound('gameover'); // <-- Play gameover sound here
         showGameOverMessage();
     }
 }

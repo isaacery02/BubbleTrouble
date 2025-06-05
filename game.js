@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
 function setupGame() {
     setupMobileControls();
     showMessage(
-        "Welcome to Theo's Bubble Trouble!\nReady to start?",
+        "Welcome to Ottos & Theo's Bubble Trouble!\nReady to start?",
         'Start Game',
         () => {
             hideMessage();

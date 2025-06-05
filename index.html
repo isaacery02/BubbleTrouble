@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theo's Bubble Trouble</title>
+    <title>Bubble Trouble</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15,7 +15,16 @@
     </div>
 
     <div class="game-container">
-        <h1>Theo's Bubble Trouble</h1>
+        <!-- Awesome Heading Start -->
+        <h1 class="awesome-heading">
+            <span class="theo">Theo</span>
+            <span class="and">&amp;</span>
+            <span class="otto">Otto's</span>
+            <span class="bubble">Bubble</span>
+            <span class="trouble">Trouble</span>
+            <span class="emoji">🎈🫧</span>
+        </h1>
+        <!-- Awesome Heading End -->
 
         <canvas id="gameCanvas" width="800" height="600"></canvas>
         
@@ -92,6 +101,22 @@
                         Gain one additional life instantly. No timer - permanent effect!
                     </div>
                 </div>
+
+                <div class="powerup-item">
+                    <div class="powerup-icon slow-bubbles">⏳</div>
+                    <div class="powerup-description">
+                        <strong>Slow Bubbles</strong>
+                        All bubbles move in slow motion for 5 seconds. Great for dodging and aiming!
+                    </div>
+                </div>
+
+                <div class="powerup-item">
+                    <div class="powerup-icon fast-bullets">F</div>
+                    <div class="powerup-description">
+                        <strong>Fast Bullets</strong>
+                        Your bullets travel 2x faster for 5 seconds. Perfect for hitting distant bubbles!
+                    </div>
+                </div>
             </div>
             <p class="powerup-note">Power-ups appear randomly when bubbles are popped. Collect them quickly before they disappear!</p>
         </div>
@@ -137,12 +162,12 @@
         <!-- Game info section with sound toggle -->
         <div class="game-info">
             <div class="player-stats">
-                <div>Lives: <span id="livesDisplay">3</span></div>
-                <div>Score: <span id="scoreDisplay">0</span></div>
+                <div>Made by Dad<span id="livesDisplay"></span></div>
+                <div>For Theo and Otto<span id="scoreDisplay"></span></div>
             </div>
             
             <div class="level-info">
-                <span>Level <span id="level">1</span></span>
+                <span>Disable Sound</span></span>
                 <!-- Add sound toggle button here -->
                 <button id="soundToggle" class="sound-toggle" title="Toggle Sound">
                     🔊
@@ -153,7 +178,7 @@
 
     <!-- Message box for game states -->
     <div class="message-box" id="messageBox">
-        <div id="messageText">Welcome to Theo's Bubble Trouble!</div>
+        <div id="messageText">Welcome to Otto & Theo's Bubble Trouble!</div>
         <button id="actionButton">Start Game</button>
     </div>
 

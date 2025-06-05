@@ -74,7 +74,8 @@ let player1 = {
     shootCooldown: 500,
     maxProjectiles: MAX_PROJECTILES_PER_PLAYER,
     hasShield: false,
-    invincible: false
+    invincible: false,
+    projectileSpeedMultiplier: 1
 };
 
 let player2 = {
@@ -98,7 +99,8 @@ let player2 = {
     shootCooldown: 500,
     maxProjectiles: MAX_PROJECTILES_PER_PLAYER,
     hasShield: false,
-    invincible: false
+    invincible: false,
+    projectileSpeedMultiplier: 1
 };
 
 // ========== PLAYERS ARRAY ==========

@@ -788,3 +788,50 @@ h1 {
         height: 3px;
     }
 }
+
+/* Add to style.css */
+.awesome-heading {
+    font-family: 'Inter', 'Comic Sans MS', cursive, sans-serif;
+    font-size: 2.8rem;
+    text-align: center;
+    margin: 0.5em 0 1em 0;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #ff6b6b 10%, #f9ca24 30%, #4ecdc4 60%, #b388ff 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    text-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 1px 0 #fff;
+}
+
+.awesome-heading .theo {
+    color: #ff6b6b;
+    font-weight: 700;
+    text-shadow: 0 2px 8px #ffb3b3;
+}
+.awesome-heading .and {
+    color: #222;
+    font-weight: 600;
+    margin: 0 0.3em;
+    font-size: 1.1em;
+}
+.awesome-heading .otto {
+    color: #4ecdc4;
+    font-weight: 700;
+    text-shadow: 0 2px 8px #b2f7ef;
+}
+.awesome-heading .bubble {
+    color: #b388ff;
+    font-weight: 700;
+    text-shadow: 0 2px 8px #e0c3fc;
+}
+.awesome-heading .trouble {
+    color: #f9ca24;
+    font-weight: 700;
+    text-shadow: 0 2px 8px #fff3b0;
+}
+.awesome-heading .emoji {
+    font-size: 1.2em;
+    margin-left: 0.3em;
+    vertical-align: middle;
+    filter: drop-shadow(0 2px 4px #fff);
+}

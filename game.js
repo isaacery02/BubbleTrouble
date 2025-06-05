@@ -6,9 +6,10 @@ ctx = canvas.getContext('2d');
 
 // Canvas management
 function resizeCanvas() {
-    canvas.width = Math.min(window.innerWidth * 0.98, 1000);
-    canvas.height = Math.min(window.innerHeight * 0.95, 800); // Increased max height
-    console.log("Canvas resized to:", canvas.width, "x", canvas.height);
+    // Fixed canvas size for consistent gameplay
+    canvas.width = 1000;
+    canvas.height = 800;
+    console.log("Canvas set to fixed size:", canvas.width, "x", canvas.height);
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -208,24 +209,11 @@ function resetPlayers() {
     console.log("Players reset. Player 1 speed:", player1.speed, "Player 2 speed:", player2.speed);
 }
 
-const backgroundImage = new Image();
-backgroundImage.src = 'media/your-castle.gif'; // Use your actual image file name
-
-function drawBackground() {
-    if (backgroundImage.complete) {
-        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-    } else {
-        backgroundImage.onload = () => {
-            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-        };
-    }
-}
-
 function initializeObstacles() {
     obstacles = [];
     const numObstacles = 3;
-    // Reasonable min/max scaling factors for width and height
-    const minScale = 0.2, maxScale = 0.5;
+    // Increased min/max scaling factors for larger obstacles
+    const minScale = 0.4, maxScale = 0.8; // Was 0.2-0.5, now 0.4-0.8
     // Array of fun colors for obstacles
     const colors = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#b388ff", "#f093fb", "#45b7d1", "#ffb300", "#fdcb6e"];
 
@@ -237,7 +225,7 @@ function initializeObstacles() {
         const scaledHeight = OBSTACLE_HEIGHT * heightScale;
 
         // Random x within canvas, leaving a margin so obstacles don't go offscreen
-        const margin = 40;
+        const margin = 60; // Increased margin for larger obstacles
         const x = Math.random() * (canvas.width - scaledWidth - margin * 2) + margin;
         // Random y within middle 60% of canvas height
         const y = Math.random() * (canvas.height * 0.6 - scaledHeight) + canvas.height * 0.2;
@@ -255,9 +243,14 @@ function initializeObstacles() {
                 ctx.save();
                 ctx.fillStyle = this.color;
                 ctx.strokeStyle = "#fff";
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 3; // Thicker border for larger obstacles
                 ctx.fillRect(this.x, this.y, this.width, this.height);
                 ctx.strokeRect(this.x, this.y, this.width, this.height);
+                
+                // Add a subtle inner glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
                 ctx.restore();
             }
         });

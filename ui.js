@@ -40,9 +40,14 @@ function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+// Add the missing drawUI function
+function drawUI() {
+    drawLevelInfo();
+}
+
 function drawLevelInfo() {
     // Get level configuration
-    const config = getLevelConfig(currentLevel);
+    const config = typeof getLevelConfig === 'function' ? getLevelConfig(currentLevel) : { speed: 1, size: 20 };
     
     // Draw level progress indicator (center top)
     ctx.fillStyle = '#ffffff';
@@ -83,23 +88,21 @@ function drawLevelInfo() {
     const p2Max = player2.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
     ctx.fillText(`P2 Bullets: ${player2.projectiles.length}/${p2Max}`, 10, 85);
     
-    // Show active power-ups with remaining time (more accurate)
+    // Show active power-ups with remaining time
     if (player1.activePowerUp && player1.powerUpEndTime) {
         const timeLeft = Math.max(0, Math.ceil((player1.powerUpEndTime - Date.now()) / 1000));
         ctx.fillStyle = '#34d399';
         
-        // Show different colors based on power-up type
         if (player1.activePowerUp === 'shield') {
-            ctx.fillStyle = '#60a5fa'; // Blue for shield
+            ctx.fillStyle = '#60a5fa';
         } else if (player1.activePowerUp === 'rapid_fire') {
-            ctx.fillStyle = '#f87171'; // Red for rapid fire
+            ctx.fillStyle = '#f87171';
         } else if (player1.activePowerUp === 'wide_shot') {
-            ctx.fillStyle = '#34d399'; // Green for wide shot
+            ctx.fillStyle = '#34d399';
         }
         
         ctx.fillText(`P1 ${player1.activePowerUp.toUpperCase()}: ${timeLeft}s`, 10, 100);
         
-        // Debug shield status
         if (player1.activePowerUp === 'shield' && player1.hasShield) {
             ctx.fillStyle = '#60a5fa';
             ctx.fillText(`P1 SHIELD ACTIVE`, 10, 115);
@@ -109,19 +112,17 @@ function drawLevelInfo() {
     if (player2.activePowerUp && player2.powerUpEndTime) {
         const timeLeft = Math.max(0, Math.ceil((player2.powerUpEndTime - Date.now()) / 1000));
         
-        // Show different colors based on power-up type
         if (player2.activePowerUp === 'shield') {
-            ctx.fillStyle = '#60a5fa'; // Blue for shield
+            ctx.fillStyle = '#60a5fa';
         } else if (player2.activePowerUp === 'rapid_fire') {
-            ctx.fillStyle = '#f87171'; // Red for rapid fire
+            ctx.fillStyle = '#f87171';
         } else if (player2.activePowerUp === 'wide_shot') {
-            ctx.fillStyle = '#34d399'; // Green for wide shot
+            ctx.fillStyle = '#34d399';
         }
         
         const yPos = player1.activePowerUp ? 130 : 115;
         ctx.fillText(`P2 ${player2.activePowerUp.toUpperCase()}: ${timeLeft}s`, 10, yPos);
         
-        // Debug shield status
         if (player2.activePowerUp === 'shield' && player2.hasShield) {
             ctx.fillStyle = '#60a5fa';
             ctx.fillText(`P2 SHIELD ACTIVE`, 10, yPos + 15);
@@ -134,26 +135,31 @@ function drawLevelInfo() {
     ctx.fillText(`Power-ups: ${powerUps.length}`, 10, powerUpY);
 }
 
+const backgroundImage = new Image();
+backgroundImage.src = 'media/your-castle.gif';
+
+function drawBackground() {
+    if (backgroundImage.complete) {
+        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+    } else {
+        backgroundImage.onload = () => {
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        };
+    }
+}
+
 function drawEverything() {
-    if (typeof drawBubbles === 'function') {
-        drawBubbles();
-    }
-    if (typeof drawObstacles === 'function') {
-        drawObstacles();
-    }
-    if (typeof drawPlayers === 'function') {
-        drawPlayers();
-    }
-    if (typeof drawProjectiles === 'function') {
-        drawProjectiles();
-    }
-    if (typeof drawPowerUps === 'function') {
-        drawPowerUps();
-    }
-    if (typeof drawParticles === 'function') {
-        drawParticles();
-    }
-    drawLevelInfo();
+    // Draw background FIRST
+    drawBackground();
+    
+    // Then draw game objects
+    if (typeof drawBubbles === 'function') drawBubbles();
+    if (typeof drawPlayers === 'function') drawPlayers();
+    if (typeof drawPowerUps === 'function') drawPowerUps();
+    if (typeof drawObstacles === 'function') drawObstacles();
+    if (typeof drawProjectiles === 'function') drawProjectiles();
+    if (typeof drawParticles === 'function') drawParticles();
+    if (typeof drawUI === 'function') drawUI();
 }
 
 function resetPlayerPowerUps() {

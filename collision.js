@@ -1,8 +1,13 @@
 // Collision detection system
 
 function checkCollisions() {
+    // Early exit if no bubbles
+    if (bubbles.length === 0) return;
+    
     // Check projectile-bubble collisions
     players.forEach(playerObj => {
+        if (!playerObj.active || playerObj.projectiles.length === 0) return; // Early exit
+        
         for (let i = playerObj.projectiles.length - 1; i >= 0; i--) {
             const projectile = playerObj.projectiles[i];
             
@@ -10,10 +15,7 @@ function checkCollisions() {
                 const bubble = bubbles[j];
                 
                 if (projectileHitsBubble(projectile, bubble)) {
-                    // Remove projectile
                     playerObj.projectiles.splice(i, 1);
-                    
-                    // Handle bubble hit
                     handleBubbleHit(bubble, j, playerObj);
                     break; // Exit bubble loop since projectile is gone
                 }
@@ -24,7 +26,7 @@ function checkCollisions() {
     // Check player-bubble collisions
     detectCollisions();
     
-    // Check power-up collisions
+    // Check power-up collisions (only once per frame)
     if (typeof checkPowerUpCollisions === 'function') {
         checkPowerUpCollisions();
     }
@@ -43,26 +45,28 @@ function detectCollisions() {
     });
 }
 
-function playerCollidesWith(playerObj, bubble) {
-    const playerCenterX = playerObj.x + playerObj.width / 2;
-    const playerCenterY = playerObj.y + playerObj.height / 2;
-    
-    const dx = playerCenterX - bubble.x;
-    const dy = playerCenterY - bubble.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    return distance < (Math.min(playerObj.width, playerObj.height) / 2 + bubble.radius);
-}
-
 function projectileHitsBubble(projectile, bubble) {
     const projectileCenterX = projectile.x + projectile.width / 2;
     const projectileCenterY = projectile.y + projectile.height / 2;
     
     const dx = projectileCenterX - bubble.x;
     const dy = projectileCenterY - bubble.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const distanceSquared = dx * dx + dy * dy; // Skip Math.sqrt()
+    const radiusSum = bubble.radius + Math.max(projectile.width, projectile.height) / 2;
     
-    return distance < bubble.radius + Math.max(projectile.width, projectile.height) / 2;
+    return distanceSquared < radiusSum * radiusSum; // Compare squared distances
+}
+
+function playerCollidesWith(playerObj, bubble) {
+    const playerCenterX = playerObj.x + playerObj.width / 2;
+    const playerCenterY = playerObj.y + playerObj.height / 2;
+    
+    const dx = playerCenterX - bubble.x;
+    const dy = playerCenterY - bubble.y;
+    const distanceSquared = dx * dx + dy * dy; // Skip Math.sqrt()
+    const radiusSum = Math.min(playerObj.width, playerObj.height) / 2 + bubble.radius;
+    
+    return distanceSquared < radiusSum * radiusSum; // Compare squared distances
 }
 
 function handleBubbleHit(bubble, bubbleIndex, playerObj) {

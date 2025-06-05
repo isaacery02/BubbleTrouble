@@ -69,8 +69,8 @@ function updatePowerUps() {
         }
     }
     
-    // Check for power-up collisions
-    checkPowerUpCollisions();
+    // REMOVE THIS LINE - collision detection happens in collision.js
+    // checkPowerUpCollisions();
     
     // Handle power-up expiration for players
     players.forEach(player => {

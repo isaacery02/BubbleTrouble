@@ -45,8 +45,8 @@ const POWER_UP_DURATION = 5000; // 5 seconds
 const POWER_UP_DROP_CHANCE = 0.3; // 30% chance
 
 // ========== OBSTACLE CONSTANTS ==========
-const OBSTACLE_WIDTH = 80;
-const OBSTACLE_HEIGHT = 20;
+const OBSTACLE_WIDTH = 120; // Increased from default
+const OBSTACLE_HEIGHT = 80; // Increased from default
 
 // ========== SOUND SYSTEM ==========
 let soundEnabled = true;

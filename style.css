@@ -33,50 +33,42 @@ h1, .awesome-heading {
 
 /* ========== LAYOUT ========== */
 .game-container {
-    max-width: 1300px;
+    max-width: 1200px;
     width: 100%;
-    /* Add or adjust if needed: */
-    max-height: 900px;
-    background: rgba(0, 0, 0, 0.2);
+    max-height: none; /* Remove height restriction */
+    background: rgba(0, 0, 0, 0.85); /* Made slightly more solid */
     border-radius: 1rem;
     padding: 2rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 2rem;
+    border: 2px solid rgba(255, 255, 255, 0.3); /* Made border more visible */
+    margin: 0 auto 2rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the canvas */
 }
-.panda-header {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-.panda-header img {
-    max-width: 150px; max-height: 100px; width: auto; height: auto;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s;
-}
-.panda-header img:hover { transform: scale(1.05); }
 
 /* ========== GAME CANVAS ========== */
 #gameCanvas {
-    max-width: 1200px;
-    width: 100%;
-    height: auto; /* Let height be controlled by the canvas attribute */
+    width: 1000px; /* Fixed canvas width */
+    height: 800px; /* Fixed canvas height */
+    max-width: 100%;
     display: block;
-    margin: 0 auto;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-    background: url('media/your-castle.gif') center/cover no-repeat, #1a202c;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    margin: 1rem 0; /* Remove auto margins since container centers it */
+    border: 3px solid rgba(255, 255, 255, 0.3); /* Thicker, more visible border */
+    border-radius: 0.5rem; /* Rounded corners */
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2); /* Outer shadow only */
 }
 
 /* ========== CONTROLS ========== */
 .controls-info {
     margin-top: 1.5rem;
     padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.9); /* Changed from 0.15 to 0.9 for solid appearance */
     border-radius: 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3); /* Made border more visible */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 .controls-info h3 {
     text-align: center;
@@ -128,11 +120,12 @@ h1, .awesome-heading {
 
 /* ========== POWER-UPS ========== */
 .powerups-info {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.9); /* Changed from 0.15 to 0.9 for solid appearance */
     border-radius: 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3); /* Made border more visible */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 .powerups-info h3 {
     text-align: center;
@@ -225,10 +218,75 @@ h1, .awesome-heading {
 .sound-toggle.audio-disabled::after { transform: translate(-50%, -50%) rotate(45deg); }
 .sound-toggle.audio-disabled::before { transform: translate(-50%, -50%) rotate(-45deg); }
 
+/* ========== PANDA POSITIONING ========== */
+.panda-header {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.panda-header:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.panda-header img {
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 50%;
+    display: block;
+}
+
+/* ========== MOBILE RESPONSIVE FOR PANDA ========== */
+@media (max-width: 768px) {
+    .panda-header {
+        top: 10px;
+        right: 10px;
+        padding: 0.5rem;
+    }
+    
+    .panda-header img {
+        max-width: 60px;
+        max-height: 60px;
+    }
+}
+
+/* ========== VERY SMALL SCREENS ========== */
+@media (max-width: 480px) {
+    .panda-header {
+        top: 5px;
+        right: 5px;
+        padding: 0.25rem;
+    }
+    
+    .panda-header img {
+        max-width: 40px;
+        max-height: 40px;
+    }
+}
+
 /* ========== MOBILE & RESPONSIVE ========== */
 @media (max-width: 768px) {
     body { padding-top: 1rem; }
-    .game-container { padding: 1rem; }
+    .game-container { 
+        padding: 1rem; 
+        max-width: 95%; /* Make container narrower on mobile */
+    }
+    #gameCanvas {
+        width: 100%; /* Make canvas responsive */
+        height: auto; /* Maintain aspect ratio */
+        max-width: 100%;
+        margin: 1rem 0; /* Reduce margins on mobile */
+    }
     h1, .awesome-heading { font-size: 2rem; }
     .controls-info { margin-top: 1rem; padding: 1rem; }
     .controls-info h3 { font-size: 1.2rem; }
@@ -240,7 +298,7 @@ h1, .awesome-heading {
     .key-combo { font-size: 0.8rem; margin-right: 0.5rem; }
     .key { padding: 0.2rem 0.4rem; font-size: 0.7rem; min-width: 1.2rem; }
     .controls-note { font-size: 0.8rem; }
-    .panda-header img { max-width: 80px; max-height: 60px; }
+    .panda-header img { max-width: 60px; max-height: 60px; }
     .powerups-info { margin-top: 1rem; padding: 1rem; }
     .powerups-info h3 { font-size: 1.2rem; }
     .powerup-grid { grid-template-columns: 1fr; gap: 0.75rem; }

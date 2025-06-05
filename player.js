@@ -104,15 +104,12 @@ function loseLife(playerObj) {
         playerObj.dx = 0;
         playerObj.projectiles = [];
         removePowerUp(playerObj);
-
-        const allPlayersOut = players.every(p => !p.active);
-        if (allPlayersOut) {
-            playSound('gameover');
-            showMessage('Game Over! Both players ran out of lives.', 'Restart Game', () => {
-                hideMessage();
-                startNewGame();
-            });
-        }
+        
+        console.log(`Player ${playerObj.id} is out of lives`);
+        
+        // Don't immediately show game over - let checkGameOver() handle it
+        // This allows for proper score comparison and winner determination
+        
     } else {
         // Reset player position after losing a life
         playerObj.x = canvas.width / 2 - playerObj.width / 2 + (playerObj.id === 1 ? -canvas.width / 4 : canvas.width / 4);

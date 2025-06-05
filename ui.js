@@ -59,6 +59,7 @@ function drawLevelInfo() {
 
 function drawEverything() {
     drawBubbles();
+    drawObstacles();
     drawPlayers();
     drawProjectiles();
     drawPowerUps();
@@ -111,26 +112,68 @@ function startNewGame() {
     bubbles = [];
     powerUps.length = 0;
     particles.length = 0;
+    obstacles = [];
     
-    // Initialize bubbles using the level system
+    // Initialize obstacles and bubbles
+    initializeObstacles();
     initializeBubbles();
+    
+    console.log(`Game started with ${bubbles.length} bubbles`);
     
     gameRunning = true;
     gamePaused = false;
     gameOver = false;
 }
 
+function checkGameOver() {
+    const allPlayersOut = players.every(p => !p.active);
+    
+    if (allPlayersOut && gameRunning) {
+        console.log('All players are out - Game Over');
+        
+        gameRunning = false;
+        gameOver = true;
+        
+        playSound('gameover');
+        
+        const player1Score = player1.score;
+        const player2Score = player2.score;
+        
+        let gameOverMessage = 'Game Over!\n\n';
+        
+        if (player1Score > player2Score) {
+            gameOverMessage += `Player 1 had the higher score!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
+        } else if (player2Score > player1Score) {
+            gameOverMessage += `Player 2 had the higher score!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
+        } else {
+            gameOverMessage += `It was a tie!\nBoth players scored: ${player1Score}`;
+        }
+        
+        showMessage(
+            gameOverMessage,
+            'Play Again',
+            () => {
+                hideMessage();
+                startNewGame();
+            }
+        );
+    }
+}
+
 function gameLoop() {
-    if (gameRunning && !gamePaused) {
+    if (gameRunning && !gamePaused && !levelTransitioning) {
         clearCanvas();
         handleInput();
         updateBubbles();
+        updateObstacles();
         updatePlayers();
         updateProjectiles();
         updatePowerUps();
+        updatePlayerPowerUps();
         updateParticles();
         checkCollisions();
         checkLevelComplete();
+        checkGameOver();
         drawEverything();
     }
     requestAnimationFrame(gameLoop);

@@ -23,6 +23,10 @@ const POWER_UP_DROP_CHANCE = 0.2;
 const bubbleGravity = 0.1;
 const bubbleBounceFactor = -0.98;
 
+// Obstacle constants
+const OBSTACLE_WIDTH = 60;
+const OBSTACLE_HEIGHT = 80;
+
 // Level variables
 let currentLevel = 1;
 let levelStartTime = 0;
@@ -32,6 +36,7 @@ let levelTransitioning = false;
 let bubbles = [];
 const powerUps = [];
 const particles = [];
+let obstacles = []; // Add obstacles array
 
 // Input handling
 const keys = {};

@@ -1,128 +1,127 @@
 // Power-up system
 
+const powerUpTypes = ['WIDE_SHOT', 'RAPID_FIRE', 'SHIELD'];
+
 class PowerUp {
     constructor(x, y, type) {
         this.x = x;
         this.y = y;
-        this.width = 30;
-        this.height = 30;
-        this.type = type;
-        this.dy = 2;
-        this.color = this.getColorByType(type);
-        this.symbol = this.getSymbolByType(type);
+        this.width = 20;
+        this.height = 20;
+        this.type = type || powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        this.dy = 2; // Fall speed
+        this.color = this.getColor();
+        this.lifetime = 10000; // 10 seconds
+        this.created = Date.now();
     }
 
-    getColorByType(type) {
-        const colors = {
-            'widerShot': '#f093fb',
-            'rapidFire': '#fbbf24',
-            'multiShot': '#34d399',
-            'shield': '#60a5fa',
-            'slowTime': '#a78bfa'
-        };
-        return colors[type] || '#cbd5e0';
-    }
-
-    getSymbolByType(type) {
-        const symbols = {
-            'widerShot': 'W',
-            'rapidFire': 'R',
-            'multiShot': 'M',
-            'shield': 'S',
-            'slowTime': 'T'
-        };
-        return symbols[type] || '?';
+    getColor() {
+        switch (this.type) {
+            case 'WIDE_SHOT': return '#f6e05e';
+            case 'RAPID_FIRE': return '#f093fb';
+            case 'SHIELD': return '#4ecdc4';
+            default: return '#white';
+        }
     }
 
     update() {
         this.y += this.dy;
+        
+        // Remove if fallen off screen or expired
+        if (this.y > canvas.height || Date.now() - this.created > this.lifetime) {
+            return false; // Mark for removal
+        }
+        return true; // Keep
     }
 
     draw() {
-        // Draw power-up box
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-
-        // Draw symbol
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '16px Inter';
+        
+        // Draw icon based on type
+        ctx.fillStyle = 'black';
+        ctx.font = '12px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(this.symbol, this.x + this.width / 2, this.y + this.height / 2 + 6);
-    }
-}
-
-function getRandomPowerUpType() {
-    const types = ['widerShot', 'rapidFire', 'multiShot', 'shield', 'slowTime'];
-    return types[Math.floor(Math.random() * types.length)];
-}
-
-function applyPowerUp(playerObj, type) {
-    playerObj.activePowerUp = { type: type, endTime: Date.now() + POWER_UP_DURATION };
-    playSound('powerup');
-
-    switch (type) {
-        case 'widerShot':
-            playerObj.currentProjectileWidth = PROJECTILE_WIDTH * 3;
-            break;
-        case 'rapidFire':
-            playerObj.shootCooldown = 50;
-            break;
-        case 'multiShot':
-            playerObj.multiShot = true;
-            break;
-        case 'shield':
-            playerObj.hasShield = true;
-            break;
-        case 'slowTime':
-            bubbles.forEach(b => {
-                b.dx *= 0.3;
-                b.dy *= 0.3;
-            });
-            break;
-    }
-}
-
-function removePowerUp(playerObj) {
-    if (playerObj.activePowerUp) {
-        switch (playerObj.activePowerUp.type) {
-            case 'widerShot':
-                playerObj.currentProjectileWidth = PROJECTILE_WIDTH;
-                break;
-            case 'rapidFire':
-                playerObj.shootCooldown = 500;
-                break;
-            case 'multiShot':
-                playerObj.multiShot = false;
-                break;
-            case 'shield':
-                playerObj.hasShield = false;
-                break;
+        
+        let icon = '';
+        switch (this.type) {
+            case 'WIDE_SHOT': icon = 'W'; break;
+            case 'RAPID_FIRE': icon = 'R'; break;
+            case 'SHIELD': icon = 'S'; break;
         }
-        playerObj.activePowerUp = null;
+        
+        ctx.fillText(icon, this.x + this.width/2, this.y + this.height/2 + 4);
+    }
+}
+
+function createPowerUp(x, y, type) {
+    if (typeof powerUps !== 'undefined') {
+        const powerUp = new PowerUp(x, y, type);
+        powerUps.push(powerUp);
+        console.log(`Created power-up: ${powerUp.type} at (${x}, ${y})`);
     }
 }
 
 function updatePowerUps() {
-    // Update existing power-ups
-    for (let i = powerUps.length - 1; i >= 0; i--) {
-        const pu = powerUps[i];
-        pu.update();
-        if (pu.y > canvas.height) {
-            powerUps.splice(i, 1);
+    if (typeof powerUps !== 'undefined') {
+        for (let i = powerUps.length - 1; i >= 0; i--) {
+            if (!powerUps[i].update()) {
+                powerUps.splice(i, 1);
+            }
         }
     }
+}
 
-    // Check for expired power-ups on players
-    players.forEach(player => {
-        if (player.activePowerUp && Date.now() > player.activePowerUp.endTime) {
-            removePowerUp(player);
+function drawPowerUps() {
+    if (typeof powerUps !== 'undefined') {
+        powerUps.forEach(powerUp => powerUp.draw());
+    }
+}
+
+function applyPowerUp(playerObj, type) {
+    console.log(`Applying power-up ${type} to player ${playerObj.id}`);
+    
+    // Remove existing power-up
+    removePowerUp(playerObj);
+    
+    playerObj.activePowerUp = {
+        type: type,
+        endTime: Date.now() + POWER_UP_DURATION
+    };
+    
+    switch (type) {
+        case 'WIDE_SHOT':
+            playerObj.currentProjectileWidth = PROJECTILE_WIDTH * 3;
+            break;
+        case 'RAPID_FIRE':
+            playerObj.shootCooldown = 150;
+            break;
+        case 'SHIELD':
+            playerObj.hasShield = true;
+            break;
+    }
+    
+    playSound('powerup');
+}
+
+function removePowerUp(playerObj) {
+    if (playerObj.activePowerUp) {
+        console.log(`Removing power-up ${playerObj.activePowerUp.type} from player ${playerObj.id}`);
+        
+        // Reset player stats
+        playerObj.currentProjectileWidth = PROJECTILE_WIDTH;
+        playerObj.shootCooldown = 500;
+        playerObj.hasShield = false;
+        playerObj.activePowerUp = null;
+    }
+}
+
+function updatePlayerPowerUps() {
+    players.forEach(playerObj => {
+        if (playerObj.activePowerUp && Date.now() > playerObj.activePowerUp.endTime) {
+            removePowerUp(playerObj);
         }
     });
 }
 
-function drawPowerUps() {
-    powerUps.forEach(pu => pu.draw());
-}
+console.log("=== POWERUPS.JS LOADED ===");

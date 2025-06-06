@@ -169,7 +169,7 @@ function resetPlayerPowerUps() {
         
         playerObj.activePowerUp = null;
         playerObj.currentProjectileWidth = PROJECTILE_WIDTH;
-        playerObj.shootCooldown = 500;
+        playerObj.shootCooldown = 250;
         playerObj.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
         playerObj.hasShield = false;
         playerObj.invincible = false;
@@ -201,7 +201,7 @@ function startNewGame() {
     player1.projectiles = [];
     player1.activePowerUp = null;
     player1.currentProjectileWidth = PROJECTILE_WIDTH;
-    player1.shootCooldown = 500;
+    player1.shootCooldown = 250;
     player1.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
     player1.hasShield = false;
     player1.lastShotTime = 0;
@@ -215,7 +215,7 @@ function startNewGame() {
     player2.projectiles = [];
     player2.activePowerUp = null;
     player2.currentProjectileWidth = PROJECTILE_WIDTH;
-    player2.shootCooldown = 500;
+    player2.shootCooldown = 250;
     player2.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
     player2.hasShield = false;
     player2.lastShotTime = 0;

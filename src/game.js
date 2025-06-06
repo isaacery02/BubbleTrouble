@@ -96,13 +96,46 @@ function checkLevelComplete() {
 function startNextLevel() {
     console.log('Starting next level...');
     clearGameObjects();
-    if (typeof resetPlayerPowerUps === 'function') resetPlayerPowerUps();
-    if (typeof resetPlayerPositions === 'function') resetPlayerPositions();
+    
+    // Instead of calling resetPlayerPositions, just reset positions manually
+    // Reset positions but PRESERVE shooting settings
+    player1.x = canvas.width / 2 - 15;
+    player1.y = canvas.height - 40;
+    player1.projectiles = [];
+    player1.dx = 0;
+    
+    player2.x = canvas.width / 4;
+    player2.y = canvas.height - 40;
+    player2.projectiles = [];
+    player2.dx = 0;
+    
+    // Reset power-ups but preserve shooting cooldown
+    if (typeof resetPlayerPowerUpsOnly === 'function') {
+        resetPlayerPowerUpsOnly(); // Create this function
+    } else {
+        // Reset power-ups manually without touching shootCooldown
+        player1.activePowerUp = null;
+        player1.powerUpTimer = null;
+        player1.powerUpEndTime = null;
+        player1.hasShield = false;
+        player1.invincible = false;
+        
+        player2.activePowerUp = null;
+        player2.powerUpTimer = null;
+        player2.powerUpEndTime = null;
+        player2.hasShield = false;
+        player2.invincible = false;
+    }
+    
     initializeLevel();
     levelTransitioning = false;
     gameRunning = true;
     gamePaused = false;
-    console.log(`Level ${currentLevel} started with ${bubbles.length} bubbles`);
+    
+    console.log(`Level ${currentLevel} started. Shooting cooldown preserved:`, {
+        player1: player1.shootCooldown,
+        player2: player2.shootCooldown
+    });
 }
 
 // Game over logic

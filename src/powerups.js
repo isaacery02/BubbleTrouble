@@ -187,14 +187,14 @@ function applyPowerUp(player, type) {
     
     switch (type) {
         case 'rapid_fire':
-            player.shootCooldown = 100;
+            player.shootCooldown = 80;
             player.maxProjectiles = RAPID_FIRE_MAX_PROJECTILES;
             player.activePowerUp = type;
             player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
             break;
             
         case 'wide_shot':
-            player.currentProjectileWidth = PROJECTILE_WIDTH * 3;
+            player.currentProjectileWidth = PROJECTILE_WIDTH * 5;
             player.activePowerUp = type;
             player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
             break;
@@ -242,7 +242,7 @@ function removePowerUp(player) {
     player.activePowerUp = null;
     player.powerUpEndTime = null;
     player.hasShield = false;
-    player.shootCooldown = 500;
+    player.shootCooldown = 250;
     player.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
     player.currentProjectileWidth = PROJECTILE_WIDTH;
     player.projectileSpeedMultiplier = 1;

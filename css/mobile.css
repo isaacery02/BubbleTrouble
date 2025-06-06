@@ -25,23 +25,49 @@
     body { padding-top: 1rem; }
     
     .game-container { 
-        padding: 1rem; 
+        padding: var(--spacing-md);
+        gap: var(--spacing-lg);
         max-width: 95%;
+    }
+    
+    .canvas-container {
+        padding: var(--spacing-md);
+        margin: 0;
+        width: 100%;
+        max-width: none;
     }
     
     #gameCanvas {
         width: 100%;
-        height: auto;
         max-width: 100%;
-        margin: 1rem 0;
+        height: auto;
+        margin: 0;
     }
     
     h1, .awesome-heading { font-size: 2rem; }
     
     .controls-info, .powerups-info { 
-        margin-top: 1rem; 
-        padding: 1rem;
-        max-width: 95%; /* Consistent width on mobile */
+        margin: 0;
+        padding: var(--spacing-md);
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .player-stats {
+        justify-content: center;
+        gap: var(--spacing-lg);
+    }
+    
+    .level-info {
+        justify-content: center;
     }
     
     .controls-info h3, .powerups-info h3 { 
@@ -105,6 +131,18 @@
 }
 
 @media (max-width: 480px) {
+    .game-container {
+        padding: var(--spacing-sm);
+    }
+    
+    .canvas-container {
+        padding: var(--spacing-sm);
+    }
+    
+    .controls-info, .powerups-info {
+        padding: var(--spacing-sm);
+    }
+    
     .panda-header {
         top: 5px;
         right: 5px;

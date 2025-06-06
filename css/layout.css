@@ -27,68 +27,69 @@ h1, .awesome-heading {
     margin: 0 auto;
     padding: var(--spacing-xl);
     text-align: center;
-}
-
-/* Panda Header Positioning */
-.panda-header {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 100;
-    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
-    border-radius: var(--radius-full);
-    padding: 0.5rem;
-    backdrop-filter: blur(15px);
-    border: 2px solid var(--border-accent);
-    box-shadow: var(--shadow-lg), var(--shadow-glow);
-    transition: var(--transition-normal);
-}
-
-.panda-header:hover {
-    transform: scale(1.05);
-    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
-    box-shadow: 
-        0 12px 30px rgba(0, 0, 0, 0.5),
-        0 0 30px rgba(83, 52, 131, 0.4);
-}
-
-.panda-header img {
-    max-width: 50px;
-    max-height: 50px;
-    border-radius: var(--radius-full);
-    display: block;
-}
-
-/* Level Display */
-.level-display {
-    position: fixed;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
-    color: var(--text-primary);
-    padding: 0.75rem 1.5rem;
-    border-radius: 2rem;
-    font-weight: bold;
-    z-index: 200;
-    font-size: 1.2rem;
-    border: 2px solid var(--border-accent);
-    box-shadow: var(--shadow-lg), var(--shadow-glow);
-    backdrop-filter: blur(10px);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Game Info */
-.game-info {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    margin-top: var(--spacing-xl);
+    gap: var(--spacing-xl);
+}
+
+/* Canvas Container for Better Alignment */
+.canvas-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
     padding: var(--spacing-lg);
     background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
     border-radius: var(--radius-xl);
     border: 1px solid var(--border-accent);
     box-shadow: var(--shadow-lg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameCanvas {
+    width: 100%;
+    max-width: 1000px;
+    height: auto;
+    aspect-ratio: 1000 / 800; /* Maintain original aspect ratio */
+    border-radius: var(--radius-lg);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    background: #000;
+    display: block;
+}
+
+/* Ensure all info sections have consistent width and alignment */
+.controls-info, .powerups-info {
+    margin-top: 0; /* Remove top margin since we're using gap in flex container */
+    padding: var(--spacing-xl);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-accent);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 1000px; /* Match canvas max-width */
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* Game info section alignment */
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-accent);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 1000px; /* Match canvas max-width */
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .player-stats {

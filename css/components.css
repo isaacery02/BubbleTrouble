@@ -197,3 +197,38 @@
     color: var(--text-primary);
     white-space: pre-line;
 }
+
+/* Ensure all content sections have consistent styling */
+.content-section {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-accent);
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
+}
+
+/* Apply consistent styling to all info sections */
+.controls-info,
+.powerups-info,
+.game-info {
+    @extend .content-section;
+}
+
+/* Alternative if @extend doesn't work */
+.controls-info,
+.powerups-info,
+.canvas-container,
+.game-info {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-accent);
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
+}

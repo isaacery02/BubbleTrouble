@@ -3,8 +3,11 @@
 function shootProjectile(playerObj) {
     const currentTime = Date.now();
 
+    // Reduced cooldown from 500ms to 250ms (twice as fast)
+    const shootCooldown = playerObj.shootCooldown || 250; // Was 500, now 250
+    
     // Check cooldown
-    if (currentTime - playerObj.lastShotTime < playerObj.shootCooldown) {
+    if (currentTime - playerObj.lastShotTime < shootCooldown) {
         return;
     }
 
@@ -38,7 +41,8 @@ function shootProjectile(playerObj) {
         playSound('shoot');
     }
 
-    console.log(`Player ${playerObj.id} shot projectile upward. Total: ${playerObj.projectiles.length}/${maxProjectiles}`);
+    // This will now show "Total: X/6" instead of "Total: X/3"
+    console.log(`Player ${playerObj.id} shot projectile upward. Total: ${playerObj.projectiles.length}/${playerObj.maxProjectiles}`);
 }
 
 function updateProjectiles() {

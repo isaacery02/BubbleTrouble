@@ -185,39 +185,46 @@ function initializeLevel() {
 }
 
 function resetPlayers() {
+    if (typeof player1 === 'undefined' || typeof player2 === 'undefined') {
+        console.error('Players not initialized!');
+        return;
+    }
+    
+    // Reset player 1
     player1.x = canvas.width / 2 - 15;
     player1.y = canvas.height - 40;
     player1.lives = 3;
     player1.score = 0;
     player1.active = true;
     player1.projectiles = [];
-    if (typeof PLAYER_SPEED !== 'undefined') player1.speed = PLAYER_SPEED;
+    player1.speed = PLAYER_SPEED;
     player1.dx = 0;
     player1.activePowerUp = null;
     player1.powerUpTimer = null;
     player1.powerUpEndTime = null;
-    player1.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
-    player1.shootCooldown = 500;
+    player1.maxProjectiles = 6;
+    player1.shootCooldown = 250; // Updated to faster shooting
     player1.hasShield = false;
     player1.invincible = false;
 
+    // Reset player 2
     player2.x = canvas.width / 4;
     player2.y = canvas.height - 40;
     player2.lives = 3;
     player2.score = 0;
     player2.active = true;
     player2.projectiles = [];
-    if (typeof PLAYER_SPEED !== 'undefined') player2.speed = PLAYER_SPEED;
+    player2.speed = PLAYER_SPEED;
     player2.dx = 0;
     player2.activePowerUp = null;
     player2.powerUpTimer = null;
     player2.powerUpEndTime = null;
-    player2.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
-    player2.shootCooldown = 500;
+    player2.maxProjectiles = 6;
+    player2.shootCooldown = 250; // Updated to faster shooting
     player2.hasShield = false;
     player2.invincible = false;
 
-    console.log("Players reset. Player 1 speed:", player1.speed, "Player 2 speed:", player2.speed);
+    console.log("Players reset. Max projectiles: 6, Shoot cooldown: 250ms");
 }
 
 function initializeObstacles() {

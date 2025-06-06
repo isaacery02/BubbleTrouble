@@ -1,5 +1,6 @@
 # Bubble Trouble
 
+HI!
 A fun browser-based bubble-popping game for two players, made with HTML, CSS, and JavaScript.
 
 ## 🚀 Quick Start

@@ -34,11 +34,11 @@ const PLAYER_WIDTH = 30;
 const PLAYER_HEIGHT = 30;
 
 // ========== PROJECTILE CONSTANTS ==========
-const PROJECTILE_SPEED = 8;         // THIS SHOULD BE CONST
+const PROJECTILE_SPEED = 8;
 const PROJECTILE_WIDTH = 4;
 const PROJECTILE_HEIGHT = 20;
-const MAX_PROJECTILES_PER_PLAYER = 3; // Default limit
-const RAPID_FIRE_MAX_PROJECTILES = 10; // Rapid fire limit
+const MAX_PROJECTILES_PER_PLAYER = 6; // Changed from 3 to 6
+const RAPID_FIRE_MAX_PROJECTILES = 12; // Increased proportionally (was 10)
 
 // ========== POWER-UP CONSTANTS ==========
 const POWER_UP_DURATION = 5000; // 5 seconds
@@ -71,8 +71,8 @@ let player1 = {
     powerUpTimer: null,
     powerUpEndTime: null,
     currentProjectileWidth: PROJECTILE_WIDTH,
-    shootCooldown: 500,
-    maxProjectiles: MAX_PROJECTILES_PER_PLAYER,
+    shootCooldown: 250, // Reduced from 500 to 250 (twice as fast)
+    maxProjectiles: 6,
     hasShield: false,
     invincible: false,
     projectileSpeedMultiplier: 1
@@ -96,8 +96,8 @@ let player2 = {
     powerUpTimer: null,
     powerUpEndTime: null,
     currentProjectileWidth: PROJECTILE_WIDTH,
-    shootCooldown: 500,
-    maxProjectiles: MAX_PROJECTILES_PER_PLAYER,
+    shootCooldown: 250, // Reduced from 500 to 250 (twice as fast)
+    maxProjectiles: 6,
     hasShield: false,
     invincible: false,
     projectileSpeedMultiplier: 1

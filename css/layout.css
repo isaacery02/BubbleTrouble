@@ -1,0 +1,107 @@
+/* ========== LAYOUT ========== */
+h1, .awesome-heading {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #ff6b6b 10%, #f9ca24 30%, #4ecdc4 60%, #b388ff 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 1px 0 #fff;
+    letter-spacing: 2px;
+    position: relative;
+}
+
+.awesome-heading .theo { color: #ff6b6b; font-weight: 700; text-shadow: 0 2px 8px #ffb3b3; }
+.awesome-heading .and { color: #222; font-weight: 600; margin: 0 0.3em; font-size: 1.1em; }
+.awesome-heading .otto { color: #4ecdc4; font-weight: 700; text-shadow: 0 2px 8px #b2f7ef; }
+.awesome-heading .bubble { color: #b388ff; font-weight: 700; text-shadow: 0 2px 8px #e0c3fc; }
+.awesome-heading .trouble { color: #f9ca24; font-weight: 700; text-shadow: 0 2px 8px #fff3b0; }
+.awesome-heading .emoji { font-size: 1.2em; margin-left: 0.3em; vertical-align: middle; filter: drop-shadow(0 2px 4px #fff); }
+
+/* Layout, containers, and grid systems */
+
+.game-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+    text-align: center;
+}
+
+/* Panda Header Positioning */
+.panda-header {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-full);
+    padding: 0.5rem;
+    backdrop-filter: blur(15px);
+    border: 2px solid var(--border-accent);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    transition: var(--transition-normal);
+}
+
+.panda-header:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+    box-shadow: 
+        0 12px 30px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(83, 52, 131, 0.4);
+}
+
+.panda-header img {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: var(--radius-full);
+    display: block;
+}
+
+/* Level Display */
+.level-display {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    font-weight: bold;
+    z-index: 200;
+    font-size: 1.2rem;
+    border: 2px solid var(--border-accent);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    backdrop-filter: blur(10px);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Game Info */
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-accent);
+    box-shadow: var(--shadow-lg);
+}
+
+.player-stats {
+    display: flex;
+    gap: var(--spacing-xl);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.level-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: 1.1rem;
+    font-weight: 600;
+}

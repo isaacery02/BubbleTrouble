@@ -1,0 +1,199 @@
+/* Reusable components like buttons, cards, modals */
+
+/* ========== BUTTONS ========== */
+#actionButton {
+    background: linear-gradient(135deg, var(--glow-blue) 0%, var(--glow-purple) 100%);
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 22px;
+    font-weight: 600;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    box-shadow: 
+        0 8px 25px rgba(59, 130, 246, 0.3),
+        0 0 0 1px rgba(83, 52, 131, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    min-width: 200px;
+    position: relative;
+    overflow: hidden;
+    margin-top: var(--spacing-md);
+}
+
+#actionButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+#actionButton:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 15px 35px rgba(59, 130, 246, 0.4),
+        0 0 25px rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, var(--glow-purple) 0%, var(--glow-blue) 100%);
+}
+
+#actionButton:hover::before {
+    left: 100%;
+}
+
+/* Sound Toggle Button */
+.sound-toggle {
+    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--glow-purple) 100%);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1.2rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-md);
+}
+
+.sound-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ========== CARDS AND INFO BOXES ========== */
+.controls-info, .powerups-info {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-accent);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.controls-info h3, .powerups-info h3 {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    font-size: 1.5rem;
+    color: var(--glow-blue);
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    font-weight: 600;
+}
+
+/* ========== GRIDS ========== */
+.controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    width: 100%;
+}
+
+.powerup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    width: 100%;
+}
+
+/* ========== CONTROL ITEMS ========== */
+.control-item, .powerup-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: rgba(83, 52, 131, 0.1);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    transition: var(--transition-normal);
+}
+
+.control-item:hover, .powerup-item:hover {
+    background: rgba(83, 52, 131, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(83, 52, 131, 0.2);
+}
+
+/* Player Icons */
+.player-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.8rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.player-icon.player1 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.player-icon.player2 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Powerup Icons */
+.powerup-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+.powerup-icon.rapid-fire { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+.powerup-icon.wide-shot { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+.powerup-icon.shield { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+.powerup-icon.extra-life { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.powerup-icon.slow-bubbles { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+.powerup-icon.fast-bullets { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.powerup-icon.controls-icon { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+.powerup-icon.goal-icon { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.powerup-icon.lives-icon { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+.powerup-icon.strategy-icon { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+/* ========== MESSAGE BOX ========== */
+.message-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border: 2px solid var(--border-accent);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xxl);
+    text-align: center;
+    z-index: 1000;
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    backdrop-filter: blur(20px);
+    min-width: 400px;
+    max-width: 90vw;
+}
+
+#messageText {
+    font-size: 1.3rem;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-xl);
+    color: var(--text-primary);
+    white-space: pre-line;
+}

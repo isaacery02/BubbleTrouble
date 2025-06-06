@@ -1,0 +1,50 @@
+/* ========== SLEEK COLOR SCHEME ========== */
+:root {
+    /* Color Palette */
+    --primary-bg: #0f0f23;
+    --secondary-bg: #1a1a2e;
+    --secondary-dark: #16213e;
+    --accent-blue: #533483;
+    --accent-purple: #8b5cf6;
+    --glow-blue: #3b82f6;
+    --glow-purple: #8b5cf6;
+    
+    /* Text Colors */
+    --text-primary: #e2e8f0;
+    --text-secondary: #cbd5e0;
+    --text-accent: #a0aec0;
+    
+    /* Border Colors */
+    --border-accent: rgba(83, 52, 131, 0.3);
+    --border-subtle: rgba(255, 255, 255, 0.1);
+    
+    /* Font Families */
+    --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Monaco', 'Menlo', monospace;
+    
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+    
+    /* Border Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-full: 50%;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 20px rgba(83, 52, 131, 0.3);
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}

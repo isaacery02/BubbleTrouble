@@ -40,6 +40,11 @@ function detectCollisions() {
             if (playerCollidesWith(playerObj, bubble)) {
                 // Use handlePlayerHit instead of loseLife
                 handlePlayerHit(playerObj);
+                
+                // Play hit sound
+                if (typeof playSound === 'function') {
+                    playSound('hit'); // or 'pop'
+                }
             }
         });
     });

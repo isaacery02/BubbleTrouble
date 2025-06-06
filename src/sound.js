@@ -4,7 +4,7 @@ console.log("=== SOUND.JS LOADING ===");
 function initializeSounds() {
     console.log('Initializing sound system...');
     
-    // Preload all game sounds (use the global sounds object from constants.js)
+    // Add hit sound to the sound files
     sounds.pop = new Audio('media/pop.wav');
     sounds.bubble = new Audio('media/bubble.wav');
     sounds.shoot = new Audio('media/shoot.wav');
@@ -12,10 +12,11 @@ function initializeSounds() {
     sounds.levelup = new Audio('media/levelup.wav');
     sounds.gameover = new Audio('media/gameover.wav');
     sounds.start = new Audio('media/start.wav');
+    sounds.hit = new Audio('media/hit.wav');
     
     // Set volume for all sounds
     Object.values(sounds).forEach(sound => {
-        sound.volume = 0.5; // 50% volume
+        sound.volume = 0.3;
         sound.preload = 'auto';
     });
     
@@ -33,7 +34,7 @@ function playSound(soundName) {
         // Clone the audio to allow overlapping sounds
         const sound = sounds[soundName].cloneNode();
         sound.currentTime = 0;
-        sound.volume = 0.5;
+        sound.volume = 0.3;
         sound.play().catch(error => {
             console.log('Sound play failed (autoplay policy):', soundName, error.message);
         });
@@ -48,6 +49,19 @@ function toggleSound() {
     soundEnabled = !soundEnabled;
     console.log('Sound', soundEnabled ? 'enabled' : 'disabled');
     return soundEnabled; // Return the current state
+}
+
+// In player.js, find the function that handles player getting hit
+function handlePlayerHit(player) {
+    // Play hit sound
+    if (typeof playSound === 'function') {
+        playSound('hit');
+    }
+    
+    player.lives--;
+    console.log(`Player ${player.id} hit! Lives remaining: ${player.lives}`);
+    
+    // Your existing hit handling code...
 }
 
 console.log("=== SOUND.JS LOADED ===");

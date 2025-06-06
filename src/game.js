@@ -21,13 +21,27 @@ window.addEventListener('load', () => {
 });
 
 function setupGame() {
+    // Initialize sound system first
+    if (typeof initializeSounds === 'function') {
+        initializeSounds();
+    }
+    
+    // Set up sound toggle button
+    const soundToggle = document.getElementById('soundToggle');
+    if (soundToggle && typeof toggleSound === 'function') {
+        soundToggle.addEventListener('click', toggleSound);
+    }
+    
     setupMobileControls();
     showMessage(
         "Welcome to Ottos & Theo's Bubble Trouble!\nReady to start?",
         'Start Game',
         () => {
             hideMessage();
-            if (typeof playSound === 'function') playSound('start'); // <-- Play start sound here
+            // Play start sound after user interaction
+            if (typeof playSound === 'function') {
+                playSound('start');
+            }
             startNewGame();
         }
     );

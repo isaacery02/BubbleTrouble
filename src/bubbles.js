@@ -284,6 +284,17 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
     console.log(`Bubble popped! Player ${playerObj.id} scored ${points} points`);
 }
 
+// Add this where a bubble gets destroyed/popped
+function destroyBubble(index) {
+    // Play pop sound
+    if (typeof playSound === 'function') {
+        playSound('pop');
+    }
+    
+    // Your existing bubble destruction code...
+    bubbles.splice(index, 1);
+}
+
 function updateBubbles() {
     for (let i = bubbles.length - 1; i >= 0; i--) {
         const bubble = bubbles[i];

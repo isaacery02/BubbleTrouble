@@ -7,3 +7,46 @@
 @import url('game.css');
 @import url('animations.css'); /* Make sure this line is included */
 @import url('mobile.css');
+
+/* Game controls at the top */
+.game-controls-top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px 8px 24px;
+    background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
+    border-bottom: 2px solid #fff2;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 12px rgba(44,62,80,0.08);
+    position: relative;
+    z-index: 10;
+}
+
+/* Stylish game buttons */
+.game-btn {
+    background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(30,60,114,0.10);
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    outline: none;
+    letter-spacing: 0.5px;
+    margin-left: 0;
+}
+
+.game-btn:hover, .game-btn:focus {
+    background: linear-gradient(135deg, #185a9d 0%, #43cea2 100%);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(30,60,114,0.18);
+}
+
+.game-btn:active {
+    background: #185a9d;
+    transform: scale(0.98);
+}

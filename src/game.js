@@ -34,9 +34,12 @@ function setupGame() {
 }
 
 let animationFrameId = null;
+let isPaused = false;
+let pauseOverlay = null;
 
 // Main game loop
 function gameLoop() {
+    if (isPaused) return; // <--- Add this line
     if (!gameRunning || gamePaused) {
         animationFrameId = requestAnimationFrame(gameLoop);
         return;
@@ -257,5 +260,54 @@ function initializeObstacles() {
     }
     console.log('Three obstacles initialized:', obstacles);
 }
+
+function togglePause() {
+    isPaused = !isPaused;
+    if (isPaused) {
+        showPauseOverlay();
+    } else {
+        hidePauseOverlay();
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+function showPauseOverlay() {
+    if (!pauseOverlay) pauseOverlay = document.getElementById('pauseOverlay');
+    if (pauseOverlay) pauseOverlay.style.display = 'flex';
+}
+
+function hidePauseOverlay() {
+    if (!pauseOverlay) pauseOverlay = document.getElementById('pauseOverlay');
+    if (pauseOverlay) pauseOverlay.style.display = 'none';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const pauseBtn = document.getElementById('pauseBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    pauseOverlay = document.getElementById('pauseOverlay');
+
+    if (pauseBtn) {
+        pauseBtn.addEventListener('click', togglePause);
+    }
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            isPaused = false;
+            hidePauseOverlay();
+            startNewGame();
+        });
+    }
+
+    // Keyboard shortcuts: P to pause/resume, R to restart
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyP') {
+            togglePause();
+        }
+        if (e.code === 'KeyR') {
+            isPaused = false;
+            hidePauseOverlay();
+            startNewGame();
+        }
+    });
+});
 
 console.log("=== GAME.JS FULLY LOADED ===");

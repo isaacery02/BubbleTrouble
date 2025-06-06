@@ -32,6 +32,12 @@
             <canvas id="gameCanvas" width="1000" height="800"></canvas>
         </div>
         
+                <!-- Add this near the top of your game container -->
+        <div id="gameControls" class="game-controls-top">
+            <button id="pauseBtn" class="game-btn" title="Pause/Resume">⏸️ Pause</button>
+            <button id="restartBtn" class="game-btn" title="Restart Game">🔄 Restart</button>
+        </div>
+        
         <!-- Enhanced Controls section -->
         <div class="controls-info">
             <h3>🎮 Game Controls</h3>
@@ -177,6 +183,8 @@
                 </button>
             </div>
         </div>
+
+
     </div>
 
     <!-- Message box for game states -->
@@ -190,6 +198,11 @@
         <button id="leftBtn" class="control-btn">←</button>
         <button id="shootBtn" class="control-btn shoot-btn">🔥</button>
         <button id="rightBtn" class="control-btn">→</button>
+    </div>
+
+    <!-- Pause overlay -->
+    <div id="pauseOverlay" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center; color:white; font-size:2em;">
+        <div>Game Paused<br><span style="font-size:0.7em;">Press P or Pause to resume</span></div>
     </div>
 
     <!-- Load JavaScript files in correct order -->

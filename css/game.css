@@ -10,6 +10,12 @@
     box-shadow: 
         0 0 30px rgba(83, 52, 131, 0.3),
         inset 0 0 20px rgba(0, 0, 0, 0.2);
+    
+    /* Updated background settings for exact canvas size match */
+    background-image: url('../media/background.gif');
+    background-size: 100% 100%;        /* Stretches to exact canvas dimensions */
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* ========== POWER-UP TIMER ========== */

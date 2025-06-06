@@ -135,24 +135,11 @@ function drawLevelInfo() {
     ctx.fillText(`Power-ups: ${powerUps.length}`, 10, powerUpY);
 }
 
-const backgroundImage = new Image();
-backgroundImage.src = 'media/your-castle.gif';
-
-function drawBackground() {
-    if (backgroundImage.complete) {
-        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-    } else {
-        backgroundImage.onload = () => {
-            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-        };
-    }
-}
-
 function drawEverything() {
-    // Draw background FIRST
-    drawBackground();
+    // DON'T draw background here - let CSS handle it
+    // drawBackground(); // REMOVE this line
     
-    // Then draw game objects
+    // Draw game objects only
     if (typeof drawBubbles === 'function') drawBubbles();
     if (typeof drawPlayers === 'function') drawPlayers();
     if (typeof drawPowerUps === 'function') drawPowerUps();

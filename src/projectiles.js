@@ -30,6 +30,7 @@ function shootProjectile(playerObj) {
         width: playerObj.currentProjectileWidth,
         height: PROJECTILE_HEIGHT,
         dy: -speed, // NEGATIVE for upward movement
+        dx: 0, // Add horizontal movement capability
         playerId: playerObj.id
     };
 
@@ -50,24 +51,71 @@ function updateProjectiles() {
         for (let i = playerObj.projectiles.length - 1; i >= 0; i--) {
             const projectile = playerObj.projectiles[i];
 
-            // Move projectile upward
+            // Move projectile
+            projectile.x += projectile.dx;
             projectile.y += projectile.dy;
 
-            // Remove projectile if it goes off screen
-            if (projectile.y + projectile.height < 0) {
+            // Remove projectile if it goes off screen (ANY direction)
+            if (projectile.y + projectile.height < 0 ||           // Top
+                projectile.y > canvas.height ||                  // Bottom
+                projectile.x + projectile.width < 0 ||           // Left
+                projectile.x > canvas.width) {                   // Right
                 playerObj.projectiles.splice(i, 1);
                 continue;
             }
 
-            // Check collision with obstacles
+            // Bounce off screen edges (left and right walls)
+            if (projectile.x <= 0 || projectile.x + projectile.width >= canvas.width) {
+                projectile.dx = -projectile.dx;
+                projectile.x = Math.max(0, Math.min(canvas.width - projectile.width, projectile.x));
+            }
+
+            // Check collision with obstacles - make them bounce
             if (typeof checkProjectileObstacleCollision === 'function') {
-                if (checkProjectileObstacleCollision(projectile)) {
-                    playerObj.projectiles.splice(i, 1);
-                    continue;
+                const collision = checkProjectileObstacleCollision(projectile);
+                if (collision) {
+                    handleProjectileObstacleBounce(projectile, collision);
                 }
             }
         }
     });
+}
+
+// Add the bounce handler function
+function handleProjectileObstacleBounce(projectile, collision) {
+    // Determine which side of the obstacle was hit
+    if (collision.side === 'top' || collision.side === 'bottom') {
+        // Hit top or bottom - reverse vertical direction
+        projectile.dy = -projectile.dy;
+        
+        // Adjust position to prevent sticking
+        if (collision.side === 'top') {
+            projectile.y = collision.obstacle.y - projectile.height;
+        } else {
+            projectile.y = collision.obstacle.y + collision.obstacle.height;
+        }
+    } else if (collision.side === 'left' || collision.side === 'right') {
+        // Hit left or right side - reverse or add horizontal movement
+        if (projectile.dx === 0) {
+            // If no horizontal movement, add some
+            projectile.dx = collision.side === 'left' ? -2 : 2;
+        } else {
+            // If already moving horizontally, reverse it
+            projectile.dx = -projectile.dx;
+        }
+        
+        // Adjust position to prevent sticking
+        if (collision.side === 'left') {
+            projectile.x = collision.obstacle.x - projectile.width;
+        } else {
+            projectile.x = collision.obstacle.x + collision.obstacle.width;
+        }
+    }
+    
+    // Optional: Play a bounce sound
+    if (typeof playSound === 'function') {
+        playSound('pop');
+    }
 }
 
 function drawProjectiles() {

@@ -170,4 +170,32 @@ function playerCollidesWithPowerUp(playerObj, powerUp) {
            playerObj.y + playerObj.height > powerUp.y;
 }
 
+// Add this function to your collision.js file
+function checkProjectileObstacleCollision(projectile) {
+    for (let obstacle of obstacles) {
+        if (projectile.x < obstacle.x + obstacle.width &&
+            projectile.x + projectile.width > obstacle.x &&
+            projectile.y < obstacle.y + obstacle.height &&
+            projectile.y + projectile.height > obstacle.y) {
+            
+            // Determine which side was hit
+            const overlapLeft = (projectile.x + projectile.width) - obstacle.x;
+            const overlapRight = (obstacle.x + obstacle.width) - projectile.x;
+            const overlapTop = (projectile.y + projectile.height) - obstacle.y;
+            const overlapBottom = (obstacle.y + obstacle.height) - projectile.y;
+            
+            const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+            
+            let side;
+            if (minOverlap === overlapTop) side = 'top';
+            else if (minOverlap === overlapBottom) side = 'bottom';
+            else if (minOverlap === overlapLeft) side = 'left';
+            else side = 'right';
+            
+            return { obstacle, side };
+        }
+    }
+    return false;
+}
+
 console.log("=== COLLISION.JS LOADED ===");

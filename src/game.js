@@ -97,7 +97,9 @@ function startNextLevel() {
     console.log('Starting next level...');
     clearGameObjects();
     
-    // Instead of calling resetPlayerPositions, just reset positions manually
+    // Clear any active power-up timers and UI
+    clearAllPowerUpTimers();
+    
     // Reset positions but PRESERVE shooting settings
     player1.x = canvas.width / 2 - 15;
     player1.y = canvas.height - 40;
@@ -109,23 +111,8 @@ function startNextLevel() {
     player2.projectiles = [];
     player2.dx = 0;
     
-    // Reset power-ups but preserve shooting cooldown
-    if (typeof resetPlayerPowerUpsOnly === 'function') {
-        resetPlayerPowerUpsOnly(); // Create this function
-    } else {
-        // Reset power-ups manually without touching shootCooldown
-        player1.activePowerUp = null;
-        player1.powerUpTimer = null;
-        player1.powerUpEndTime = null;
-        player1.hasShield = false;
-        player1.invincible = false;
-        
-        player2.activePowerUp = null;
-        player2.powerUpTimer = null;
-        player2.powerUpEndTime = null;
-        player2.hasShield = false;
-        player2.invincible = false;
-    }
+    // Reset power-ups manually without touching shootCooldown
+    resetPlayerPowerUpsOnly();
     
     initializeLevel();
     levelTransitioning = false;
@@ -136,6 +123,53 @@ function startNextLevel() {
         player1: player1.shootCooldown,
         player2: player2.shootCooldown
     });
+}
+
+// Add this new function to clear all power-up timers
+function clearAllPowerUpTimers() {
+    // Clear player 1 power-up timers
+    if (player1.powerUpTimer) {
+        clearTimeout(player1.powerUpTimer);
+        player1.powerUpTimer = null;
+    }
+    
+    // Clear player 2 power-up timers
+    if (player2.powerUpTimer) {
+        clearTimeout(player2.powerUpTimer);
+        player2.powerUpTimer = null;
+    }
+    
+    // Force remove power-ups (this will clear UI elements)
+    if (typeof removePowerUp === 'function') {
+        if (player1.activePowerUp) {
+            removePowerUp(player1);
+        }
+        if (player2.activePowerUp) {
+            removePowerUp(player2);
+        }
+    }
+    
+    console.log('All power-up timers cleared for level transition');
+}
+
+// Add this function to reset only power-ups without affecting shooting
+function resetPlayerPowerUpsOnly() {
+    // Reset power-ups but DON'T touch shootCooldown or maxProjectiles
+    player1.activePowerUp = null;
+    player1.powerUpTimer = null;
+    player1.powerUpEndTime = null;
+    player1.hasShield = false;
+    player1.invincible = false;
+    player1.currentProjectileWidth = PROJECTILE_WIDTH; // Reset to normal width
+    
+    player2.activePowerUp = null;
+    player2.powerUpTimer = null;
+    player2.powerUpEndTime = null;
+    player2.hasShield = false;
+    player2.invincible = false;
+    player2.currentProjectileWidth = PROJECTILE_WIDTH; // Reset to normal width
+    
+    console.log("Power-ups reset for level transition. Shooting settings preserved.");
 }
 
 // Game over logic

@@ -332,7 +332,6 @@ function hidePauseOverlay() {
 window.addEventListener('DOMContentLoaded', () => {
     const pauseBtn = document.getElementById('pauseBtn');
     const restartBtn = document.getElementById('restartBtn');
-    const soundToggle = document.getElementById('soundToggle');
     pauseOverlay = document.getElementById('pauseOverlay');
 
     if (pauseBtn) {
@@ -346,19 +345,7 @@ window.addEventListener('DOMContentLoaded', () => {
             startNewGame();
         });
     }
-    
-    // Add sound toggle functionality
-    if (soundToggle) {
-        soundToggle.addEventListener('click', () => {
-            if (typeof toggleSound === 'function') {
-                const isEnabled = toggleSound();
-                soundToggle.textContent = isEnabled ? '🔊 Sound' : '🔇 Muted';
-                soundToggle.classList.toggle('muted', !isEnabled);
-            }
-        });
-    }
 
-    // Keyboard shortcuts: P to pause/resume, R to restart, M to mute
     document.addEventListener('keydown', (e) => {
         if (e.code === 'KeyP') {
             togglePause();
@@ -368,8 +355,11 @@ window.addEventListener('DOMContentLoaded', () => {
             hidePauseOverlay();
             startNewGame();
         }
-        if (e.code === 'KeyM' && soundToggle) {
-            soundToggle.click(); // Trigger the sound toggle
+        if (e.code === 'KeyM') {
+            // Use direct toggle instead of clicking button
+            if (typeof toggleSound === 'function') {
+                toggleSound();
+            }
         }
     });
 });

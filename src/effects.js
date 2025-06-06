@@ -16,8 +16,15 @@ function loadSound(name, src) {
 }
 
 function playSound(name) {
-    if (!soundEnabled) return;
-    if (!sounds[name]) return;
+    // Check if sound is enabled FIRST
+    if (!soundEnabled) {
+        return; // Don't play any sound when disabled
+    }
+    
+    if (!sounds[name]) {
+        return;
+    }
+    
     try {
         sounds[name].currentTime = 0;
         const playPromise = sounds[name].play();
@@ -30,16 +37,21 @@ function playSound(name) {
 function toggleSound() {
     soundEnabled = !soundEnabled;
     const soundToggle = document.getElementById('soundToggle');
+    
     if (soundToggle) {
         if (soundEnabled) {
             soundToggle.textContent = '🔊 Sound';
+            soundToggle.classList.remove('audio-disabled');
             soundToggle.classList.remove('muted');
-            initializeSounds();
+            console.log('Sound enabled');
         } else {
             soundToggle.textContent = '🔇 Muted';
+            soundToggle.classList.add('audio-disabled');
             soundToggle.classList.add('muted');
+            console.log('Sound disabled');
         }
     }
+    
     return soundEnabled;
 }
 
@@ -110,13 +122,18 @@ function drawParticles() {
 function initializeSoundToggle() {
     const soundToggle = document.getElementById('soundToggle');
     if (soundToggle) {
+        // Remove any existing event listeners to prevent duplicates
+        soundToggle.removeEventListener('click', toggleSound);
         soundToggle.addEventListener('click', toggleSound);
+        
         // Set initial state
         if (soundEnabled) {
             soundToggle.textContent = '🔊 Sound';
+            soundToggle.classList.remove('audio-disabled');
             soundToggle.classList.remove('muted');
         } else {
             soundToggle.textContent = '🔇 Muted';
+            soundToggle.classList.add('audio-disabled');
             soundToggle.classList.add('muted');
         }
     }

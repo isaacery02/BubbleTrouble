@@ -43,6 +43,69 @@
     animation: powerupWarning 0.5s infinite alternate;
 }
 
+/* Power-up timer animations */
+@keyframes powerupSlideIn {
+    from {
+        transform: translateX(-150%);
+        opacity: 0;
+        scale: 0.8;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+@keyframes powerupSlideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+        scale: 1;
+    }
+    to {
+        transform: translateX(-150%);
+        opacity: 0;
+        scale: 0.8;
+    }
+}
+
+/* Power-up timer warning animation */
+.powerup-warning {
+    animation: powerupWarning 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes powerupWarning {
+    from {
+        box-shadow: 
+            0 12px 30px rgba(0, 0, 0, 0.6),
+            0 0 20px rgba(83, 52, 131, 0.4);
+    }
+    to {
+        box-shadow: 
+            0 12px 30px rgba(239, 68, 68, 0.6),
+            0 0 30px rgba(239, 68, 68, 0.8);
+    }
+}
+
+/* Player 2 timers slide in from the right */
+#powerup-timer-2 {
+    animation: powerupSlideInRight 0.4s ease-out !important;
+}
+
+@keyframes powerupSlideInRight {
+    from {
+        transform: translateX(150%);
+        opacity: 0;
+        scale: 0.8;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+        scale: 1;
+    }
+}
+
 /* Utility Animations */
 .fade-in { animation: fadeIn 0.3s ease-in; }
 .slide-up { animation: slideUp 0.3s ease-out; }

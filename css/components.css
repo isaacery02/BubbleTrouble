@@ -232,3 +232,133 @@
     box-shadow: var(--shadow-lg);
     box-sizing: border-box;
 }
+
+/* ========== POWERUP TIMER STYLES ========== */
+.powerup-timer {
+    position: fixed !important;
+    background: linear-gradient(135deg, rgba(22, 33, 62, 0.95) 0%, rgba(83, 52, 131, 0.95) 100%) !important;
+    border: 2px solid rgba(83, 52, 131, 0.8) !important;
+    border-radius: 20px !important;
+    padding: 16px 20px !important;
+    color: white !important;
+    font-family: var(--font-primary, 'Inter', sans-serif) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    z-index: 9999 !important;
+    backdrop-filter: blur(15px) !important;
+    box-shadow: 
+        0 12px 30px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(83, 52, 131, 0.4) !important;
+    min-width: 240px !important;
+    max-width: 280px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    animation: powerupSlideIn 0.4s ease-out !important;
+}
+
+/* Player 1 timer - left side */
+#powerup-timer-1 {
+    top: 140px !important;
+    left: 20px !important;
+    transform: translateX(0) !important;
+}
+
+/* Player 2 timer - right side */
+#powerup-timer-2 {
+    top: 140px !important;
+    right: 20px !important;
+    transform: translateX(0) !important;
+}
+
+.powerup-timer-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+.powerup-details {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+.powerup-name {
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    color: #ffffff !important;
+    flex: 1 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+.powerup-time {
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    color: #cbd5e0 !important;
+    min-width: 50px !important;
+    text-align: right !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    padding: 4px 8px !important;
+    border-radius: 8px !important;
+}
+
+.powerup-player {
+    font-size: 12px !important;
+    color: #a0aec0 !important;
+    text-align: center !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    margin-top: 4px !important;
+}
+
+.powerup-progress {
+    width: 100% !important;
+    height: 6px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 3px !important;
+    overflow: hidden !important;
+    margin-top: 8px !important;
+}
+
+.powerup-progress-bar {
+    height: 100% !important;
+    border-radius: 3px !important;
+    transition: width 0.1s linear, background 0.3s ease !important;
+    box-shadow: 0 0 10px currentColor !important;
+}
+
+/* Warning state when time is low */
+.powerup-timer.powerup-warning {
+    animation: powerupWarning 0.5s ease-in-out infinite alternate !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .powerup-timer {
+        min-width: 200px !important;
+        max-width: 220px !important;
+        padding: 12px 16px !important;
+        font-size: 12px !important;
+    }
+    
+    #powerup-timer-1 {
+        top: 80px !important;
+        left: 10px !important;
+    }
+    
+    #powerup-timer-2 {
+        top: 80px !important;
+        right: 10px !important;
+    }
+    
+    .powerup-name {
+        font-size: 16px !important;
+    }
+    
+    .powerup-time {
+        font-size: 14px !important;
+    }
+}

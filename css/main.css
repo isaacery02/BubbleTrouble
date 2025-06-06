@@ -5,5 +5,5 @@
 @import url('layout.css');
 @import url('components.css');
 @import url('game.css');
+@import url('animations.css'); /* Make sure this line is included */
 @import url('mobile.css');
-@import url('animations.css');

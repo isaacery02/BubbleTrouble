@@ -215,7 +215,15 @@
 .controls-info,
 .powerups-info,
 .game-info {
-    @extend .content-section;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-accent);
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
 }
 
 /* Alternative if @extend doesn't work */

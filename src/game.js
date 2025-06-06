@@ -26,12 +26,6 @@ function setupGame() {
         initializeSounds();
     }
     
-    // Set up sound toggle button
-    const soundToggle = document.getElementById('soundToggle');
-    if (soundToggle && typeof toggleSound === 'function') {
-        soundToggle.addEventListener('click', toggleSound);
-    }
-    
     setupMobileControls();
     showMessage(
         "Welcome to Ottos & Theo's Bubble Trouble!\nReady to start?",
@@ -298,11 +292,13 @@ function hidePauseOverlay() {
 window.addEventListener('DOMContentLoaded', () => {
     const pauseBtn = document.getElementById('pauseBtn');
     const restartBtn = document.getElementById('restartBtn');
+    const soundToggle = document.getElementById('soundToggle');
     pauseOverlay = document.getElementById('pauseOverlay');
 
     if (pauseBtn) {
         pauseBtn.addEventListener('click', togglePause);
     }
+    
     if (restartBtn) {
         restartBtn.addEventListener('click', () => {
             isPaused = false;
@@ -310,8 +306,19 @@ window.addEventListener('DOMContentLoaded', () => {
             startNewGame();
         });
     }
+    
+    // Add sound toggle functionality
+    if (soundToggle) {
+        soundToggle.addEventListener('click', () => {
+            if (typeof toggleSound === 'function') {
+                const isEnabled = toggleSound();
+                soundToggle.textContent = isEnabled ? '🔊 Sound' : '🔇 Muted';
+                soundToggle.classList.toggle('muted', !isEnabled);
+            }
+        });
+    }
 
-    // Keyboard shortcuts: P to pause/resume, R to restart
+    // Keyboard shortcuts: P to pause/resume, R to restart, M to mute
     document.addEventListener('keydown', (e) => {
         if (e.code === 'KeyP') {
             togglePause();
@@ -320,6 +327,9 @@ window.addEventListener('DOMContentLoaded', () => {
             isPaused = false;
             hidePauseOverlay();
             startNewGame();
+        }
+        if (e.code === 'KeyM' && soundToggle) {
+            soundToggle.click(); // Trigger the sound toggle
         }
     });
 });

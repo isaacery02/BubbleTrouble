@@ -50,3 +50,12 @@
     background: #185a9d;
     transform: scale(0.98);
 }
+
+/* Sound toggle button styling */
+.game-btn.muted {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.game-btn.muted:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+}

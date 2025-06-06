@@ -47,15 +47,7 @@ function playSound(soundName) {
 function toggleSound() {
     soundEnabled = !soundEnabled;
     console.log('Sound', soundEnabled ? 'enabled' : 'disabled');
-    
-    // Update UI button if it exists
-    const soundToggle = document.getElementById('soundToggle');
-    if (soundToggle) {
-        soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-        soundToggle.classList.toggle('muted', !soundEnabled);
-    }
-    
-    return soundEnabled;
+    return soundEnabled; // Return the current state
 }
 
 console.log("=== SOUND.JS LOADED ===");

@@ -203,7 +203,7 @@ function resetPlayers() {
     player1.powerUpTimer = null;
     player1.powerUpEndTime = null;
     player1.maxProjectiles = 6;
-    player1.shootCooldown = 250; // Updated to faster shooting
+    player1.shootCooldown = 250; // <-- Ensure this is always set!
     player1.hasShield = false;
     player1.invincible = false;
 
@@ -220,7 +220,7 @@ function resetPlayers() {
     player2.powerUpTimer = null;
     player2.powerUpEndTime = null;
     player2.maxProjectiles = 6;
-    player2.shootCooldown = 250; // Updated to faster shooting
+    player2.shootCooldown = 250; // <-- Ensure this is always set!
     player2.hasShield = false;
     player2.invincible = false;
 

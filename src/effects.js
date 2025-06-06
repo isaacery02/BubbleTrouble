@@ -5,72 +5,46 @@ function loadSound(name, src) {
     try {
         sounds[name] = new Audio(src);
         sounds[name].preload = 'auto';
-        sounds[name].addEventListener('canplaythrough', () => {
-            console.log(`Sound loaded: ${name}`);
-        });
         sounds[name].addEventListener('error', (e) => {
-            console.warn(`Sound file not found: ${src} - Creating silent placeholder`);
             // Create a silent placeholder so the game doesn't break
             sounds[name] = { play: () => {}, currentTime: 0 };
         });
     } catch (error) {
-        console.warn(`Error creating audio for ${name}:`, error);
         // Create a silent placeholder
         sounds[name] = { play: () => {}, currentTime: 0 };
     }
 }
 
 function playSound(name) {
-    console.log(`playSound called with: ${name}`);
-    
-    if (!soundEnabled) {
-        console.log('Sound disabled, not playing:', name);
-        return;
-    }
-    
-    if (!sounds[name]) {
-        console.error(`Sound not found: ${name}`);
-        return;
-    }
-    
+    if (!soundEnabled) return;
+    if (!sounds[name]) return;
     try {
-        console.log(`Playing sound: ${name}`);
         sounds[name].currentTime = 0;
         const playPromise = sounds[name].play();
         if (playPromise !== undefined) {
-            playPromise.then(() => {
-                console.log(`Successfully played: ${name}`);
-            }).catch(error => {
-                console.error(`Play error for ${name}:`, error);
-            });
+            playPromise.catch(() => {});
         }
-    } catch (error) {
-        console.error(`Error playing sound: ${name}`, error);
-    }
+    } catch (error) {}
 }
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
     const soundToggle = document.getElementById('soundToggle');
-    
     if (soundToggle) {
         if (soundEnabled) {
-            soundToggle.textContent = '🔊';
-            soundToggle.classList.remove('audio-disabled');
-            console.log('Sound enabled');
-            // Load sounds when enabled
+            soundToggle.textContent = '🔊 Sound';
+            soundToggle.classList.remove('muted');
             initializeSounds();
         } else {
-            soundToggle.textContent = '🔇';
-            soundToggle.classList.add('audio-disabled');
-            console.log('Sound disabled');
+            soundToggle.textContent = '🔇 Muted';
+            soundToggle.classList.add('muted');
         }
     }
-    
-    return soundEnabled; // Return the current state
+    return soundEnabled;
 }
 
 function initializeSounds() {
+    console.log('Initializing sound system...');
     loadSound('shoot', 'media/shoot.wav');
     loadSound('pop', 'media/pop.wav');
     loadSound('hit', 'media/hit.wav');
@@ -78,6 +52,7 @@ function initializeSounds() {
     loadSound('levelup', 'media/levelup.wav');
     loadSound('gameover', 'media/gameover.wav');
     loadSound('start', 'media/start.wav');
+    console.log('Sound system initialized with', Object.keys(sounds).length, 'sounds');
 }
 
 // Particle system
@@ -92,7 +67,7 @@ class Particle {
         this.maxLife = life;
         this.size = Math.random() * 4 + 2;
     }
-
+    
     update() {
         this.x += this.vx;
         this.y += this.vy;
@@ -101,7 +76,7 @@ class Particle {
         this.life--;
         return this.life > 0;
     }
-
+    
     draw() {
         const alpha = this.life / this.maxLife;
         ctx.save();
@@ -132,29 +107,27 @@ function drawParticles() {
     particles.forEach(particle => particle.draw());
 }
 
-// Initialize sounds when the script loads
-if (soundEnabled) {
-    initializeSounds();
-}
-
 function initializeSoundToggle() {
     const soundToggle = document.getElementById('soundToggle');
     if (soundToggle) {
-        // Just add the click listener, let toggleSound handle the rest
         soundToggle.addEventListener('click', toggleSound);
-        
         // Set initial state
         if (soundEnabled) {
-            soundToggle.textContent = '🔊';
-            soundToggle.classList.remove('audio-disabled');
+            soundToggle.textContent = '🔊 Sound';
+            soundToggle.classList.remove('muted');
         } else {
-            soundToggle.textContent = '🔇';
-            soundToggle.classList.add('audio-disabled');
+            soundToggle.textContent = '🔇 Muted';
+            soundToggle.classList.add('muted');
         }
     }
 }
 
-// Call this when the page loads
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeSoundToggle);
+
+// Initialize sounds when the script loads
+if (soundEnabled) {
+    initializeSounds();
+}
 
 console.log("=== EFFECTS.JS LOADED ===");

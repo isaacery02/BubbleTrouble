@@ -179,8 +179,12 @@ function checkGameOver() {
         console.log('Game Over');
         gameRunning = false;
         gameOver = true;
+        
+        // Clear all power-up timers and UI on game over
+        clearAllPowerUpTimers();
+        
         if (typeof resetPlayerPowerUps === 'function') resetPlayerPowerUps();
-        if (typeof playSound === 'function') playSound('gameover'); // <-- Play gameover sound here
+        if (typeof playSound === 'function') playSound('gameover');
         showGameOverMessage();
     }
 }
@@ -210,25 +214,32 @@ function startNewGame() {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
     }
+    
+    // Clear any lingering power-up timers and UI
+    clearAllPowerUpTimers();
+    
     if (typeof resetBubbleSpeed === 'function') {
         resetBubbleSpeed();
     } else {
         if (typeof BUBBLE_BASE_SPEED !== 'undefined') BUBBLE_SPEED = BUBBLE_BASE_SPEED; else BUBBLE_SPEED = 2;
         if (typeof bubbleSpeedMultiplier !== 'undefined') bubbleSpeedMultiplier = 1.0; else bubbleSpeedMultiplier = 1.0;
     }
+    
     gameRunning = true;
     gamePaused = false;
     gameOver = false;
     levelTransitioning = false;
     currentLevel = 1;
     resetPlayers();
+    
     if (typeof startLevel === 'function') {
         startLevel(1);
     } else {
         initializeLevel();
     }
+    
     animationFrameId = requestAnimationFrame(gameLoop);
-    console.log('New game started. Initial BUBBLE_SPEED should be based on BUBBLE_BASE_SPEED.');
+    console.log('New game started. All power-up timers cleared.');
 }
 
 // Helper functions

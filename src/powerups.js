@@ -224,7 +224,7 @@ function applyPowerUp(player, type) {
             break;
             
         case 'fastBullets':
-            player.projectileSpeedMultiplier = 10; // 10x faster bullets
+            player.projectileSpeedMultiplier = 5;
             setTimeout(() => { player.projectileSpeedMultiplier = 1; }, POWER_UP_DURATION);
             player.activePowerUp = type;
             player.powerUpEndTime = Date.now() + POWER_UP_DURATION;

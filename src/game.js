@@ -102,6 +102,11 @@ function startNextLevel() {
     // Clear any active power-up timers and UI
     clearAllPowerUpTimers();
     
+    // Clear bubble speed effects before level transition
+    if (typeof clearBubbleSpeedEffects === 'function') {
+        clearBubbleSpeedEffects();
+    }
+    
     // Reset positions but PRESERVE shooting settings
     player1.x = canvas.width / 2 - 15;
     player1.y = canvas.height - 40;
@@ -228,6 +233,11 @@ function startNewGame() {
     // Clear rescue bubbles on game restart
     if (typeof clearAllRescueBubbles === 'function') {
         clearAllRescueBubbles();
+    }
+    
+    // Clear bubble speed effects on new game
+    if (typeof clearBubbleSpeedEffects === 'function') {
+        clearBubbleSpeedEffects();
     }
     
     if (typeof resetBubbleSpeed === 'function') {

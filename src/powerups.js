@@ -213,9 +213,14 @@ function applyPowerUp(player, type) {
             
         case 'slowBubbles':
             slowAllBubbles();
-            setTimeout(resetBubbleSpeedEffect, POWER_UP_DURATION);
             player.activePowerUp = type;
             player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
+    
+            // Set up automatic cleanup
+            player.powerUpTimer = setTimeout(() => {
+                resetBubbleSpeedEffect();
+                // Don't remove the player's powerup here - let the normal expiration handle it
+            }, POWER_UP_DURATION);
             break;
             
         case 'fastBullets':
@@ -238,6 +243,11 @@ function applyPowerUp(player, type) {
 function removePowerUp(player) {
     const powerUpType = player.activePowerUp;
     console.log(`Removing powerup ${powerUpType} from Player ${player.id}`);
+    
+    // Handle specific power-up cleanup
+    if (powerUpType === 'slowBubbles') {
+        resetBubbleSpeedEffect();
+    }
     
     player.activePowerUp = null;
     player.powerUpEndTime = null;
@@ -265,21 +275,72 @@ function removePowerUp(player) {
     console.log(`Powerup ${powerUpType} removed and timer cleared for Player ${player.id}`);
 }
 
+// Store original speeds for proper restoration
+let originalBubbleSpeeds = new Map(); // Store original dx/dy for each bubble
+let bubbleSlowEffectActive = false;
+
 function slowAllBubbles() {
-    bubbles.forEach(b => {
-        b.dx *= 0.4;
-        b.dy *= 0.4;
+    if (bubbleSlowEffectActive) {
+        console.log('Slow bubbles effect already active, skipping');
+        return; // Prevent stacking
+    }
+    
+    console.log('Applying slow bubbles effect');
+    bubbleSlowEffectActive = true;
+    
+    // Store original speeds and apply slow effect
+    bubbles.forEach((bubble, index) => {
+        // Store original speeds if not already stored
+        if (!originalBubbleSpeeds.has(index)) {
+            originalBubbleSpeeds.set(index, {
+                dx: bubble.dx,
+                dy: bubble.dy
+            });
+        }
+        
+        // Apply slow effect (40% of original speed)
+        bubble.dx *= 0.4;
+        bubble.dy *= 0.4;
     });
-    window._bubblesSlowed = true;
+    
+    console.log(`Slowed ${bubbles.length} bubbles`);
 }
 
 function resetBubbleSpeedEffect() {
-    if (window._bubblesSlowed) {
-        bubbles.forEach(b => {
-            b.dx *= 2.5;
-            b.dy *= 2.5;
-        });
-        window._bubblesSlowed = false;
+    if (!bubbleSlowEffectActive) {
+        console.log('No slow effect active, skipping reset');
+        return;
+    }
+    
+    console.log('Resetting bubble speeds from slow effect');
+    bubbleSlowEffectActive = false;
+    
+    // Restore original speeds
+    bubbles.forEach((bubble, index) => {
+        const originalSpeed = originalBubbleSpeeds.get(index);
+        if (originalSpeed) {
+            bubble.dx = originalSpeed.dx;
+            bubble.dy = originalSpeed.dy;
+        } else {
+            // Fallback: restore to normal speed based on level
+            const levelSpeed = Math.min(4, 1 + (currentLevel - 1) * 0.5);
+            const direction = Math.random() < 0.5 ? -1 : 1;
+            bubble.dx = direction * levelSpeed;
+            bubble.dy = Math.random() * 2 + 1;
+        }
+    });
+    
+    // Clear stored speeds
+    originalBubbleSpeeds.clear();
+    console.log('Bubble speeds restored');
+}
+
+// Add cleanup function for level transitions
+function clearBubbleSpeedEffects() {
+    if (bubbleSlowEffectActive) {
+        console.log('Clearing bubble speed effects for level transition');
+        bubbleSlowEffectActive = false;
+        originalBubbleSpeeds.clear();
     }
 }
 

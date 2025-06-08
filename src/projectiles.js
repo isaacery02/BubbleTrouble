@@ -41,9 +41,6 @@ function shootProjectile(playerObj) {
     if (typeof playSound === 'function') {
         playSound('shoot');
     }
-
-    // This will now show "Total: X/6" instead of "Total: X/3"
-    console.log(`Player ${playerObj.id} shot projectile upward. Total: ${playerObj.projectiles.length}/${playerObj.maxProjectiles}`);
 }
 
 function updateProjectiles() {

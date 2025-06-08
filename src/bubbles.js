@@ -23,7 +23,7 @@ function resetBubbleSpeed() {
     //     bubbleGravity = 0.08; // Fallback
     // }
 
-    console.log('Global bubble speed variables reset. BUBBLE_SPEED:', BUBBLE_SPEED, 'Multiplier:', bubbleSpeedMultiplier);
+    
 }
 
 class Bubble {
@@ -145,7 +145,6 @@ function initializeBubbles() {
     bubbles = []; // Clear existing bubbles
     const config = getLevelConfig(currentLevel);
     
-    console.log(`Initializing ${config.bubbleCount} bubbles for level ${currentLevel}`);
     
     for (let i = 0; i < config.bubbleCount; i++) {
         let x, y;
@@ -210,8 +209,7 @@ function initializeBubbles() {
         }
     }
     
-    console.log(`Successfully created ${bubbles.length} bubbles for level ${currentLevel}`);
-    
+
     // Add a global variable to track this
     window.currentBubbleCount = bubbles.length;
 }
@@ -270,7 +268,6 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
         // Add both bubbles to the array
         bubbles.push(leftBubble, rightBubble);
         
-        console.log(`Bubble split with explosive force! Left: dx=${leftBubble.dx.toFixed(2)}, dy=${leftBubble.dy.toFixed(2)} | Right: dx=${rightBubble.dx.toFixed(2)}, dy=${rightBubble.dy.toFixed(2)}`);
     }
     
     // Remove the original bubble
@@ -280,11 +277,8 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
     if (Math.random() < POWER_UP_DROP_CHANCE && typeof createPowerUp === 'function') {
         createPowerUp(bubble.x, bubble.y);
     }
-    
-    console.log(`Bubble popped! Player ${playerObj.id} scored ${points} points`);
 }
 
-// Add this where a bubble gets destroyed/popped
 function destroyBubble(index) {
     // Play pop sound
     if (typeof playSound === 'function') {
@@ -339,8 +333,6 @@ function handleEnhancedBubbleBouncing(bubble, prevX, prevY) {
         if (Math.abs(bubble.dy) < 2.5) {
             bubble.dy = -3.5; // Much stronger minimum bounce
         }
-        
-        console.log(`Floor bounce: dy=${bubble.dy.toFixed(2)}, dx=${bubble.dx.toFixed(2)}`);
     }
     
     // Enhanced wall bouncing with more force

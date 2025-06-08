@@ -1,34 +1,48 @@
 // Input handling system
 
 // Key state tracking
-const keys = {};
+let keys = {};
+let keyJustPressed = {}; // Track keys that were just pressed this frame
 
 // Key event listeners
 document.addEventListener('keydown', (event) => {
-    // List of keys used in the game that should not trigger default browser behavior
-    const gameKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'd', 'w', 's'];
+    const wasPressed = keys[event.code];
+    keys[event.code] = true;
     
-    if (gameKeys.includes(event.key)) {
-        event.preventDefault(); // Prevent default browser behavior
+    // Mark as "just pressed" only if it wasn't already pressed
+    if (!wasPressed) {
+        keyJustPressed[event.code] = true;
+        
+        // Handle shooting immediately on key press
+        if (event.code === 'ArrowUp' && player1.active) {
+            if (typeof shootProjectile === 'function') {
+                shootProjectile(player1);
+            }
+        }
+        if (event.code === 'KeyW' && player2.active) {
+            if (typeof shootProjectile === 'function') {
+                shootProjectile(player2);
+            }
+        }
     }
     
-    keys[event.code] = true;
+    // Prevent default behavior for game keys
+    if (['ArrowUp', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyD'].includes(event.code)) {
+        event.preventDefault();
+    }
 });
 
 document.addEventListener('keyup', (event) => {
-    // List of keys used in the game that should not trigger default browser behavior
-    const gameKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'd', 'w', 's'];
-    
-    if (gameKeys.includes(event.key)) {
-        event.preventDefault(); // Prevent default browser behavior
-    }
-    
     keys[event.code] = false;
+    keyJustPressed[event.code] = false;
 });
 
 // Handle keyboard input for both players
 function handleInput() {
-    // Player 1 controls (Arrow keys)
+    // Clear the "just pressed" flags at the start of each frame
+    keyJustPressed = {};
+
+    // Handle movement (these can be continuous)
     if (keys['ArrowLeft'] && player1.active) {
         player1.dx = -PLAYER_SPEED;
     } else if (keys['ArrowRight'] && player1.active) {
@@ -37,11 +51,6 @@ function handleInput() {
         player1.dx = 0;
     }
 
-    if (keys['ArrowUp'] && player1.active) {
-        shootProjectile(player1);
-    }
-
-    // Player 2 controls (WASD keys)
     if (keys['KeyA'] && player2.active) {
         player2.dx = -PLAYER_SPEED;
     } else if (keys['KeyD'] && player2.active) {
@@ -50,9 +59,7 @@ function handleInput() {
         player2.dx = 0;
     }
 
-    if (keys['KeyW'] && player2.active) {
-        shootProjectile(player2);
-    }
+    // Note: Shooting is now handled in keydown event, not here
 }
 
 // Mobile controls setup
@@ -93,15 +100,16 @@ function setupMobileControls() {
         keys['ArrowRight'] = false;
     });
 
-    shootBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        keys['ArrowUp'] = true;
-    });
-    
-    shootBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keys['ArrowUp'] = false;
-    });
+    // Update mobile controls in setupMobileControls function
+    if (shootBtn) {
+        // Remove any existing listeners
+        shootBtn.removeEventListener('touchstart', handleMobileShoot);
+        shootBtn.removeEventListener('click', handleMobileShoot);
+        
+        // Add single-fire event listeners
+        shootBtn.addEventListener('touchstart', handleMobileShoot, { passive: false });
+        shootBtn.addEventListener('click', handleMobileShoot);
+    }
 
     // Also add mouse support for testing
     leftBtn.addEventListener('mousedown', () => keys['ArrowLeft'] = true);
@@ -110,6 +118,18 @@ function setupMobileControls() {
     rightBtn.addEventListener('mouseup', () => keys['ArrowRight'] = false);
     shootBtn.addEventListener('mousedown', () => keys['ArrowUp'] = true);
     shootBtn.addEventListener('mouseup', () => keys['ArrowUp'] = false);
+}
+
+function handleMobileShoot(e) {
+    e.preventDefault();
+    
+    // Fire for active players (you can modify this logic as needed)
+    if (player1.active && typeof shootProjectile === 'function') {
+        shootProjectile(player1);
+    }
+    if (player2.active && typeof shootProjectile === 'function') {
+        shootProjectile(player2);
+    }
 }
 
 console.log("=== INPUT.JS LOADED ===");

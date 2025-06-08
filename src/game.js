@@ -69,8 +69,10 @@ function updateGameSystems() {
     if (typeof updateBubbles === 'function') updateBubbles();
     if (typeof updateProjectiles === 'function') updateProjectiles();
     if (typeof updatePowerUps === 'function') updatePowerUps();
+    if (typeof updateRescueBubbles === 'function') updateRescueBubbles(); // Add this line
     if (typeof updateParticles === 'function') updateParticles();
     if (typeof checkCollisions === 'function') checkCollisions();
+    if (typeof checkRescueBubbleCollisions === 'function') checkRescueBubbleCollisions(); // Add this line
     if (typeof drawEverything === 'function') drawEverything();
 }
 
@@ -183,6 +185,11 @@ function checkGameOver() {
         // Clear all power-up timers and UI on game over
         clearAllPowerUpTimers();
         
+        // Clear rescue bubbles on game over
+        if (typeof clearAllRescueBubbles === 'function') {
+            clearAllRescueBubbles();
+        }
+        
         if (typeof resetPlayerPowerUps === 'function') resetPlayerPowerUps();
         if (typeof playSound === 'function') playSound('gameover');
         showGameOverMessage();
@@ -218,6 +225,11 @@ function startNewGame() {
     // Clear any lingering power-up timers and UI
     clearAllPowerUpTimers();
     
+    // Clear rescue bubbles on game restart
+    if (typeof clearAllRescueBubbles === 'function') {
+        clearAllRescueBubbles();
+    }
+    
     if (typeof resetBubbleSpeed === 'function') {
         resetBubbleSpeed();
     } else {
@@ -239,7 +251,7 @@ function startNewGame() {
     }
     
     animationFrameId = requestAnimationFrame(gameLoop);
-    console.log('New game started. All power-up timers cleared.');
+    console.log('New game started. All power-up timers and rescue bubbles cleared.');
 }
 
 // Helper functions
@@ -249,6 +261,11 @@ function clearGameObjects() {
     powerUps.length = 0;
     obstacles = [];
     bubbles = [];
+    
+    // Clear rescue bubbles when clearing all game objects
+    if (typeof clearAllRescueBubbles === 'function') {
+        clearAllRescueBubbles();
+    }
 }
 
 function initializeLevel() {

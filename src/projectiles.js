@@ -64,6 +64,14 @@ function updateProjectiles() {
                 continue;
             }
 
+            // Check collision with rescue bubbles
+            if (typeof checkProjectileRescueBubbleCollision === 'function') {
+                if (checkProjectileRescueBubbleCollision(projectile)) {
+                    playerObj.projectiles.splice(i, 1);
+                    continue;
+                }
+            }
+
             // Bounce off screen edges (left and right walls)
             if (projectile.x <= 0 || projectile.x + projectile.width >= canvas.width) {
                 projectile.dx = -projectile.dx;

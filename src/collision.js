@@ -39,7 +39,7 @@ function detectCollisions() {
         bubbles.forEach(bubble => {
             if (playerCollidesWith(playerObj, bubble)) {
                 // Use handlePlayerHit instead of loseLife
-                handlePlayerHit(playerObj);
+                handlePlayerHit(playerObj, bubble);
                 
                 // Play hit sound
                 if (typeof playSound === 'function') {
@@ -196,6 +196,41 @@ function checkProjectileObstacleCollision(projectile) {
         }
     }
     return false;
+}
+
+// Add this to your player hit logic in collision.js
+function handlePlayerHit(player, bubble) {
+    if (player.hasShield || player.invincible) {
+        return; // Player is protected
+    }
+    
+    player.lives--;
+    
+    if (player.lives <= 0) {
+        player.active = false;
+        console.log(`Player ${player.id} is out of lives!`);
+        
+        // Create rescue bubble when player dies
+        if (typeof createRescueBubble === 'function') {
+            createRescueBubble(player);
+        }
+    } else {
+        // Player still has lives, make them invincible briefly
+        player.invincible = true;
+        setTimeout(() => {
+            player.invincible = false;
+        }, 1500);
+    }
+    
+    // Play hit sound
+    if (typeof playSound === 'function') {
+        playSound('hit');
+    }
+    
+    // Create hit particles
+    if (typeof createParticles === 'function') {
+        createParticles(player.x + player.width/2, player.y + player.height/2, '#ff4444', 10);
+    }
 }
 
 console.log("=== COLLISION.JS LOADED ===");

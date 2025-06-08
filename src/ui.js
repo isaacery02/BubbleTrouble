@@ -136,15 +136,13 @@ function drawLevelInfo() {
 }
 
 function drawEverything() {
-    // DON'T draw background here - let CSS handle it
-    // drawBackground(); // REMOVE this line
-    
     // Draw game objects only
     if (typeof drawBubbles === 'function') drawBubbles();
     if (typeof drawPlayers === 'function') drawPlayers();
     if (typeof drawPowerUps === 'function') drawPowerUps();
     if (typeof drawObstacles === 'function') drawObstacles();
     if (typeof drawProjectiles === 'function') drawProjectiles();
+    if (typeof drawRescueBubbles === 'function') drawRescueBubbles(); // Add this line
     if (typeof drawParticles === 'function') drawParticles();
     if (typeof drawUI === 'function') drawUI();
 }

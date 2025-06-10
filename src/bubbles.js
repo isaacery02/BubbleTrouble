@@ -51,25 +51,26 @@ class Bubble {
         this.pulsePhase = Math.random() * Math.PI * 2;
         this.bounces = 0;
         this.lastBounceTime = 0;
+        this.isFrozen = false; // Initialize isFrozen state
     }
     
     update() {
-        // Apply gravity
-        // Ensure bubbleGravity is a const or also reset if it's a let
-        this.dy += bubbleGravity; 
-        
-        // Update position
-        this.x += this.dx;
-        this.y += this.dy;
-        
-        // Update visual effects
-        this.pulsePhase += 0.1;
-        
-        // Reduce damping significantly - only apply to very small movements
-        if (Math.abs(this.dx) < 0.5 && Math.abs(this.dy) < 0.5) {
-            this.dx *= 0.98; // Much less damping
-            this.dy *= 0.98;
+        if (!this.isFrozen) { // Only update physics if not frozen
+            // Apply gravity
+            this.dy += bubbleGravity; // Gravity applied once here
+            
+            // Update position
+            this.x += this.dx;
+            this.y += this.dy;
+            
+            // Reduce damping significantly - only apply to very small movements
+            if (Math.abs(this.dx) < 0.5 && Math.abs(this.dy) < 0.5) {
+                this.dx *= 0.98; // Much less damping
+                this.dy *= 0.98;
+            }
         }
+        // Visual effects can update regardless of freeze state
+        this.pulsePhase += 0.1;
     }
     
     getColorForSize(radius) {
@@ -322,16 +323,12 @@ function handleEnhancedBubbleBouncing(bubble, prevX, prevY) {
     // Enhanced floor bouncing with much better energy retention
     if (bubble.y + bubble.radius >= canvas.height) {
         bubble.y = canvas.height - bubble.radius;
-        bubble.dy = -Math.abs(bubble.dy) * bubbleBounceFactor;
+        // Ensure a strong minimum upward bounce, or retain energy if bounce is already strong
+        bubble.dy = -Math.max(5.0, Math.abs(bubble.dy) * bubbleBounceFactor); 
         
         // Add horizontal movement if bubble is moving too slowly
         if (Math.abs(bubble.dx) < 1.0) {
             bubble.dx += (Math.random() - 0.5) * 3;
-        }
-        
-        // Higher minimum bounce velocity to keep bubbles very active
-        if (Math.abs(bubble.dy) < 2.5) {
-            bubble.dy = -3.5; // Much stronger minimum bounce
         }
     }
     
@@ -341,7 +338,7 @@ function handleEnhancedBubbleBouncing(bubble, prevX, prevY) {
         bubble.dx = Math.abs(bubble.dx) * bubbleBounceFactor;
         
         // Add significant upward force on wall bounce
-        bubble.dy -= 1.5;
+        bubble.dy -= 2.0; // Increased upward impulse
         
         // Ensure minimum horizontal velocity
         if (bubble.dx < 1.5) {
@@ -352,7 +349,7 @@ function handleEnhancedBubbleBouncing(bubble, prevX, prevY) {
         bubble.dx = -Math.abs(bubble.dx) * bubbleBounceFactor;
         
         // Add significant upward force on wall bounce
-        bubble.dy -= 1.5;
+        bubble.dy -= 2.0; // Increased upward impulse
         
         // Ensure minimum horizontal velocity
         if (bubble.dx > -1.5) {

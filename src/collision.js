@@ -51,15 +51,34 @@ function detectCollisions() {
 }
 
 function projectileHitsBubble(projectile, bubble) {
-    const projectileCenterX = projectile.x + projectile.width / 2;
-    const projectileCenterY = projectile.y + projectile.height / 2;
+    // projectile.x, projectile.y is the CURRENT top-left of the projectile AFTER movement for this frame.
+    // projectile.dy is the change in y that just occurred (it's negative for upward movement).
+
+    // Define the swept rectangle of the projectile for this frame.
+    // The projectile moved from (projectile.y - projectile.dy) to (projectile.y) [these are top y-coordinates].
+    const sweptRectX = projectile.x;
+    const sweptRectWidth = projectile.width;
     
-    const dx = projectileCenterX - bubble.x;
-    const dy = projectileCenterY - bubble.y;
-    const distanceSquared = dx * dx + dy * dy; // Skip Math.sqrt()
-    const radiusSum = bubble.radius + Math.max(projectile.width, projectile.height) / 2;
+    // The top of the swept area is the projectile's current y position (since dy is negative).
+    const sweptRectY = projectile.y; 
+    // The height of the swept area includes the projectile's own height plus the distance it traveled.
+    const sweptRectHeight = projectile.height + Math.abs(projectile.dy);
+
+    // Now, check collision between this sweptRect and the bubble (circle).
+    // Bubble center: bubble.x, bubble.y
+    // Bubble radius: bubble.radius
+
+    // Find the closest point on the swept rectangle to the bubble's center.
+    const closestX = Math.max(sweptRectX, Math.min(bubble.x, sweptRectX + sweptRectWidth));
+    const closestY = Math.max(sweptRectY, Math.min(bubble.y, sweptRectY + sweptRectHeight));
+
+    // Calculate the square of the distance between the closest point and the bubble's center.
+    const deltaX = bubble.x - closestX;
+    const deltaY = bubble.y - closestY;
+    const distanceSquared = (deltaX * deltaX) + (deltaY * deltaY);
     
-    return distanceSquared < radiusSum * radiusSum; // Compare squared distances
+    // If the distance is less than the bubble's radius, a collision occurred.
+    return distanceSquared < (bubble.radius * bubble.radius);
 }
 
 function playerCollidesWith(playerObj, bubble) {

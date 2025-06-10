@@ -180,50 +180,57 @@ function collectPowerUp(player, powerUp) {
 function applyPowerUp(player, type) {
     console.log(`Applying powerup ${type} to Player ${player.id}`);
     
-    // Clear any existing power-up first
+    // Clear any existing power-up first, this also clears player.powerUpTimer and player.currentPowerUpDuration
     if (player.activePowerUp) {
         removePowerUp(player);
     }
     
+    player.activePowerUp = type; // Set active power-up type
+    let specificDuration = POWER_UP_DURATION; // Default duration for most power-ups
+
     switch (type) {
         case 'rapid_fire':
             player.shootCooldown = 80;
             player.maxProjectiles = RAPID_FIRE_MAX_PROJECTILES;
-            player.activePowerUp = type;
-            player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
             break;
             
         case 'wide_shot':
             player.currentProjectileWidth = PROJECTILE_WIDTH * 5;
-            player.activePowerUp = type;
-            player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
             break;
             
         case 'shield':
             player.hasShield = true;
-            player.activePowerUp = type;
-            player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
             break;
             
         case 'extra_life':
             player.lives++;
-            // Extra life is instant, no timer needed
+            // Extra life is instant, no timer needed, clear activePowerUp related fields
+            player.activePowerUp = null; 
             console.log(`Player ${player.id} gained extra life, now has ${player.lives} lives`);
+            // Hide timer if any was shown for a previous powerup that got replaced by extra_life
+            if (typeof hidePowerUpTimer === 'function') hidePowerUpTimer(player.id);
             return; // Exit early for instant powerup
             
         case 'slowBubbles':
             slowAllBubbles();
-            player.activePowerUp = type;
-            player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
-    
-            // Set up automatic cleanup
+            specificDuration = 3000; // Freeze for 3 seconds
+            // Clear any existing effect-specific timer before setting a new one
+            if (player.powerUpTimer) clearTimeout(player.powerUpTimer);
             player.powerUpTimer = setTimeout(() => {
                 resetBubbleSpeedEffect();
                 // Don't remove the player's powerup here - let the normal expiration handle it
-            }, POWER_UP_DURATION);
+            }, specificDuration);
             break;
             
         case 'fastBullets':
+            player.projectileSpeedMultiplier = 10; // 10x faster bullets
+            // Clear any existing effect-specific timer before setting a new one
+            if (player.powerUpTimer) clearTimeout(player.powerUpTimer);
+            // This specific timeout cleans up the fastBullets effect.
+            // The general power-up duration (and UI timer) is handled by powerUpEndTime.
+            player.powerUpTimer = setTimeout(() => { 
+                player.projectileSpeedMultiplier = 1; 
+            }, specificDuration); // specificDuration will be POWER_UP_DURATION for this case
             player.projectileSpeedMultiplier = 5;
             setTimeout(() => { player.projectileSpeedMultiplier = 1; }, POWER_UP_DURATION);
             player.activePowerUp = type;
@@ -231,12 +238,18 @@ function applyPowerUp(player, type) {
             break;
     }
     
-    // Show power-up timer if it has duration
-    if (player.powerUpEndTime && typeof showPowerUpTimer === 'function') {
+    // Set duration and end time for power-ups that have a duration
+    player.currentPowerUpDuration = specificDuration;
+    player.powerUpEndTime = Date.now() + specificDuration;
+    
+    // Show power-up timer UI
+    // The UI timer will use player.powerUpEndTime and player.currentPowerUpDuration
+    // which are now correctly set based on specificDuration.
+    if (typeof showPowerUpTimer === 'function') {
         showPowerUpTimer(player, type);
         console.log(`Timer shown for ${type} powerup`);
     } else {
-        console.log('No timer shown - either no end time or showPowerUpTimer function missing');
+        console.log('showPowerUpTimer function missing or no end time for UI');
     }
 }
 
@@ -269,6 +282,7 @@ function removePowerUp(player) {
         player.powerUpTimer = null;
     }
     
+    player.currentPowerUpDuration = null; // Clear the stored duration
     // Hide powerup timer UI
     hidePowerUpTimer(player.id);
     
@@ -287,20 +301,17 @@ function slowAllBubbles() {
     
     console.log('Applying slow bubbles effect');
     bubbleSlowEffectActive = true;
+    originalBubbleSpeeds.clear(); // Clear any previous state
     
-    // Store original speeds and apply slow effect
-    bubbles.forEach((bubble, index) => {
-        // Store original speeds if not already stored
-        if (!originalBubbleSpeeds.has(index)) {
-            originalBubbleSpeeds.set(index, {
-                dx: bubble.dx,
-                dy: bubble.dy
-            });
-        }
-        
-        // Apply slow effect (40% of original speed)
-        bubble.dx *= 0.4;
-        bubble.dy *= 0.4;
+    // Store original speeds, freeze bubbles, and mark as frozen
+    bubbles.forEach(bubble => {
+        originalBubbleSpeeds.set(bubble, {
+            dx: bubble.dx,
+            dy: bubble.dy
+        });
+        bubble.dx = 0;
+        bubble.dy = 0;
+        bubble.isFrozen = true;
     });
     
     console.log(`Slowed ${bubbles.length} bubbles`);
@@ -315,18 +326,15 @@ function resetBubbleSpeedEffect() {
     console.log('Resetting bubble speeds from slow effect');
     bubbleSlowEffectActive = false;
     
-    // Restore original speeds
-    bubbles.forEach((bubble, index) => {
-        const originalSpeed = originalBubbleSpeeds.get(index);
-        if (originalSpeed) {
-            bubble.dx = originalSpeed.dx;
-            bubble.dy = originalSpeed.dy;
-        } else {
-            // Fallback: restore to normal speed based on level
-            const levelSpeed = Math.min(4, 1 + (currentLevel - 1) * 0.5);
-            const direction = Math.random() < 0.5 ? -1 : 1;
-            bubble.dx = direction * levelSpeed;
-            bubble.dy = Math.random() * 2 + 1;
+    // Unfreeze bubbles and restore original speeds
+    bubbles.forEach(bubble => {
+        if (bubble.isFrozen) { // Only act on bubbles that were marked as frozen
+            bubble.isFrozen = false;
+            const originalSpeed = originalBubbleSpeeds.get(bubble);
+            if (originalSpeed) {
+                bubble.dx = originalSpeed.dx;
+                bubble.dy = originalSpeed.dy;
+            }
         }
     });
     
@@ -339,6 +347,17 @@ function resetBubbleSpeedEffect() {
 function clearBubbleSpeedEffects() {
     if (bubbleSlowEffectActive) {
         console.log('Clearing bubble speed effects for level transition');
+        // Important: Also unfreeze any bubbles that might still be frozen
+        bubbles.forEach(bubble => {
+            if (bubble.isFrozen) {
+                bubble.isFrozen = false;
+                const originalSpeed = originalBubbleSpeeds.get(bubble);
+                if (originalSpeed) {
+                    bubble.dx = originalSpeed.dx;
+                    bubble.dy = originalSpeed.dy;
+                }
+            }
+        });
         bubbleSlowEffectActive = false;
         originalBubbleSpeeds.clear();
     }
@@ -605,7 +624,7 @@ function updatePowerUpTimerDisplay(player, powerUpType) {
     const timeLeft = Math.max(0, (player.powerUpEndTime - Date.now()) / 1000);
     
     // Get the total duration for this powerup type
-    let totalDuration = POWER_UP_DURATION / 1000; // Convert to seconds
+    let totalDuration = (player.currentPowerUpDuration || POWER_UP_DURATION) / 1000; // Use actual duration
     
     const progress = Math.max(0, (timeLeft / totalDuration) * 100);
     

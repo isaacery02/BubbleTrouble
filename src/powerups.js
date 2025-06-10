@@ -223,7 +223,7 @@ function applyPowerUp(player, type) {
             break;
             
         case 'fastBullets':
-            player.projectileSpeedMultiplier = 10; // 10x faster bullets
+            player.projectileSpeedMultiplier = 5;
             // Clear any existing effect-specific timer before setting a new one
             if (player.powerUpTimer) clearTimeout(player.powerUpTimer);
             // This specific timeout cleans up the fastBullets effect.
@@ -231,7 +231,6 @@ function applyPowerUp(player, type) {
             player.powerUpTimer = setTimeout(() => { 
                 player.projectileSpeedMultiplier = 1; 
             }, specificDuration); // specificDuration will be POWER_UP_DURATION for this case
-            player.projectileSpeedMultiplier = 5;
             setTimeout(() => { player.projectileSpeedMultiplier = 1; }, POWER_UP_DURATION);
             player.activePowerUp = type;
             player.powerUpEndTime = Date.now() + POWER_UP_DURATION;

@@ -19,7 +19,7 @@ document.addEventListener('keydown', (event) => {
                 shootProjectile(player1);
             }
         }
-        if (event.code === 'KeyW' && player2.active) {
+        if (event.code === 'KeyW' && gameMode === 'multi' && player2.active) {
             if (typeof shootProjectile === 'function') {
                 shootProjectile(player2);
             }
@@ -51,14 +51,17 @@ function handleInput() {
         player1.dx = 0;
     }
 
-    if (keys['KeyA'] && player2.active) {
-        player2.dx = -PLAYER_SPEED;
-    } else if (keys['KeyD'] && player2.active) {
-        player2.dx = PLAYER_SPEED;
-    } else if (player2.active) {
+    if (gameMode === 'multi') {
+        if (keys['KeyA'] && player2.active) {
+            player2.dx = -PLAYER_SPEED;
+        } else if (keys['KeyD'] && player2.active) {
+            player2.dx = PLAYER_SPEED;
+        } else if (player2.active) {
+            player2.dx = 0;
+        }
+    } else if (player2.active) { // Ensure P2 doesn't move if somehow active in single player
         player2.dx = 0;
     }
-
     // Note: Shooting is now handled in keydown event, not here
 }
 
@@ -122,13 +125,9 @@ function setupMobileControls() {
 
 function handleMobileShoot(e) {
     e.preventDefault();
-    
-    // Fire for active players (you can modify this logic as needed)
+    // Mobile controls typically control Player 1
     if (player1.active && typeof shootProjectile === 'function') {
         shootProjectile(player1);
-    }
-    if (player2.active && typeof shootProjectile === 'function') {
-        shootProjectile(player2);
     }
 }
 

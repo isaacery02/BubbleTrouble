@@ -25,20 +25,62 @@ function setupGame() {
     if (typeof initializeSounds === 'function') {
         initializeSounds();
     }
-    
     setupMobileControls();
-    showMessage(
-        "Welcome to Ottos & Theo's Bubble Trouble!\nReady to start?",
-        'Start Game',
-        () => {
-            hideMessage();
-            // Play start sound after user interaction
-            if (typeof playSound === 'function') {
-                playSound('start');
-            }
-            startNewGame();
-        }
-    );
+    showModeSelectPrompt(); // Ask for game mode
+}
+
+function showModeSelectPrompt() {
+    const messageBox = document.getElementById('messageBox');
+    const messageText = document.getElementById('messageText');
+    const actionButton = document.getElementById('actionButton'); // Original button
+
+    if (!messageBox || !messageText || !actionButton) {
+        console.error("Message box elements not found for mode selection! Defaulting to single player.");
+        gameMode = 'single';
+        if (typeof playSound === 'function') playSound('start');
+        startNewGame();
+        return;
+    }
+
+    messageText.innerHTML = "Welcome to Ottos & Theo's Bubble Trouble!<br>Choose your mode:";
+    actionButton.style.display = 'none'; // Hide original button
+
+    // Function to clean up and start game
+    const startGameWithMode = (selectedMode) => {
+        gameMode = selectedMode;
+        document.getElementById('singlePlayerButton').remove();
+        document.getElementById('multiPlayerButton').remove();
+        actionButton.style.display = 'inline-block'; // Restore original button's visibility for future messages
+        hideMessage();
+        if (typeof playSound === 'function') playSound('start');
+        startNewGame();
+    };
+
+    // Create Player 1 button
+    let p1Button = document.createElement('button');
+    p1Button.id = 'singlePlayerButton';
+    p1Button.textContent = '1 Player';
+    p1Button.className = 'message-button'; // Assuming a class for styling
+    p1Button.onclick = () => startGameWithMode('single');
+    actionButton.parentNode.appendChild(p1Button);
+    
+    // Create Player 2 button
+    let p2Button = document.createElement('button');
+    p2Button.id = 'multiPlayerButton';
+    p2Button.textContent = '2 Players';
+    p2Button.className = 'message-button'; // Assuming a class for styling
+    p2Button.onclick = () => startGameWithMode('multi');
+    actionButton.parentNode.appendChild(p2Button);
+
+    // Style buttons (basic example, ideally do this in CSS)
+    [p1Button, p2Button].forEach(btn => {
+        btn.style.padding = '10px 20px';
+        btn.style.margin = '10px';
+        btn.style.fontSize = '16px';
+    });
+
+    messageBox.style.display = 'flex';
+    gamePaused = true;
 }
 
 let animationFrameId = null;
@@ -103,23 +145,30 @@ function startNextLevel() {
     clearAllPowerUpTimers();
     
     // Clear bubble speed effects before level transition
-    if (typeof clearBubbleSpeedEffects === 'function') {
-        clearBubbleSpeedEffects();
-    }
+    if (typeof clearBubbleSpeedEffects === 'function') clearBubbleSpeedEffects();
     
-    // Reset positions but PRESERVE shooting settings
-    player1.x = canvas.width / 2 - 15;
+    // Reset player positions
     player1.y = canvas.height - 40;
     player1.projectiles = [];
     player1.dx = 0;
+
+    if (gameMode === 'single') {
+        player1.x = canvas.width / 2 - player1.width / 2; // Center P1
+        if (player2) player2.active = false; 
+    } else { // Multiplayer
+        player1.x = canvas.width / 3 - player1.width / 2;
+        if (player2) {
+            player2.x = canvas.width * 2 / 3 - player2.width / 2;
+            player2.y = canvas.height - 40;
+            player2.projectiles = [];
+            player2.dx = 0;
+            player2.active = true; // Ensure P2 is active
+        }
+    }
     
-    player2.x = canvas.width / 4;
-    player2.y = canvas.height - 40;
-    player2.projectiles = [];
-    player2.dx = 0;
-    
-    // Reset power-ups manually without touching shootCooldown
+    // Reset power-ups (excluding persistent ones like shootCooldown if intended)
     resetPlayerPowerUpsOnly();
+    // Note: resetPlayerPowerUpsOnly already exists and handles non-cooldown/maxProjectiles resets.
     
     initializeLevel();
     levelTransitioning = false;
@@ -181,7 +230,13 @@ function resetPlayerPowerUpsOnly() {
 
 // Game over logic
 function checkGameOver() {
-    const allPlayersOut = players.every(p => !p.active);
+    let allPlayersOut = false;
+    if (gameMode === 'single') {
+        allPlayersOut = !player1.active;
+    } else {
+        allPlayersOut = players.every(p => !p.active);
+    }
+
     if (allPlayersOut && gameRunning) {
         console.log('Game Over');
         gameRunning = false;
@@ -203,15 +258,20 @@ function checkGameOver() {
 
 // Show game over message with scores
 function showGameOverMessage() {
-    const player1Score = player1.score;
-    const player2Score = player2.score;
-    let message = 'Game Over!\n\n';
-    if (player1Score > player2Score) {
-        message += `Player 1 wins!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
-    } else if (player2Score > player1Score) {
-        message += `Player 2 wins!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
+    let message = '';
+    if (gameMode === 'single') {
+        message = `Game Over!\n\nYour Score: ${player1.score}`;
     } else {
-        message += `It's a tie!\nBoth players scored: ${player1Score}`;
+        const player1Score = player1.score;
+        const player2Score = player2.score;
+        message = 'Game Over!\n\n';
+        if (player1Score > player2Score) {
+            message += `Player 1 wins!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
+        } else if (player2Score > player1Score) {
+            message += `Player 2 wins!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
+        } else {
+            message += `It's a tie!\nBoth players scored: ${player1Score}`;
+        }
     }
     showMessage(message, 'Play Again', () => {
         hideMessage();
@@ -253,6 +313,13 @@ function startNewGame() {
     levelTransitioning = false;
     currentLevel = 1;
     resetPlayers();
+
+    if (gameMode === 'single') {
+        player2.active = false;
+        player2.lives = 0;
+    } else {
+        player2.active = true; // Will be set to 3 lives in resetPlayers if multi
+    }
     
     if (typeof startLevel === 'function') {
         startLevel(1);
@@ -296,11 +363,7 @@ function resetPlayers() {
     }
     
     // Reset player 1
-    player1.x = canvas.width / 2 - 15;
     player1.y = canvas.height - 40;
-    player1.lives = 3;
-    player1.score = 0;
-    player1.active = true;
     player1.projectiles = [];
     player1.speed = PLAYER_SPEED;
     player1.dx = 0;
@@ -312,12 +375,8 @@ function resetPlayers() {
     player1.hasShield = false;
     player1.invincible = false;
 
-    // Reset player 2
-    player2.x = canvas.width / 4;
+    // Reset player 2 (common properties)
     player2.y = canvas.height - 40;
-    player2.lives = 3;
-    player2.score = 0;
-    player2.active = true;
     player2.projectiles = [];
     player2.speed = PLAYER_SPEED;
     player2.dx = 0;
@@ -329,6 +388,28 @@ function resetPlayers() {
     player2.hasShield = false;
     player2.invincible = false;
 
+    // Mode-specific resets
+    if (gameMode === 'single') {
+        player1.x = canvas.width / 2 - player1.width / 2; // Center P1
+        player1.active = true;
+        player1.lives = 3;
+        player1.score = 0;
+
+        player2.active = false;
+        player2.lives = 0;
+        player2.score = 0;
+        player2.x = canvas.width / 4; // Default, won't be used if inactive
+    } else { // Multiplayer
+        player1.x = canvas.width / 3 - player1.width / 2;
+        player1.active = true;
+        player1.lives = 3;
+        player1.score = 0;
+
+        player2.x = canvas.width * 2 / 3 - player2.width / 2;
+        player2.active = true;
+        player2.lives = 3;
+        player2.score = 0;
+    }
     console.log("Players reset. Max projectiles: 6, Shoot cooldown: 250ms");
 }
 

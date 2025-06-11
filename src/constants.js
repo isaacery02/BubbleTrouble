@@ -9,6 +9,7 @@ let gameRunning = false;
 let gamePaused = false;
 let gameOver = false;
 let levelTransitioning = false;
+let gameMode = 'multi'; // 'single' or 'multi'
 let currentLevel = 1;
 let levelStartTime = 0;
 

@@ -87,14 +87,20 @@ function checkLevelComplete() {
         const levelBonus = currentLevel * 1000;
         
         // Add bonuses to both players if they're active
+        const score1El = document.getElementById('score1');
+        const score2El = document.getElementById('score2');
+
         if (player1.active) {
             player1.score += timeBonus + levelBonus;
-            document.getElementById('score1').textContent = player1.score;
+            if (score1El) score1El.textContent = player1.score;
+            else console.warn("UI element score1 not found for update.");
         }
         
-        if (player2.active) {
+        if (gameMode === 'multi' && player2.active) {
             player2.score += timeBonus + levelBonus;
-            document.getElementById('score2').textContent = player2.score;
+            if (score2El) score2El.textContent = player2.score;
+            else console.warn("UI element score2 not found for update.");
+
         }
         
         playSound('levelup');
@@ -128,16 +134,20 @@ function gameComplete() {
     
     // Calculate final scores
     const player1FinalScore = player1.score;
-    const player2FinalScore = player2.score;
+    const player2FinalScore = (gameMode === 'multi' && player2) ? player2.score : 0;
     
     // Determine winner
     let winnerMessage = '';
-    if (player1FinalScore > player2FinalScore) {
-        winnerMessage = `Player 1 Wins!\nFinal Score: ${player1FinalScore}`;
-    } else if (player2FinalScore > player1FinalScore) {
-        winnerMessage = `Player 2 Wins!\nFinal Score: ${player2FinalScore}`;
+    if (gameMode === 'single') {
+        winnerMessage = `Your Final Score: ${player1FinalScore}`;
     } else {
-        winnerMessage = `It's a Tie!\nBoth scored: ${player1FinalScore}`;
+        if (player1FinalScore > player2FinalScore) {
+            winnerMessage = `Player 1 Wins!\nPlayer 1: ${player1FinalScore}\nPlayer 2: ${player2FinalScore}`;
+        } else if (player2FinalScore > player1FinalScore) {
+            winnerMessage = `Player 2 Wins!\nPlayer 2: ${player2FinalScore}\nPlayer 1: ${player1FinalScore}`;
+        } else {
+            winnerMessage = `It's a Tie!\nBoth scored: ${player1FinalScore}`;
+        }
     }
     
     playSound('levelup'); // Use levelup sound for game completion

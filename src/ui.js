@@ -67,72 +67,69 @@ function drawLevelInfo() {
     // Player 1 stats (TOP LEFT)
     ctx.font = '14px Inter';
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#818cf8';
+    ctx.fillStyle = player1.color;
     ctx.fillText(`P1 Score: ${player1.score}`, 10, 20);
     ctx.fillText(`P1 Lives: ${player1.lives}`, 10, 40);
-    
-    // Player 2 stats (TOP RIGHT)
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#f472b6';
-    ctx.fillText(`P2 Score: ${player2.score}`, canvas.width - 10, 20);
-    ctx.fillText(`P2 Lives: ${player2.lives}`, canvas.width - 10, 40);
-    
-    // Draw bullet count for each player (left side, below level info)
-    ctx.font = '10px Inter';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#fbbf24';
     const p1Max = player1.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
-    ctx.fillText(`P1 Bullets: ${player1.projectiles.length}/${p1Max}`, 10, 70);
+    ctx.fillText(`P1 Bullets: ${player1.projectiles.length}/${p1Max}`, 10, 60);
     
-    ctx.fillStyle = '#60a5fa';
-    const p2Max = player2.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
-    ctx.fillText(`P2 Bullets: ${player2.projectiles.length}/${p2Max}`, 10, 85);
+    // Player 2 stats (TOP RIGHT) - only if in multiplayer and P2 is active
+    if (gameMode === 'multi' && player2.active) {
+        ctx.textAlign = 'right';
+        ctx.fillStyle = player2.color;
+        ctx.fillText(`P2 Score: ${player2.score}`, canvas.width - 10, 20);
+        ctx.fillText(`P2 Lives: ${player2.lives}`, canvas.width - 10, 40);
+        const p2Max = player2.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
+        ctx.fillText(`P2 Bullets: ${player2.projectiles.length}/${p2Max}`, canvas.width - 10, 60);
+    }
     
-    // Show active power-ups with remaining time
-    if (player1.activePowerUp && player1.powerUpEndTime) {
+    // Show active power-ups (canvas text, less prominent than DOM timers)
+    let p1PowerUpY = 80;
+    if (player1.active && player1.activePowerUp && player1.powerUpEndTime) {
+        ctx.textAlign = 'left';
         const timeLeft = Math.max(0, Math.ceil((player1.powerUpEndTime - Date.now()) / 1000));
-        ctx.fillStyle = '#34d399';
-        
+        let powerUpColor = getPowerUpColor(player1.activePowerUp); // Use helper from powerups.js if available
         if (player1.activePowerUp === 'shield') {
-            ctx.fillStyle = '#60a5fa';
-        } else if (player1.activePowerUp === 'rapid_fire') {
-            ctx.fillStyle = '#f87171';
-        } else if (player1.activePowerUp === 'wide_shot') {
-            ctx.fillStyle = '#34d399';
+            powerUpColor = '#60a5fa'; // Specific shield color
         }
-        
-        ctx.fillText(`P1 ${player1.activePowerUp.toUpperCase()}: ${timeLeft}s`, 10, 100);
-        
+        ctx.fillStyle = powerUpColor;
+        ctx.fillText(`P1 ${player1.activePowerUp.replace('_', ' ').toUpperCase()}: ${timeLeft}s`, 10, p1PowerUpY);
+        p1PowerUpY += 15;
         if (player1.activePowerUp === 'shield' && player1.hasShield) {
             ctx.fillStyle = '#60a5fa';
-            ctx.fillText(`P1 SHIELD ACTIVE`, 10, 115);
+            ctx.fillText(`P1 SHIELD ACTIVE`, 10, p1PowerUpY);
+            p1PowerUpY += 15;
         }
     }
     
-    if (player2.activePowerUp && player2.powerUpEndTime) {
+    if (gameMode === 'multi' && player2.active && player2.activePowerUp && player2.powerUpEndTime) {
+        let p2PowerUpY = 80;
+        ctx.textAlign = 'right';
         const timeLeft = Math.max(0, Math.ceil((player2.powerUpEndTime - Date.now()) / 1000));
-        
+        let powerUpColor = getPowerUpColor(player2.activePowerUp); // Use helper
         if (player2.activePowerUp === 'shield') {
-            ctx.fillStyle = '#60a5fa';
-        } else if (player2.activePowerUp === 'rapid_fire') {
-            ctx.fillStyle = '#f87171';
-        } else if (player2.activePowerUp === 'wide_shot') {
-            ctx.fillStyle = '#34d399';
+            powerUpColor = '#60a5fa'; // Specific shield color
         }
-        
-        const yPos = player1.activePowerUp ? 130 : 115;
-        ctx.fillText(`P2 ${player2.activePowerUp.toUpperCase()}: ${timeLeft}s`, 10, yPos);
-        
+        ctx.fillStyle = powerUpColor;
+        ctx.fillText(`P2 ${player2.activePowerUp.replace('_', ' ').toUpperCase()}: ${timeLeft}s`, canvas.width - 10, p2PowerUpY);
+        p2PowerUpY += 15;
         if (player2.activePowerUp === 'shield' && player2.hasShield) {
             ctx.fillStyle = '#60a5fa';
-            ctx.fillText(`P2 SHIELD ACTIVE`, 10, yPos + 15);
+            ctx.fillText(`P2 SHIELD ACTIVE`, canvas.width - 10, p2PowerUpY);
+            // p2PowerUpY += 15; // If more info for P2
         }
     }
     
-    // Show power-up count
+    // Show on-screen power-up count (generic, bottom left or similar)
+    ctx.textAlign = 'left';
     ctx.fillStyle = '#e5e7eb';
-    const powerUpY = (player1.activePowerUp || player2.activePowerUp) ? 160 : 130;
-    ctx.fillText(`Power-ups: ${powerUps.length}`, 10, powerUpY);
+    ctx.fillText(`Power-ups on screen: ${powerUps.length}`, 10, canvas.height - 10);
+}
+
+// Helper function (can be in ui.js or powerups.js, ensure it's accessible)
+function getPowerUpColor(type) {
+    const colors = {'rapid_fire': '#ff6b6b', 'wide_shot': '#4ecdc4', 'shield': '#45b7d1', 'extra_life': '#f9ca24', 'slowBubbles': '#b388ff', 'fastBullets': '#10b981'};
+    return colors[type] || '#4ecdc4'; // Default color
 }
 
 function drawEverything() {

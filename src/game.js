@@ -32,7 +32,7 @@ function setupGame() {
 function showModeSelectPrompt() {
     const messageBox = document.getElementById('messageBox');
     const messageText = document.getElementById('messageText');
-    const actionButton = document.getElementById('actionButton'); // Original button
+    const actionButton = document.getElementById('actionButton');
 
     if (!messageBox || !messageText || !actionButton) {
         console.error("Message box elements not found for mode selection! Defaulting to single player.");
@@ -42,45 +42,97 @@ function showModeSelectPrompt() {
         return;
     }
 
-    messageText.innerHTML = "Welcome to Ottos & Theo's Bubble Trouble!<br>Choose your mode:";
-    actionButton.style.display = 'none'; // Hide original button
+    // Create awesome animated title
+    messageText.innerHTML = `
+        <div class="game-title-container">
+            <h1 class="game-title">
+                <span class="title-word">BUBBLE</span>
+                <span class="title-word">TROUBLE</span>
+            </h1>
+            <div class="subtitle">Ottos & Theo's Epic Adventure</div>
+            <div class="mode-selection-prompt">Choose Your Destiny</div>
+        </div>
+    `;
+    
+    actionButton.style.display = 'none';
 
     // Function to clean up and start game
     const startGameWithMode = (selectedMode) => {
         gameMode = selectedMode;
-        document.getElementById('singlePlayerButton').remove();
-        document.getElementById('multiPlayerButton').remove();
-        actionButton.style.display = 'inline-block'; // Restore original button's visibility for future messages
-        hideMessage();
-        if (typeof playSound === 'function') playSound('start');
-        startNewGame();
+        
+        // Add selection animation
+        const selectedButton = selectedMode === 'single' ? 
+            document.getElementById('singlePlayerButton') : 
+            document.getElementById('multiPlayerButton');
+        
+        if (selectedButton) {
+            selectedButton.classList.add('selected');
+            setTimeout(() => {
+                document.getElementById('singlePlayerButton')?.remove();
+                document.getElementById('multiPlayerButton')?.remove();
+                actionButton.style.display = 'inline-block';
+                hideMessage();
+                if (typeof playSound === 'function') playSound('start');
+                startNewGame();
+            }, 500);
+        }
     };
 
-    // Create Player 1 button
-    let p1Button = document.createElement('button');
+    // Create enhanced Player 1 button
+    const p1Button = document.createElement('button');
     p1Button.id = 'singlePlayerButton';
-    p1Button.textContent = '1 Player';
-    p1Button.className = 'message-button'; // Assuming a class for styling
+    p1Button.className = 'player-mode-button single-player';
+    p1Button.innerHTML = `
+        <div class="mode-icon">
+            <div class="player-avatar solo">👤</div>
+            <div class="mode-particles"></div>
+        </div>
+        <div class="mode-content">
+            <div class="mode-title">SOLO ADVENTURE</div>
+            <div class="mode-subtitle">Face the bubbles alone</div>
+            <div class="mode-description">Test your skills in single-player mode</div>
+        </div>
+        <div class="mode-glow"></div>
+    `;
     p1Button.onclick = () => startGameWithMode('single');
-    actionButton.parentNode.appendChild(p1Button);
-    
-    // Create Player 2 button
-    let p2Button = document.createElement('button');
-    p2Button.id = 'multiPlayerButton';
-    p2Button.textContent = '2 Players';
-    p2Button.className = 'message-button'; // Assuming a class for styling
-    p2Button.onclick = () => startGameWithMode('multi');
-    actionButton.parentNode.appendChild(p2Button);
 
-    // Style buttons (basic example, ideally do this in CSS)
-    [p1Button, p2Button].forEach(btn => {
-        btn.style.padding = '10px 20px';
-        btn.style.margin = '10px';
-        btn.style.fontSize = '16px';
-    });
+    // Create enhanced Player 2 button
+    const p2Button = document.createElement('button');
+    p2Button.id = 'multiPlayerButton';
+    p2Button.className = 'player-mode-button multi-player';
+    p2Button.innerHTML = `
+        <div class="mode-icon">
+            <div class="player-avatar duo">👥</div>
+            <div class="mode-particles"></div>
+        </div>
+        <div class="mode-content">
+            <div class="mode-title">CO-OP CHAOS</div>
+            <div class="mode-subtitle">Team up with a friend</div>
+            <div class="mode-description">Double the players, double the fun</div>
+        </div>
+        <div class="mode-glow"></div>
+    `;
+    p2Button.onclick = () => startGameWithMode('multi');
+
+    // Create button container
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'mode-buttons-container';
+    buttonContainer.appendChild(p1Button);
+    buttonContainer.appendChild(p2Button);
+
+    // Add to message box
+    messageText.appendChild(buttonContainer);
 
     messageBox.style.display = 'flex';
     gamePaused = true;
+
+    // Add entrance animations
+    setTimeout(() => {
+        p1Button.classList.add('animate-in');
+        setTimeout(() => {
+            p2Button.classList.add('animate-in');
+        }, 200);
+    }, 100);
 }
 
 let animationFrameId = null;

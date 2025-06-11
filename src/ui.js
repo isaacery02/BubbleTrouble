@@ -88,9 +88,9 @@ function drawLevelInfo() {
     if (player1.active && player1.activePowerUp && player1.powerUpEndTime) {
         ctx.textAlign = 'left';
         const timeLeft = Math.max(0, Math.ceil((player1.powerUpEndTime - Date.now()) / 1000));
-        let powerUpColor = getPowerUpColor(player1.activePowerUp); // Use helper from powerups.js if available
+        let powerUpColor = getPowerUpColor(player1.activePowerUp);
         if (player1.activePowerUp === 'shield') {
-            powerUpColor = '#60a5fa'; // Specific shield color
+            powerUpColor = '#60a5fa';
         }
         ctx.fillStyle = powerUpColor;
         ctx.fillText(`P1 ${player1.activePowerUp.replace('_', ' ').toUpperCase()}: ${timeLeft}s`, 10, p1PowerUpY);
@@ -106,9 +106,9 @@ function drawLevelInfo() {
         let p2PowerUpY = 80;
         ctx.textAlign = 'right';
         const timeLeft = Math.max(0, Math.ceil((player2.powerUpEndTime - Date.now()) / 1000));
-        let powerUpColor = getPowerUpColor(player2.activePowerUp); // Use helper
+        let powerUpColor = getPowerUpColor(player2.activePowerUp);
         if (player2.activePowerUp === 'shield') {
-            powerUpColor = '#60a5fa'; // Specific shield color
+            powerUpColor = '#60a5fa';
         }
         ctx.fillStyle = powerUpColor;
         ctx.fillText(`P2 ${player2.activePowerUp.replace('_', ' ').toUpperCase()}: ${timeLeft}s`, canvas.width - 10, p2PowerUpY);
@@ -116,20 +116,8 @@ function drawLevelInfo() {
         if (player2.activePowerUp === 'shield' && player2.hasShield) {
             ctx.fillStyle = '#60a5fa';
             ctx.fillText(`P2 SHIELD ACTIVE`, canvas.width - 10, p2PowerUpY);
-            // p2PowerUpY += 15; // If more info for P2
         }
     }
-    
-    // Show on-screen power-up count (generic, bottom left or similar)
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#e5e7eb';
-    ctx.fillText(`Power-ups on screen: ${powerUps.length}`, 10, canvas.height - 10);
-}
-
-// Helper function (can be in ui.js or powerups.js, ensure it's accessible)
-function getPowerUpColor(type) {
-    const colors = {'rapid_fire': '#ff6b6b', 'wide_shot': '#4ecdc4', 'shield': '#45b7d1', 'extra_life': '#f9ca24', 'slowBubbles': '#b388ff', 'fastBullets': '#10b981'};
-    return colors[type] || '#4ecdc4'; // Default color
 }
 
 function drawEverything() {

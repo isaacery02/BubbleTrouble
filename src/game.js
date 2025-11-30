@@ -1,5 +1,35 @@
 console.log("=== GAME.JS LOADING ===");
 
+// Function cache - validate once at startup instead of every frame
+const gameFunctions = {};
+
+function validateGameFunctions() {
+    // Cache function existence checks
+    gameFunctions.handleInput = typeof handleInput === 'function';
+    gameFunctions.updatePlayers = typeof updatePlayers === 'function';
+    gameFunctions.updateBubbles = typeof updateBubbles === 'function';
+    gameFunctions.updateProjectiles = typeof updateProjectiles === 'function';
+    gameFunctions.updatePowerUps = typeof updatePowerUps === 'function';
+    gameFunctions.updateRescueBubbles = typeof updateRescueBubbles === 'function';
+    gameFunctions.updateParticles = typeof updateParticles === 'function';
+    gameFunctions.checkCollisions = typeof checkCollisions === 'function';
+    gameFunctions.checkRescueBubbleCollisions = typeof checkRescueBubbleCollisions === 'function';
+    gameFunctions.drawEverything = typeof drawEverything === 'function';
+    gameFunctions.playSound = typeof playSound === 'function';
+    gameFunctions.initializeSounds = typeof initializeSounds === 'function';
+    gameFunctions.clearBubbleSpeedEffects = typeof clearBubbleSpeedEffects === 'function';
+    gameFunctions.clearAllRescueBubbles = typeof clearAllRescueBubbles === 'function';
+    gameFunctions.resetBubbleSpeed = typeof resetBubbleSpeed === 'function';
+    gameFunctions.removePowerUp = typeof removePowerUp === 'function';
+    gameFunctions.resetPlayers = typeof resetPlayers === 'function';
+    gameFunctions.startLevel = typeof startLevel === 'function';
+    gameFunctions.initializeObstacles = typeof initializeObstacles === 'function';
+    gameFunctions.initializeBubbles = typeof initializeBubbles === 'function';
+    gameFunctions.clearCanvas = typeof clearCanvas === 'function';
+    
+    console.log('Game functions validated:', Object.keys(gameFunctions).filter(k => gameFunctions[k]).length, '/', Object.keys(gameFunctions).length);
+}
+
 // Initialize canvas and context (variables are declared in constants.js)
 canvas = document.getElementById('gameCanvas');
 ctx = canvas.getContext('2d');
@@ -21,8 +51,11 @@ window.addEventListener('load', () => {
 });
 
 function setupGame() {
+    // Validate all game functions once at startup
+    validateGameFunctions();
+    
     // Initialize sound system first
-    if (typeof initializeSounds === 'function') {
+    if (gameFunctions.initializeSounds) {
         initializeSounds();
     }
     setupMobileControls();
@@ -61,18 +94,31 @@ function showModeSelectPrompt() {
         gameMode = selectedMode;
         
         // Add selection animation
-        const selectedButton = selectedMode === 'single' ? 
-            document.getElementById('singlePlayerButton') : 
-            document.getElementById('multiPlayerButton');
+        let selectedButton;
+        if (selectedMode === 'single') {
+            selectedButton = document.getElementById('singlePlayerButton');
+        } else if (selectedMode === 'multi') {
+            selectedButton = document.getElementById('multiPlayerButton');
+        } else if (selectedMode === 'ai-coop') {
+            selectedButton = document.getElementById('aiCoopButton');
+        }
         
         if (selectedButton) {
             selectedButton.classList.add('selected');
             setTimeout(() => {
                 document.getElementById('singlePlayerButton')?.remove();
                 document.getElementById('multiPlayerButton')?.remove();
+                document.getElementById('aiCoopButton')?.remove();
                 actionButton.style.display = 'inline-block';
                 hideMessage();
                 if (typeof playSound === 'function') playSound('start');
+                
+                // Handle AI Co-Op mode (temporarily treat as single player until implemented)
+                if (selectedMode === 'ai-coop') {
+                    console.log('AI Co-Op mode selected - Coming soon! Starting as single player for now.');
+                    gameMode = 'single'; // TODO: Implement AI Co-Op logic
+                }
+                
                 startNewGame();
             }, 500);
         }
@@ -88,9 +134,8 @@ function showModeSelectPrompt() {
             <div class="mode-particles"></div>
         </div>
         <div class="mode-content">
-            <div class="mode-title">SOLO ADVENTURE</div>
-            <div class="mode-subtitle">Face the bubbles alone</div>
-            <div class="mode-description">Test your skills in single-player mode</div>
+            <div class="mode-title">SOLO</div>
+            <div class="mode-subtitle">Face bubbles alone</div>
         </div>
         <div class="mode-glow"></div>
     `;
@@ -106,19 +151,36 @@ function showModeSelectPrompt() {
             <div class="mode-particles"></div>
         </div>
         <div class="mode-content">
-            <div class="mode-title">CO-OP CHAOS</div>
-            <div class="mode-subtitle">Team up with a friend</div>
-            <div class="mode-description">Double the players, double the fun</div>
+            <div class="mode-title">CO-OP</div>
+            <div class="mode-subtitle">Team with friend</div>
         </div>
         <div class="mode-glow"></div>
     `;
     p2Button.onclick = () => startGameWithMode('multi');
+
+    // Create AI Co-Op button
+    const aiButton = document.createElement('button');
+    aiButton.id = 'aiCoopButton';
+    aiButton.className = 'player-mode-button ai-coop';
+    aiButton.innerHTML = `
+        <div class="mode-icon">
+            <div class="player-avatar ai">🤖</div>
+            <div class="mode-particles"></div>
+        </div>
+        <div class="mode-content">
+            <div class="mode-title">AI CO-OP</div>
+            <div class="mode-subtitle">Computer teammate</div>
+        </div>
+        <div class="mode-glow"></div>
+    `;
+    aiButton.onclick = () => startGameWithMode('ai-coop');
 
     // Create button container
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'mode-buttons-container';
     buttonContainer.appendChild(p1Button);
     buttonContainer.appendChild(p2Button);
+    buttonContainer.appendChild(aiButton);
 
     // Add to message box
     messageText.appendChild(buttonContainer);
@@ -131,6 +193,9 @@ function showModeSelectPrompt() {
         p1Button.classList.add('animate-in');
         setTimeout(() => {
             p2Button.classList.add('animate-in');
+            setTimeout(() => {
+                aiButton.classList.add('animate-in');
+            }, 200);
         }, 200);
     }, 100);
 }
@@ -146,8 +211,12 @@ function gameLoop() {
         animationFrameId = requestAnimationFrame(gameLoop);
         return;
     }
-    // Only clear old game objects, do NOT fill with color or draw a background image!
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Clear canvas using centralized function from ui.js
+    if (gameFunctions.clearCanvas) {
+        clearCanvas();
+    } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
     // Draw your game objects (bubbles, players, etc) here
     updateGameSystems();
@@ -156,70 +225,45 @@ function gameLoop() {
     animationFrameId = requestAnimationFrame(gameLoop);
 }
 
-// Consolidated update function
+// Consolidated update function - uses cached function validation
 function updateGameSystems() {
-    if (typeof handleInput === 'function') handleInput();
-    if (typeof updatePlayers === 'function') updatePlayers();
-    if (typeof updateBubbles === 'function') updateBubbles();
-    if (typeof updateProjectiles === 'function') updateProjectiles();
-    if (typeof updatePowerUps === 'function') updatePowerUps();
-    if (typeof updateRescueBubbles === 'function') updateRescueBubbles(); // Add this line
-    if (typeof updateParticles === 'function') updateParticles();
-    if (typeof checkCollisions === 'function') checkCollisions();
-    if (typeof checkRescueBubbleCollisions === 'function') checkRescueBubbleCollisions(); // Add this line
-    if (typeof drawEverything === 'function') drawEverything();
+    if (gameFunctions.handleInput) handleInput();
+    if (gameFunctions.updatePlayers) updatePlayers();
+    if (gameFunctions.updateBubbles) updateBubbles();
+    if (gameFunctions.updateProjectiles) updateProjectiles();
+    if (gameFunctions.updatePowerUps) updatePowerUps();
+    if (gameFunctions.updateRescueBubbles) updateRescueBubbles();
+    if (gameFunctions.updateParticles) updateParticles();
+    if (gameFunctions.checkCollisions) checkCollisions();
+    if (gameFunctions.checkRescueBubbleCollisions) checkRescueBubbleCollisions();
+    if (gameFunctions.drawEverything) drawEverything();
 }
 
-// Level completion logic
-function checkLevelComplete() {
-    if (bubbles.length === 0 && gameRunning && !levelTransitioning) {
-        levelTransitioning = true;
-        console.log(`Level ${currentLevel} complete!`);
-        if (typeof playSound === 'function') playSound('levelup');
-        currentLevel++;
-        showMessage(
-            `Level ${currentLevel - 1} Complete!\nStarting Level ${currentLevel}`,
-            'Continue',
-            () => {
-                hideMessage();
-                startNextLevel();
-            }
-        );
-    }
-}
+// Level completion check - delegates to levels.js for comprehensive logic
+// The checkLevelComplete() function in levels.js handles:
+// - Level completion detection
+// - Score bonuses (time bonus, level bonus)
+// - Game completion after level 10
+// - Level transition messages
 
 // Start next level
 function startNextLevel() {
     console.log('Starting next level...');
     clearGameObjects();
     
-    // Clear any active power-up timers and UI
-    clearAllPowerUpTimers();
-    
-    // Clear bubble speed effects before level transition
-    if (typeof clearBubbleSpeedEffects === 'function') clearBubbleSpeedEffects();
-    
-    // Reset player positions
-    player1.y = canvas.height - 40;
-    player1.projectiles = [];
-    player1.dx = 0;
-
-    if (gameMode === 'single') {
-        player1.x = canvas.width / 2 - player1.width / 2; // Center P1
-        if (player2) player2.active = false; 
-    } else { // Multiplayer
-        player1.x = canvas.width / 3 - player1.width / 2;
-        if (player2) {
-            player2.x = canvas.width * 2 / 3 - player2.width / 2;
-            player2.y = canvas.height - 40;
-            player2.projectiles = [];
-            player2.dx = 0;
-            player2.active = true; // Ensure P2 is active
-        }
+    // Clear all power-up timers and effects using centralized function
+    if (gameFunctions.removePowerUp) {
+        if (player1.activePowerUp) removePowerUp(player1);
+        if (player2.activePowerUp) removePowerUp(player2);
     }
     
-    // Reset power-ups (excluding persistent ones like shootCooldown if intended)
-    resetPlayerPowerUpsOnly();
+    // Clear bubble speed effects before level transition
+    if (gameFunctions.clearBubbleSpeedEffects) clearBubbleSpeedEffects();
+    
+    // Reset players for level transition (keeps lives, score, but resets power-ups and positions)
+    if (gameFunctions.resetPlayers) {
+        resetPlayers('level-transition');
+    }
     // Note: resetPlayerPowerUpsOnly already exists and handles non-cooldown/maxProjectiles resets.
     
     initializeLevel();
@@ -227,58 +271,10 @@ function startNextLevel() {
     gameRunning = true;
     gamePaused = false;
     
-    console.log(`Level ${currentLevel} started. Shooting cooldown preserved:`, {
-        player1: player1.shootCooldown,
-        player2: player2.shootCooldown
-    });
+    console.log(`Level ${currentLevel} started.`);
 }
 
-// Add this new function to clear all power-up timers
-function clearAllPowerUpTimers() {
-    // Clear player 1 power-up timers
-    if (player1.powerUpTimer) {
-        clearTimeout(player1.powerUpTimer);
-        player1.powerUpTimer = null;
-    }
-    
-    // Clear player 2 power-up timers
-    if (player2.powerUpTimer) {
-        clearTimeout(player2.powerUpTimer);
-        player2.powerUpTimer = null;
-    }
-    
-    // Force remove power-ups (this will clear UI elements)
-    if (typeof removePowerUp === 'function') {
-        if (player1.activePowerUp) {
-            removePowerUp(player1);
-        }
-        if (player2.activePowerUp) {
-            removePowerUp(player2);
-        }
-    }
-    
-    console.log('All power-up timers cleared for level transition');
-}
-
-// Add this function to reset only power-ups without affecting shooting
-function resetPlayerPowerUpsOnly() {
-    // Reset power-ups but DON'T touch shootCooldown or maxProjectiles
-    player1.activePowerUp = null;
-    player1.powerUpTimer = null;
-    player1.powerUpEndTime = null;
-    player1.hasShield = false;
-    player1.invincible = false;
-    player1.currentProjectileWidth = PROJECTILE_WIDTH; // Reset to normal width
-    
-    player2.activePowerUp = null;
-    player2.powerUpTimer = null;
-    player2.powerUpEndTime = null;
-    player2.hasShield = false;
-    player2.invincible = false;
-    player2.currentProjectileWidth = PROJECTILE_WIDTH; // Reset to normal width
-    
-    console.log("Power-ups reset for level transition. Shooting settings preserved.");
-}
+// Power-up timer clearing is now centralized in powerups.js removePowerUp() function
 
 // Game over logic
 function checkGameOver() {
@@ -294,16 +290,18 @@ function checkGameOver() {
         gameRunning = false;
         gameOver = true;
         
-        // Clear all power-up timers and UI on game over
-        clearAllPowerUpTimers();
+        // Clear all power-up timers using centralized function
+        if (gameFunctions.removePowerUp) {
+            if (player1.activePowerUp) removePowerUp(player1);
+            if (player2.activePowerUp) removePowerUp(player2);
+        }
         
         // Clear rescue bubbles on game over
-        if (typeof clearAllRescueBubbles === 'function') {
+        if (gameFunctions.clearAllRescueBubbles) {
             clearAllRescueBubbles();
         }
         
-        if (typeof resetPlayerPowerUps === 'function') resetPlayerPowerUps();
-        if (typeof playSound === 'function') playSound('gameover');
+        if (gameFunctions.playSound) playSound('gameover');
         showGameOverMessage();
     }
 }
@@ -339,20 +337,23 @@ function startNewGame() {
         animationFrameId = null;
     }
     
-    // Clear any lingering power-up timers and UI
-    clearAllPowerUpTimers();
+    // Clear any lingering power-up timers using centralized function
+    if (gameFunctions.removePowerUp) {
+        if (player1.activePowerUp) removePowerUp(player1);
+        if (player2.activePowerUp) removePowerUp(player2);
+    }
     
     // Clear rescue bubbles on game restart
-    if (typeof clearAllRescueBubbles === 'function') {
+    if (gameFunctions.clearAllRescueBubbles) {
         clearAllRescueBubbles();
     }
     
     // Clear bubble speed effects on new game
-    if (typeof clearBubbleSpeedEffects === 'function') {
+    if (gameFunctions.clearBubbleSpeedEffects) {
         clearBubbleSpeedEffects();
     }
     
-    if (typeof resetBubbleSpeed === 'function') {
+    if (gameFunctions.resetBubbleSpeed) {
         resetBubbleSpeed();
     } else {
         if (typeof BUBBLE_BASE_SPEED !== 'undefined') BUBBLE_SPEED = BUBBLE_BASE_SPEED; else BUBBLE_SPEED = 2;
@@ -364,16 +365,13 @@ function startNewGame() {
     gameOver = false;
     levelTransitioning = false;
     currentLevel = 1;
-    resetPlayers();
-
-    if (gameMode === 'single') {
-        player2.active = false;
-        player2.lives = 0;
-    } else {
-        player2.active = true; // Will be set to 3 lives in resetPlayers if multi
+    
+    // Use unified player reset function from player.js
+    if (gameFunctions.resetPlayers) {
+        resetPlayers('new-game');
     }
     
-    if (typeof startLevel === 'function') {
+    if (gameFunctions.startLevel) {
         startLevel(1);
     } else {
         initializeLevel();
@@ -392,127 +390,27 @@ function clearGameObjects() {
     bubbles = [];
     
     // Clear rescue bubbles when clearing all game objects
-    if (typeof clearAllRescueBubbles === 'function') {
+    if (gameFunctions.clearAllRescueBubbles) {
         clearAllRescueBubbles();
     }
 }
 
 function initializeLevel() {
-    if (typeof initializeObstacles === 'function') {
+    // Obstacles are initialized in obstacles.js
+    if (gameFunctions.initializeObstacles) {
         initializeObstacles();
         console.log('Obstacles initialized for level', currentLevel);
     }
-    if (typeof initializeBubbles === 'function') {
+    // Bubbles are initialized in bubbles.js
+    if (gameFunctions.initializeBubbles) {
         initializeBubbles();
         console.log('Bubbles initialized for level', currentLevel, '- Count:', bubbles.length);
     }
 }
 
-function resetPlayers() {
-    if (typeof player1 === 'undefined' || typeof player2 === 'undefined') {
-        console.error('Players not initialized!');
-        return;
-    }
-    
-    // Reset player 1
-    player1.y = canvas.height - 40;
-    player1.projectiles = [];
-    player1.speed = PLAYER_SPEED;
-    player1.dx = 0;
-    player1.activePowerUp = null;
-    player1.powerUpTimer = null;
-    player1.powerUpEndTime = null;
-    player1.maxProjectiles = 6;
-    player1.shootCooldown = 250; // <-- Ensure this is always set!
-    player1.hasShield = false;
-    player1.invincible = false;
+// Player reset is now handled by resetPlayers() in player.js
+// Call with mode: 'new-game', 'level-transition', or 'position-only'
 
-    // Reset player 2 (common properties)
-    player2.y = canvas.height - 40;
-    player2.projectiles = [];
-    player2.speed = PLAYER_SPEED;
-    player2.dx = 0;
-    player2.activePowerUp = null;
-    player2.powerUpTimer = null;
-    player2.powerUpEndTime = null;
-    player2.maxProjectiles = 6;
-    player2.shootCooldown = 250; // <-- Ensure this is always set!
-    player2.hasShield = false;
-    player2.invincible = false;
-
-    // Mode-specific resets
-    if (gameMode === 'single') {
-        player1.x = canvas.width / 2 - player1.width / 2; // Center P1
-        player1.active = true;
-        player1.lives = 3;
-        player1.score = 0;
-
-        player2.active = false;
-        player2.lives = 0;
-        player2.score = 0;
-        player2.x = canvas.width / 4; // Default, won't be used if inactive
-    } else { // Multiplayer
-        player1.x = canvas.width / 3 - player1.width / 2;
-        player1.active = true;
-        player1.lives = 3;
-        player1.score = 0;
-
-        player2.x = canvas.width * 2 / 3 - player2.width / 2;
-        player2.active = true;
-        player2.lives = 3;
-        player2.score = 0;
-    }
-    console.log("Players reset. Max projectiles: 6, Shoot cooldown: 250ms");
-}
-
-function initializeObstacles() {
-    obstacles = [];
-    const numObstacles = 3;
-    // Increased min/max scaling factors for larger obstacles
-    const minScale = 0.4, maxScale = 0.8; // Was 0.2-0.5, now 0.4-0.8
-    // Array of fun colors for obstacles
-    const colors = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#b388ff", "#f093fb", "#45b7d1", "#ffb300", "#fdcb6e"];
-
-    for (let i = 0; i < numObstacles; i++) {
-        // Random scale for width and height
-        const widthScale = Math.random() * (maxScale - minScale) + minScale;
-        const heightScale = Math.random() * (maxScale - minScale) + minScale;
-        const scaledWidth = OBSTACLE_WIDTH * widthScale;
-        const scaledHeight = OBSTACLE_HEIGHT * heightScale;
-
-        // Random x within canvas, leaving a margin so obstacles don't go offscreen
-        const margin = 60; // Increased margin for larger obstacles
-        const x = Math.random() * (canvas.width - scaledWidth - margin * 2) + margin;
-        // Random y within middle 60% of canvas height
-        const y = Math.random() * (canvas.height * 0.6 - scaledHeight) + canvas.height * 0.2;
-
-        // Pick a random color for each obstacle
-        const color = colors[Math.floor(Math.random() * colors.length)];
-
-        obstacles.push({
-            x,
-            y,
-            width: scaledWidth,
-            height: scaledHeight,
-            color,
-            draw: function() {
-                ctx.save();
-                ctx.fillStyle = this.color;
-                ctx.strokeStyle = "#fff";
-                ctx.lineWidth = 3; // Thicker border for larger obstacles
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-                
-                // Add a subtle inner glow effect
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.restore();
-            }
-        });
-    }
-    console.log('Three obstacles initialized:', obstacles);
-}
 
 function togglePause() {
     isPaused = !isPaused;

@@ -296,52 +296,86 @@ function resetPlayerPositions() {
     player2.dx = 0;
 }
 
-function handlePlayerHit(playerObj) {
-    if (playerObj.hasShield) {
-        // Shield protects player
-        console.log(`Player ${playerObj.id} protected by shield!`);
-        return false; // No damage taken
+function resetPlayers(mode = 'new-game') {
+    // Comprehensive player reset for all scenarios
+    // mode: 'new-game', 'level-transition', 'position-only'
+    
+    if (typeof player1 === 'undefined' || typeof player2 === 'undefined') {
+        console.error('Players not initialized!');
+        return;
     }
     
-    // Only reduce lives if player is active
-    if (!playerObj.active) return false;
+    const isNewGame = mode === 'new-game';
+    const isLevelTransition = mode === 'level-transition';
+    const isPositionOnly = mode === 'position-only';
     
-    playerObj.lives--;
-    console.log(`Player ${playerObj.id} hit! Lives remaining: ${playerObj.lives}`);
+    // Reset Player 1
+    player1.y = canvas.height - 40;
+    player1.projectiles = [];
+    player1.speed = PLAYER_SPEED;
+    player1.dx = 0;
     
-    // Create hit particles
-    if (typeof createParticles === 'function') {
-        createParticles(
-            playerObj.x + playerObj.width / 2,
-            playerObj.y + playerObj.height / 2,
-            '#ff6b6b',
-            12
-        );
+    if (!isPositionOnly) {
+        player1.activePowerUp = null;
+        player1.powerUpTimer = null;
+        player1.powerUpEndTime = null;
+        player1.maxProjectiles = 6;
+        player1.shootCooldown = 250;
+        player1.hasShield = false;
+        player1.invincible = false;
+        player1.currentProjectileWidth = PROJECTILE_WIDTH;
     }
     
-    // Play hit sound
-    if (typeof playSound === 'function') {
-        playSound('hit');
+    if (isNewGame) {
+        player1.score = 0;
+        player1.lives = 3;
+        player1.active = true;
     }
     
-    // Check if player is out
-    if (playerObj.lives <= 0) {
-        playerObj.active = false;
-        console.log(`Player ${playerObj.id} is out!`);
+    // Reset Player 2 (common properties)
+    player2.y = canvas.height - 40;
+    player2.projectiles = [];
+    player2.speed = PLAYER_SPEED;
+    player2.dx = 0;
+    
+    if (!isPositionOnly) {
+        player2.activePowerUp = null;
+        player2.powerUpTimer = null;
+        player2.powerUpEndTime = null;
+        player2.maxProjectiles = 6;
+        player2.shootCooldown = 250;
+        player2.hasShield = false;
+        player2.invincible = false;
+        player2.currentProjectileWidth = PROJECTILE_WIDTH;
+    }
+    
+    if (isNewGame) {
+        player2.score = 0;
+        player2.lives = 3;
+    }
+    
+    // Position players based on game mode
+    if (gameMode === 'single') {
+        player1.x = canvas.width / 2 - player1.width / 2; // Center P1
+        player1.active = isNewGame ? true : player1.active;
         
-        // Clear projectiles when player is out
-        playerObj.projectiles = [];
+        if (isNewGame) {
+            player2.active = false;
+            player2.lives = 0;
+            player2.score = 0;
+        }
+        player2.x = canvas.width / 4; // Default position (not used if inactive)
+    } else { // Multiplayer
+        player1.x = canvas.width / 3 - player1.width / 2;
+        player2.x = canvas.width * 2 / 3 - player2.width / 2;
         
-        return true; // Player eliminated
+        if (isNewGame) {
+            player1.active = true;
+            player2.active = true;
+        }
     }
     
-    // Give player brief invincibility
-    playerObj.invincible = true;
-    setTimeout(() => {
-        playerObj.invincible = false;
-    }, 1000); // 1 second of invincibility
-    
-    return false; // Player still active
+    console.log(`Players reset (mode: ${mode}). Max projectiles: 6, Shoot cooldown: 250ms`);
 }
 
 // Helper functions for color manipulation

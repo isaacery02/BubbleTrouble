@@ -78,14 +78,15 @@
 /* Game Title Styling */
 .game-title-container {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 12px;
     animation: titleEntry 1s ease-out;
+    max-width: 100%;
 }
 
 .game-title {
-    font-size: 4rem;
+    font-size: 1.6rem;
     font-weight: 900;
-    margin: 0 0 20px 0;
+    margin: 0 0 6px 0;
     background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
     background-size: 400% 400%;
     -webkit-background-clip: text;
@@ -105,14 +106,14 @@
 }
 
 .subtitle {
-    font-size: 1.2rem;
+    font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 10px;
+    margin-bottom: 4px;
     animation: fadeInUp 1s ease-out 0.5s both;
 }
 
 .mode-selection-prompt {
-    font-size: 1.4rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #f093fb;
     text-shadow: 0 0 20px rgba(240, 147, 251, 0.6);
@@ -122,10 +123,11 @@
 /* Mode Button Container */
 .mode-buttons-container {
     display: flex;
-    gap: 30px;
+    gap: 12px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 30px;
+    margin-top: 12px;
+    max-width: 100%;
 }
 
 /* Enhanced Player Mode Buttons */
@@ -133,18 +135,20 @@
     position: relative;
     background: linear-gradient(135deg, rgba(26, 35, 126, 0.9), rgba(74, 58, 168, 0.9));
     border: 2px solid transparent;
-    border-radius: 20px;
-    padding: 30px 25px;
+    border-radius: 16px;
+    padding: 12px 10px;
     color: white;
     font-family: 'Inter', sans-serif;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 280px;
+    min-width: 130px;
+    max-width: 150px;
     backdrop-filter: blur(20px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     opacity: 0;
     transform: translateY(50px) scale(0.8);
+    flex: 0 1 auto;
 }
 
 .player-mode-button.animate-in {
@@ -197,18 +201,27 @@
     box-shadow: 0 25px 50px rgba(240, 147, 251, 0.5);
 }
 
+/* AI Co-Op Specific */
+.ai-coop {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.9));
+}
+
+.ai-coop:hover {
+    box-shadow: 0 25px 50px rgba(16, 185, 129, 0.5);
+}
+
 /* Mode Icon */
 .mode-icon {
     position: relative;
-    margin-bottom: 20px;
-    height: 80px;
+    margin-bottom: 6px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .player-avatar {
-    font-size: 3.5rem;
+    font-size: 1.8rem;
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
     animation: avatarFloat 3s ease-in-out infinite;
 }
@@ -223,23 +236,23 @@
 
 /* Mode Content */
 .mode-title {
-    font-size: 1.5rem;
+    font-size: 0.9rem;
     font-weight: 800;
-    margin-bottom: 8px;
+    margin-bottom: 2px;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    line-height: 1.1;
 }
 
 .mode-subtitle {
-    font-size: 1rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     opacity: 0.9;
+    line-height: 1.1;
 }
 
 .mode-description {
-    font-size: 0.9rem;
-    opacity: 0.7;
-    font-style: italic;
+    display: none;
 }
 
 /* Glow Effect */
@@ -350,41 +363,4 @@
     0% { transform: scale(1.05); }
     50% { transform: scale(1.15); }
     100% { transform: scale(1.1); }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .game-title {
-        font-size: 2.5rem;
-    }
-    
-    .mode-buttons-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-    }
-    
-    .player-mode-button {
-        min-width: 250px;
-        padding: 25px 20px;
-    }
-    
-    .mode-title {
-        font-size: 1.3rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .game-title {
-        font-size: 2rem;
-    }
-    
-    .player-mode-button {
-        min-width: 220px;
-        padding: 20px 15px;
-    }
-    
-    .player-avatar {
-        font-size: 2.5rem;
-    }
 }

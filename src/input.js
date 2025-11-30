@@ -4,6 +4,21 @@
 let keys = {};
 let keyJustPressed = {}; // Track keys that were just pressed this frame
 
+// Haptic feedback helper
+function triggerHapticFeedback(duration = 50) {
+    if ('vibrate' in navigator) {
+        navigator.vibrate(duration);
+    }
+}
+
+// Add visual feedback to mobile buttons
+function addButtonPressEffect(button) {
+    if (button) {
+        button.classList.add('pressed');
+        setTimeout(() => button.classList.remove('pressed'), 100);
+    }
+}
+
 // Key event listeners
 document.addEventListener('keydown', (event) => {
     const wasPressed = keys[event.code];
@@ -86,6 +101,8 @@ function setupMobileControls() {
     leftBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         keys['ArrowLeft'] = true;
+        addButtonPressEffect(leftBtn);
+        triggerHapticFeedback(30);
     });
     
     leftBtn.addEventListener('touchend', (e) => {
@@ -96,6 +113,8 @@ function setupMobileControls() {
     rightBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         keys['ArrowRight'] = true;
+        addButtonPressEffect(rightBtn);
+        triggerHapticFeedback(30);
     });
     
     rightBtn.addEventListener('touchend', (e) => {
@@ -115,16 +134,29 @@ function setupMobileControls() {
     }
 
     // Also add mouse support for testing
-    leftBtn.addEventListener('mousedown', () => keys['ArrowLeft'] = true);
+    leftBtn.addEventListener('mousedown', () => {
+        keys['ArrowLeft'] = true;
+        addButtonPressEffect(leftBtn);
+    });
     leftBtn.addEventListener('mouseup', () => keys['ArrowLeft'] = false);
-    rightBtn.addEventListener('mousedown', () => keys['ArrowRight'] = true);
+    
+    rightBtn.addEventListener('mousedown', () => {
+        keys['ArrowRight'] = true;
+        addButtonPressEffect(rightBtn);
+    });
     rightBtn.addEventListener('mouseup', () => keys['ArrowRight'] = false);
-    shootBtn.addEventListener('mousedown', () => keys['ArrowUp'] = true);
+    
+    shootBtn.addEventListener('mousedown', () => {
+        keys['ArrowUp'] = true;
+        addButtonPressEffect(shootBtn);
+    });
     shootBtn.addEventListener('mouseup', () => keys['ArrowUp'] = false);
 }
 
 function handleMobileShoot(e) {
     e.preventDefault();
+    addButtonPressEffect(document.getElementById('shootBtn'));
+    triggerHapticFeedback(50);
     // Mobile controls typically control Player 1
     if (player1.active && typeof shootProjectile === 'function') {
         shootProjectile(player1);

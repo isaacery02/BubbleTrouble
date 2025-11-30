@@ -172,6 +172,7 @@ function startLevel(level) {
     // Check if level exists
     const config = getLevelConfig(currentLevel);
     if (!config) {
+        console.warn(`No config for level ${currentLevel}, game complete!`);
         gameComplete();
         return;
     }

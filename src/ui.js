@@ -9,6 +9,7 @@ function showMessage(text, buttonText, callback) {
         messageText.textContent = text;
         actionButton.textContent = buttonText;
         messageBox.style.display = 'flex';
+        messageBox.classList.add('has-message'); // Add background styling for actual messages
         
         // Remove all existing event listeners by cloning the button
         const newButton = actionButton.cloneNode(true);
@@ -31,6 +32,7 @@ function hideMessage() {
     const messageBox = document.getElementById('messageBox');
     if (messageBox) {
         messageBox.style.display = 'none';
+        messageBox.classList.remove('has-message'); // Remove background styling
         gamePaused = false;
         console.log('Message hidden, game unpaused');
     }
@@ -149,115 +151,6 @@ function resetPlayerPowerUps() {
     });
     
     console.log('All player power-ups reset');
-}
-
-function startNewGame() {
-    console.log("Starting new game...");
-    
-    // Play start sound when game begins (only if function exists)
-    if (typeof playSound === 'function') {
-        playSound('start');
-    }
-    
-    currentLevel = 1;
-    levelStartTime = Date.now();
-    levelTransitioning = false;
-    gameOver = false;
-    
-    // Reset player stats
-    player1.score = 0;
-    player1.lives = 3;
-    player1.active = true;
-    player1.projectiles = [];
-    player1.activePowerUp = null;
-    player1.currentProjectileWidth = PROJECTILE_WIDTH;
-    player1.shootCooldown = 250;
-    player1.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
-    player1.hasShield = false;
-    player1.lastShotTime = 0;
-    player1.invincible = false;
-    player1.powerUpTimer = null;
-    player1.powerUpEndTime = null;
-    
-    player2.score = 0;
-    player2.lives = 3;
-    player2.active = true;
-    player2.projectiles = [];
-    player2.activePowerUp = null;
-    player2.currentProjectileWidth = PROJECTILE_WIDTH;
-    player2.shootCooldown = 250;
-    player2.maxProjectiles = MAX_PROJECTILES_PER_PLAYER;
-    player2.hasShield = false;
-    player2.lastShotTime = 0;
-    player2.invincible = false;
-    player2.powerUpTimer = null;
-    player2.powerUpEndTime = null;
-    
-    // Clear any existing power-up timers
-    resetPlayerPowerUps();
-    
-    // Reset player positions
-    resetPlayerPositions();
-    
-    // Clear arrays
-    bubbles = [];
-    powerUps.length = 0;
-    particles.length = 0;
-    obstacles = [];
-    
-    // Initialize obstacles and bubbles
-    if (typeof initializeObstacles === 'function') {
-        initializeObstacles();
-    }
-    if (typeof initializeBubbles === 'function') {
-        initializeBubbles();
-    }
-    
-    console.log(`Game started with ${bubbles.length} bubbles`);
-    
-    gameRunning = true;
-    gamePaused = false;
-}
-
-function checkGameOver() {
-    const allPlayersOut = players.every(p => !p.active);
-    
-    if (allPlayersOut && gameRunning) {
-        console.log('All players are out - Game Over');
-        
-        gameRunning = false;
-        gameOver = true;
-        
-        // Clear any active power-up timers
-        resetPlayerPowerUps();
-        
-        if (typeof playSound === 'function') {
-            playSound('gameover');
-        }
-        
-        const player1Score = player1.score;
-        const player2Score = player2.score;
-        
-        let gameOverMessage = 'Game Over!\n\n';
-        
-        if (player1Score > player2Score) {
-            gameOverMessage += `Player 1 wins!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
-        } else if (player2Score > player1Score) {
-            gameOverMessage += `Player 2 wins!\nPlayer 1: ${player1Score}\nPlayer 2: ${player2Score}`;
-        } else {
-            gameOverMessage += `It's a tie!\nBoth players scored: ${player1Score}`;
-        }
-        
-        showMessage(
-            gameOverMessage,
-            'Play Again',
-            () => {
-                hideMessage();
-                startNewGame();
-                gameLoop();
-            }
-        );
-    }
 }
 
 function gameLoop() {

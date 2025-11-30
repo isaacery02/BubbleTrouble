@@ -178,16 +178,31 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: none;
+    backdrop-filter: none;
+    min-width: auto;
+    max-width: 95vw;
+    max-height: 95vh;
+    overflow-y: visible;
+    box-sizing: border-box;
+}
+
+/* When message box shows actual messages (not title screen), add background */
+.message-box.has-message {
     background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-blue) 100%);
     border: 2px solid var(--border-accent);
     border-radius: var(--radius-xl);
-    padding: var(--spacing-xxl);
-    text-align: center;
-    z-index: 1000;
+    padding: var(--spacing-xl);
     box-shadow: var(--shadow-lg), var(--shadow-glow);
     backdrop-filter: blur(20px);
-    min-width: 400px;
-    max-width: 90vw;
+    min-width: 320px;
+    max-width: min(90vw, 500px);
 }
 
 #messageText {

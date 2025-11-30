@@ -146,6 +146,11 @@ function initializeBubbles() {
     bubbles = []; // Clear existing bubbles
     const config = getLevelConfig(currentLevel);
     
+    // Safety check: if config is null, log error and return
+    if (!config) {
+        console.error(`Invalid level config for level ${currentLevel}`);
+        return;
+    }
     
     for (let i = 0; i < config.bubbleCount; i++) {
         let x, y;
@@ -470,34 +475,6 @@ function bubbleCollidesWithObstacle(bubble, obstacle) {
            bubbleLeft < obstacleRight &&
            bubbleBottom > obstacleTop &&
            bubbleTop < obstacleBottom;
-}
-
-// Add this function to bubbles.js to reset bubble speeds
-
-function resetBubbleSpeed() {
-    // Reset BUBBLE_SPEED to the unchanging BUBBLE_BASE_SPEED
-    if (typeof BUBBLE_BASE_SPEED !== 'undefined') {
-        BUBBLE_SPEED = BUBBLE_BASE_SPEED; 
-    } else {
-        BUBBLE_SPEED = 2; // Fallback if BUBBLE_BASE_SPEED is somehow undefined
-    }
-
-    // Reset multiplier
-    if (typeof bubbleSpeedMultiplier !== 'undefined') {
-        bubbleSpeedMultiplier = 1.0;
-    } else {
-        bubbleSpeedMultiplier = 1.0; // Fallback
-    }
-
-    // IMPORTANT: If bubbleGravity is 'let' and can change, reset it here too.
-    // If bubbleGravity is 'const' in constants.js, this line is not needed.
-    // if (typeof bubbleGravity !== 'undefined' && typeof ORIGINAL_BUBBLE_GRAVITY !== 'undefined') { // Assuming ORIGINAL_BUBBLE_GRAVITY = 0.08
-    //     bubbleGravity = ORIGINAL_BUBBLE_GRAVITY;
-    // } else if (typeof bubbleGravity !== 'undefined') {
-    //     bubbleGravity = 0.08; // Fallback
-    // }
-
-    console.log('Global bubble speed variables reset. BUBBLE_SPEED:', BUBBLE_SPEED, 'Multiplier:', bubbleSpeedMultiplier);
 }
 
 function setBubbleSpeedForLevel(level) {

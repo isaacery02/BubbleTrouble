@@ -1,5 +1,14 @@
 // Power-up system
 
+// Track all active timers to prevent race conditions
+const activeTimers = new Set();
+
+function clearAllActiveTimers() {
+    activeTimers.forEach(timerId => clearTimeout(timerId));
+    activeTimers.clear();
+    console.log('All active power-up timers cleared');
+}
+
 const POWER_UP_TYPES = [
     'rapid_fire',
     'wide_shot',
@@ -68,9 +77,6 @@ function updatePowerUps() {
             continue;
         }
     }
-    
-    // REMOVE THIS LINE - collision detection happens in collision.js
-    // checkPowerUpCollisions();
     
     // Handle power-up expiration for players
     players.forEach(player => {
@@ -141,19 +147,6 @@ function drawPowerUps() {
     });
 }
 
-function checkPowerUpCollisions() {
-    players.forEach(playerObj => {
-        if (!playerObj.active) return;
-        for (let i = powerUps.length - 1; i >= 0; i--) {
-            const p = powerUps[i];
-            if (playerCollidesWithPowerUp(playerObj, p)) {
-                collectPowerUp(playerObj, p);
-                powerUps.splice(i, 1);
-            }
-        }
-    });
-}
-
 function playerCollidesWithPowerUp(player, p) {
     return player.x < p.x + p.width && player.x + player.width > p.x &&
            player.y < p.y + p.height && player.y + player.height > p.y;
@@ -215,22 +208,30 @@ function applyPowerUp(player, type) {
             slowAllBubbles();
             specificDuration = 3000; // Freeze for 3 seconds
             // Clear any existing effect-specific timer before setting a new one
-            if (player.powerUpTimer) clearTimeout(player.powerUpTimer);
+            if (player.powerUpTimer) {
+                clearTimeout(player.powerUpTimer);
+                activeTimers.delete(player.powerUpTimer);
+            }
             player.powerUpTimer = setTimeout(() => {
                 resetBubbleSpeedEffect();
                 // Don't remove the player's powerup here - let the normal expiration handle it
             }, specificDuration);
+            activeTimers.add(player.powerUpTimer);
             break;
             
         case 'fastBullets':
             player.projectileSpeedMultiplier = 5;
             // Clear any existing effect-specific timer before setting a new one
-            if (player.powerUpTimer) clearTimeout(player.powerUpTimer);
+            if (player.powerUpTimer) {
+                clearTimeout(player.powerUpTimer);
+                activeTimers.delete(player.powerUpTimer);
+            }
             // This specific timeout cleans up the fastBullets effect.
             // The general power-up duration (and UI timer) is handled by powerUpEndTime.
             player.powerUpTimer = setTimeout(() => { 
                 player.projectileSpeedMultiplier = 1; 
             }, specificDuration); // specificDuration will be POWER_UP_DURATION for this case
+            activeTimers.add(player.powerUpTimer);
             setTimeout(() => { player.projectileSpeedMultiplier = 1; }, POWER_UP_DURATION);
             player.activePowerUp = type;
             player.powerUpEndTime = Date.now() + POWER_UP_DURATION;
@@ -272,12 +273,14 @@ function removePowerUp(player) {
     // Clear timer interval
     if (player.timerInterval) {
         clearInterval(player.timerInterval);
+        activeTimers.delete(player.timerInterval);
         player.timerInterval = null;
     }
     
     // Clear any existing timer
     if (player.powerUpTimer) {
         clearTimeout(player.powerUpTimer);
+        activeTimers.delete(player.powerUpTimer);
         player.powerUpTimer = null;
     }
     

@@ -27,10 +27,11 @@ function resetBubbleSpeed() {
 }
 
 class Bubble {
-    constructor(x, y, radius, speed) { // The 'speed' parameter will now be effectively ignored for dx/dy calculation
+    constructor(x, y, radius, speed, type = 'normal') { // Added type parameter
         this.x = x;
         this.y = y;
         this.radius = radius;
+        this.type = type; // 'normal' or 'golden'
         
         // --- MODIFICATION START ---
         // Directly use BUBBLE_BASE_SPEED from the global scope for initial velocity calculations.
@@ -42,8 +43,10 @@ class Bubble {
         // but it won't affect the initial dx/dy here.
         this.currentBubbleSpeed = speed; 
 
-        this.dx = (Math.random() - 0.5) * initialCalculationSpeed * 3; 
-        this.dy = -Math.random() * initialCalculationSpeed * 1.5 - (initialCalculationSpeed * 0.5);
+        // Golden bubbles move 1.5x faster
+        const speedMultiplier = this.type === 'golden' ? 1.5 : 1.0;
+        this.dx = (Math.random() - 0.5) * initialCalculationSpeed * 3 * speedMultiplier; 
+        this.dy = -Math.random() * initialCalculationSpeed * 1.5 * speedMultiplier - (initialCalculationSpeed * 0.5);
         // --- MODIFICATION END ---
 
         // The rest of your constructor remains the same
@@ -52,6 +55,7 @@ class Bubble {
         this.bounces = 0;
         this.lastBounceTime = 0;
         this.isFrozen = false; // Initialize isFrozen state
+        this.pointMultiplier = this.type === 'golden' ? 3 : 1; // 3x points for golden
     }
     
     update() {
@@ -74,6 +78,9 @@ class Bubble {
     }
     
     getColorForSize(radius) {
+        // Golden bubbles are always golden
+        if (this.type === 'golden') return '#FFD700';
+        
         if (radius > 40) return '#ff6b6b';      // Large - Red
         if (radius > 25) return '#4ecdc4';      // Medium - Cyan  
         return '#f6e05e';                       // Small - Yellow
@@ -82,6 +89,35 @@ class Bubble {
     draw() {
         // Enhanced bubble drawing with better effects
         const currentRadius = this.radius + Math.sin(this.pulsePhase) * 2;
+        
+        // Golden bubbles get extra sparkle effect
+        if (this.type === 'golden') {
+            // Outer golden glow
+            const goldenGlow = ctx.createRadialGradient(
+                this.x, this.y, 0,
+                this.x, this.y, currentRadius + 12
+            );
+            goldenGlow.addColorStop(0, '#FFD70080');
+            goldenGlow.addColorStop(0.5, '#FFA50040');
+            goldenGlow.addColorStop(1, '#FFD70000');
+            ctx.fillStyle = goldenGlow;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, currentRadius + 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Sparkle particles
+            const sparkleCount = 6;
+            for (let i = 0; i < sparkleCount; i++) {
+                const angle = (this.pulsePhase + i * Math.PI * 2 / sparkleCount) % (Math.PI * 2);
+                const sparkleX = this.x + Math.cos(angle) * (currentRadius + 5);
+                const sparkleY = this.y + Math.sin(angle) * (currentRadius + 5);
+                
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.arc(sparkleX, sparkleY, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
         
         // Outer glow
         const glowGradient = ctx.createRadialGradient(
@@ -227,9 +263,16 @@ function calculatePoints(radius) {
 }
 
 function handleBubbleHit(bubble, bubbleIndex, playerObj) {
-    // Award points
-    const points = calculatePoints(bubble.radius);
+    // Award points with multiplier for golden bubbles
+    const basePoints = calculatePoints(bubble.radius);
+    const multiplier = bubble.pointMultiplier || 1;
+    const points = basePoints * multiplier;
     playerObj.score += points;
+    
+    // Show bonus text for golden bubbles
+    if (bubble.type === 'golden' && typeof createFloatingText === 'function') {
+        createFloatingText(bubble.x, bubble.y, `+${points} GOLD!`, '#FFD700');
+    }
     
     // Create hit particles
     if (typeof createParticles === 'function') {
@@ -249,12 +292,16 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
         const explosiveForce = 6 + (bubble.radius / 8); // Much stronger explosive force
         const upwardForce = 4 + (bubble.radius / 12); // Strong upward component
         
+        // Preserve bubble type (golden stays golden when split)
+        const bubbleType = bubble.type || 'normal';
+        
         // Create left bubble with explosive force
         const leftBubble = new Bubble(
             bubble.x - newRadius * 0.8, // Slightly closer spawn
             bubble.y,
             newRadius,
-            bubble.baseSpeed
+            bubble.baseSpeed,
+            bubbleType // Preserve type
         );
         // Strong leftward and upward velocity
         leftBubble.dx = -explosiveForce + (Math.random() - 0.5) * 2;
@@ -265,7 +312,8 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
             bubble.x + newRadius * 0.8, // Slightly closer spawn
             bubble.y,
             newRadius,
-            bubble.baseSpeed
+            bubble.baseSpeed,
+            bubbleType // Preserve type
         );
         // Strong rightward and upward velocity
         rightBubble.dx = explosiveForce + (Math.random() - 0.5) * 2;

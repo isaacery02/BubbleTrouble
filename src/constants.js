@@ -12,6 +12,8 @@ let levelTransitioning = false;
 let gameMode = 'multi'; // 'single' or 'multi'
 let currentLevel = 1;
 let levelStartTime = 0;
+let levelTimeLimit = 0; // 0 means no time limit, >0 for challenge levels
+let isTimeChallengeLevel = false;
 
 // ========== GAME OBJECTS ARRAYS ==========
 let bubbles = [];

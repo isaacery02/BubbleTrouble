@@ -50,13 +50,32 @@ function initializeBubbles() {
         return;
     }
     
+    // Boss level: create one giant bubble
+    const isBossLevel = (currentLevel % 5 === 0);
+    if (isBossLevel) {
+        const bossSize = 80; // Giant bubble
+        const x = canvas.width / 2;
+        const y = canvas.height / 3;
+        const bossBubble = new Bubble(x, y, bossSize, config.speed, 'normal');
+        if (isFinite(bossBubble.x) && isFinite(bossBubble.y) && isFinite(bossBubble.radius)) {
+            bubbles.push(bossBubble);
+            console.log(`Boss bubble created at (${x}, ${y}) with size ${bossSize}`);
+        }
+        return; // Only the boss bubble
+    }
+    
+    // 20% chance for a golden bubble (1 in 5 bubbles)
+    const goldenBubbleIndex = Math.random() < 0.2 ? Math.floor(Math.random() * config.bubbleCount) : -1;
+    
     for (let i = 0; i < config.bubbleCount; i++) {
         // Calculate safe position
         const x = Math.max(config.size, Math.min(canvas.width - config.size, 
             (canvas.width / (config.bubbleCount + 1)) * (i + 1)));
         const y = Math.max(config.size, canvas.height / 4);
         
-        const bubble = new Bubble(x, y, config.size, config.speed);
+        // Create golden bubble or normal bubble
+        const bubbleType = (i === goldenBubbleIndex) ? 'golden' : 'normal';
+        const bubble = new Bubble(x, y, config.size, config.speed, bubbleType);
         
         // Validate bubble before adding
         if (isFinite(bubble.x) && isFinite(bubble.y) && isFinite(bubble.radius)) {
@@ -82,22 +101,32 @@ function checkLevelComplete() {
         levelTransitioning = true;
         gameRunning = false;
         
-        // Calculate level completion bonus
-        const timeBonus = Math.max(0, 5000 - (Date.now() - levelStartTime));
+        // Calculate bonuses
+        const levelTime = (Date.now() - levelStartTime) / 1000;
+        let timeBonus = Math.max(0, 5000 - (Date.now() - levelStartTime));
         const levelBonus = currentLevel * 1000;
+        
+        // Extra bonus for time challenge completion
+        let challengeBonus = 0;
+        let bonusMessage = '';
+        if (isTimeChallengeLevel && levelTime < levelTimeLimit) {
+            challengeBonus = 5000;
+            const remainingTime = (levelTimeLimit - levelTime).toFixed(1);
+            bonusMessage = `\n⏱️ TIME CHALLENGE COMPLETE! +${challengeBonus} bonus!\n${remainingTime}s remaining!`;
+        }
         
         // Add bonuses to both players if they're active
         const score1El = document.getElementById('score1');
         const score2El = document.getElementById('score2');
 
         if (player1.active) {
-            player1.score += timeBonus + levelBonus;
+            player1.score += timeBonus + levelBonus + challengeBonus;
             if (score1El) score1El.textContent = player1.score;
             else console.warn("UI element score1 not found for update.");
         }
         
         if (gameMode === 'multi' && player2.active) {
-            player2.score += timeBonus + levelBonus;
+            player2.score += timeBonus + levelBonus + challengeBonus;
             if (score2El) score2El.textContent = player2.score;
             else console.warn("UI element score2 not found for update.");
 
@@ -114,7 +143,7 @@ function checkLevelComplete() {
             
             // Show level complete message
             showMessage(
-                `Level ${currentLevel - 1} Complete!\nTime Bonus: ${Math.floor(timeBonus)}\nLevel Bonus: ${levelBonus}\n\nStarting Level ${currentLevel}...`,
+                `Level ${currentLevel - 1} Complete!\nTime Bonus: ${Math.floor(timeBonus)}\nLevel Bonus: ${levelBonus}${bonusMessage}\n\nStarting Level ${currentLevel}...`,
                 'Continue',
                 () => {
                     hideMessage();
@@ -169,6 +198,13 @@ function startLevel(level) {
     levelStartTime = Date.now();
     levelTransitioning = false;
     
+    // Every 3rd level is a time challenge (3, 6, 9, etc.)
+    isTimeChallengeLevel = (currentLevel % 3 === 0);
+    levelTimeLimit = isTimeChallengeLevel ? 45 : 0; // 45 seconds for challenge levels
+    
+    // Every 5th level is a boss level (5, 10)
+    const isBossLevel = (currentLevel % 5 === 0);
+    
     // Check if level exists
     const config = getLevelConfig(currentLevel);
     if (!config) {
@@ -177,10 +213,20 @@ function startLevel(level) {
         return;
     }
     
+    // Show boss intro for boss levels
+    if (isBossLevel && typeof showBossIntro === 'function') {
+        showBossIntro();
+    }
+    
+    // Show time challenge announcement
+    if (isTimeChallengeLevel && !isBossLevel && typeof showTimeChallengeIntro === 'function') {
+        showTimeChallengeIntro();
+    }
+    
     // Update level display
     const levelDisplay = document.getElementById('levelDisplay');
     if (levelDisplay) {
-        levelDisplay.textContent = `Level ${currentLevel}`;
+        levelDisplay.textContent = `Level ${currentLevel}${isTimeChallengeLevel ? ' ⏱️' : ''}`;
     } else {
         console.log("Level display element not found - skipping UI update");
     }

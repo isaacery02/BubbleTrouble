@@ -59,12 +59,28 @@ function drawLevelInfo() {
     const progressText = `Level ${currentLevel} - ${bubbles.length} bubbles remaining`;
     ctx.fillText(progressText, canvas.width / 2, 30);
     
-    // Draw difficulty indicators (center, below level info)
-    ctx.font = '12px Inter';
-    ctx.fillStyle = '#e2e8f0';
-    
-    const difficultyText = `Speed: ${config.speed.toFixed(1)}x | Size: ${config.size}px`;
-    ctx.fillText(difficultyText, canvas.width / 2, 50);
+    // Draw time challenge timer if active
+    if (isTimeChallengeLevel && levelTimeLimit > 0 && gameRunning) {
+        const elapsed = (Date.now() - levelStartTime) / 1000;
+        const remaining = Math.max(0, levelTimeLimit - elapsed);
+        const timeColor = remaining < 10 ? '#ff6b6b' : (remaining < 20 ? '#fbbf24' : '#4ade80');
+        
+        ctx.font = 'bold 20px Inter';
+        ctx.fillStyle = timeColor;
+        ctx.fillText(`⏱️ ${remaining.toFixed(1)}s`, canvas.width / 2, 55);
+        
+        // Check if time ran out
+        if (remaining <= 0 && typeof handleTimeChallengeFailure === 'function') {
+            handleTimeChallengeFailure();
+        }
+    } else {
+        // Draw difficulty indicators (center, below level info)
+        ctx.font = '12px Inter';
+        ctx.fillStyle = '#e2e8f0';
+        
+        const difficultyText = `Speed: ${config.speed.toFixed(1)}x | Size: ${config.size}px`;
+        ctx.fillText(difficultyText, canvas.width / 2, 50);
+    }
     
     // Player 1 stats (TOP LEFT)
     ctx.font = '14px Inter';
@@ -133,6 +149,7 @@ function drawEverything() {
     if (typeof drawProjectiles === 'function') drawProjectiles();
     if (typeof drawRescueBubbles === 'function') drawRescueBubbles(); // Add this line
     if (typeof drawParticles === 'function') drawParticles();
+    if (typeof drawFloatingTexts === 'function') drawFloatingTexts();
     if (typeof drawUI === 'function') drawUI();
     if (gameMode === 'ai-coop' && typeof drawAIIndicator === 'function') drawAIIndicator();
 }
@@ -154,6 +171,115 @@ function resetPlayerPowerUps() {
     });
     
     console.log('All player power-ups reset');
+}
+
+// Time challenge functions
+function showTimeChallengeIntro() {
+    const overlay = document.createElement('div');
+    overlay.id = 'timeChallengeOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 60px;
+        border-radius: 20px;
+        text-align: center;
+        animation: bounceIn 0.5s ease-out;
+        border: 4px solid #fbbf24;
+        box-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+    `;
+    
+    content.innerHTML = `
+        <div style="font-size: 60px; margin-bottom: 20px;">⏱️</div>
+        <div style="font-size: 36px; font-weight: bold; color: #fbbf24; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+            TIME CHALLENGE!
+        </div>
+        <div style="font-size: 24px; color: #fff; margin-bottom: 20px;">
+            Complete in ${levelTimeLimit} seconds<br>
+            for BONUS POINTS!
+        </div>
+        <div style="font-size: 18px; color: #fbbf24; animation: pulse 1s infinite;">
+            Get ready...
+        </div>
+    `;
+    
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+    
+    setTimeout(() => {
+        overlay.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => overlay.remove(), 300);
+    }, 3000);
+}
+
+function handleTimeChallengeFailure() {
+    gameRunning = false;
+    showMessage(
+        `⏱️ TIME'S UP! ⏱️\n\nYou ran out of time!\nDon't worry, keep trying!`,
+        'Retry Level',
+        () => {
+            hideMessage();
+            startLevel(currentLevel);
+        }
+    );
+}
+
+function showBossIntro() {
+    const overlay = document.createElement('div');
+    overlay.id = 'bossIntroOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.5s ease-out;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        text-align: center;
+        animation: shakeIntro 0.8s ease-out;
+    `;
+    
+    content.innerHTML = `
+        <div style="font-size: 100px; margin-bottom: 20px; animation: pulse 1s infinite;">👾</div>
+        <div style="font-size: 48px; font-weight: bold; color: #ff6b6b; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.8); animation: glowRed 1s infinite;">
+            ⚠️ BOSS LEVEL ⚠️
+        </div>
+        <div style="font-size: 28px; color: #fbbf24; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+            MEGA BUBBLE INCOMING!
+        </div>
+        <div style="font-size: 20px; color: #fff;">
+            Defeat the giant bubble to continue!
+        </div>
+    `;
+    
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+    
+    setTimeout(() => {
+        overlay.style.animation = 'fadeOut 0.5s ease-out';
+        setTimeout(() => overlay.remove(), 500);
+    }, 4000);
 }
 
 function gameLoop() {
@@ -183,6 +309,9 @@ function gameLoop() {
         }
         if (typeof updateParticles === 'function') {
             updateParticles();
+        }
+        if (typeof updateFloatingTexts === 'function') {
+            updateFloatingTexts();
         }
         if (typeof checkCollisions === 'function') {
             checkCollisions();

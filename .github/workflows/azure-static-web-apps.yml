@@ -29,6 +29,7 @@ jobs:
           app_location: "/" # App source code path
           api_location: "" # No API
           output_location: "" # No build output, static files at root
+          skip_app_build: true # Skip Oryx build for pure HTML/CSS/JS
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

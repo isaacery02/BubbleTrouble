@@ -75,14 +75,15 @@ function drawLevelInfo() {
     const p1Max = player1.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
     ctx.fillText(`P1 Bullets: ${player1.projectiles.length}/${p1Max}`, 10, 60);
     
-    // Player 2 stats (TOP RIGHT) - only if in multiplayer and P2 is active
-    if (gameMode === 'multi' && player2.active) {
+    // Player 2 stats (TOP RIGHT) - only if in multiplayer/ai-coop and P2 is active
+    if ((gameMode === 'multi' || gameMode === 'ai-coop') && player2.active) {
         ctx.textAlign = 'right';
         ctx.fillStyle = player2.color;
-        ctx.fillText(`P2 Score: ${player2.score}`, canvas.width - 10, 20);
-        ctx.fillText(`P2 Lives: ${player2.lives}`, canvas.width - 10, 40);
+        const p2Label = gameMode === 'ai-coop' ? 'AI' : 'P2';
+        ctx.fillText(`${p2Label} Score: ${player2.score}`, canvas.width - 10, 20);
+        ctx.fillText(`${p2Label} Lives: ${player2.lives}`, canvas.width - 10, 40);
         const p2Max = player2.maxProjectiles || MAX_PROJECTILES_PER_PLAYER;
-        ctx.fillText(`P2 Bullets: ${player2.projectiles.length}/${p2Max}`, canvas.width - 10, 60);
+        ctx.fillText(`${p2Label} Bullets: ${player2.projectiles.length}/${p2Max}`, canvas.width - 10, 60);
     }
     
     // Show active power-ups (canvas text, less prominent than DOM timers)
@@ -104,7 +105,7 @@ function drawLevelInfo() {
         }
     }
     
-    if (gameMode === 'multi' && player2.active && player2.activePowerUp && player2.powerUpEndTime) {
+    if ((gameMode === 'multi' || gameMode === 'ai-coop') && player2.active && player2.activePowerUp && player2.powerUpEndTime) {
         let p2PowerUpY = 80;
         ctx.textAlign = 'right';
         const timeLeft = Math.max(0, Math.ceil((player2.powerUpEndTime - Date.now()) / 1000));
@@ -113,11 +114,12 @@ function drawLevelInfo() {
             powerUpColor = '#60a5fa';
         }
         ctx.fillStyle = powerUpColor;
-        ctx.fillText(`P2 ${player2.activePowerUp.replace('_', ' ').toUpperCase()}: ${timeLeft}s`, canvas.width - 10, p2PowerUpY);
+        const p2Label = gameMode === 'ai-coop' ? 'AI' : 'P2';
+        ctx.fillText(`${p2Label} ${player2.activePowerUp.replace('_', ' ').toUpperCase()}: ${timeLeft}s`, canvas.width - 10, p2PowerUpY);
         p2PowerUpY += 15;
         if (player2.activePowerUp === 'shield' && player2.hasShield) {
             ctx.fillStyle = '#60a5fa';
-            ctx.fillText(`P2 SHIELD ACTIVE`, canvas.width - 10, p2PowerUpY);
+            ctx.fillText(`${p2Label} SHIELD ACTIVE`, canvas.width - 10, p2PowerUpY);
         }
     }
 }
@@ -132,6 +134,7 @@ function drawEverything() {
     if (typeof drawRescueBubbles === 'function') drawRescueBubbles(); // Add this line
     if (typeof drawParticles === 'function') drawParticles();
     if (typeof drawUI === 'function') drawUI();
+    if (gameMode === 'ai-coop' && typeof drawAIIndicator === 'function') drawAIIndicator();
 }
 
 function resetPlayerPowerUps() {

@@ -206,7 +206,7 @@ function applyPowerUp(player, type) {
             
         case 'slowBubbles':
             slowAllBubbles();
-            specificDuration = 3000; // Freeze for 3 seconds
+            specificDuration = 3000; // Slow bubbles for 3 seconds
             // Clear any existing effect-specific timer before setting a new one
             if (player.powerUpTimer) {
                 clearTimeout(player.powerUpTimer);

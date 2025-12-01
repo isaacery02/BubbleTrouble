@@ -115,8 +115,8 @@ function showModeSelectPrompt() {
                 
                 // Handle AI Co-Op mode (temporarily treat as single player until implemented)
                 if (selectedMode === 'ai-coop') {
-                    console.log('AI Co-Op mode selected - Coming soon! Starting as single player for now.');
-                    gameMode = 'single'; // TODO: Implement AI Co-Op logic
+                    console.log('AI Co-Op mode selected - Initializing AI teammate!');
+                    gameMode = 'ai-coop';
                 }
                 
                 startNewGame();
@@ -227,7 +227,7 @@ function gameLoop() {
 
 // Consolidated update function - uses cached function validation
 function updateGameSystems() {
-    if (gameFunctions.handleInput) handleInput();
+    if (typeof handleInput === 'function') handleInput();
     if (gameFunctions.updatePlayers) updatePlayers();
     if (gameFunctions.updateBubbles) updateBubbles();
     if (gameFunctions.updateProjectiles) updateProjectiles();
@@ -236,6 +236,7 @@ function updateGameSystems() {
     if (gameFunctions.updateParticles) updateParticles();
     if (gameFunctions.checkCollisions) checkCollisions();
     if (gameFunctions.checkRescueBubbleCollisions) checkRescueBubbleCollisions();
+    if (gameMode === 'ai-coop' && typeof updateAI === 'function') updateAI();
     if (gameFunctions.drawEverything) drawEverything();
 }
 
@@ -281,6 +282,8 @@ function checkGameOver() {
     let allPlayersOut = false;
     if (gameMode === 'single') {
         allPlayersOut = !player1.active;
+    } else if (gameMode === 'ai-coop') {
+        allPlayersOut = !player1.active && !player2.active;
     } else {
         allPlayersOut = players.every(p => !p.active);
     }
@@ -311,6 +314,9 @@ function showGameOverMessage() {
     let message = '';
     if (gameMode === 'single') {
         message = `Game Over!\n\nYour Score: ${player1.score}`;
+    } else if (gameMode === 'ai-coop') {
+        const totalScore = player1.score + player2.score;
+        message = `Game Over!\n\nYour Score: ${player1.score}\nAI Score: ${player2.score}\nTeam Total: ${totalScore}`;
     } else {
         const player1Score = player1.score;
         const player2Score = player2.score;
@@ -369,6 +375,21 @@ function startNewGame() {
     // Use unified player reset function from player.js
     if (gameFunctions.resetPlayers) {
         resetPlayers('new-game');
+    }
+    
+    // Handle AI initialization for ai-coop mode
+    if (gameMode === 'ai-coop') {
+        if (typeof initializeAI === 'function') {
+            initializeAI();
+        }
+    } else if (gameMode === 'single') {
+        if (typeof disableAI === 'function') {
+            disableAI();
+        }
+    } else {
+        if (typeof disableAI === 'function') {
+            disableAI();
+        }
     }
     
     if (gameFunctions.startLevel) {

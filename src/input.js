@@ -34,7 +34,7 @@ document.addEventListener('keydown', (event) => {
                 shootProjectile(player1);
             }
         }
-        if (event.code === 'KeyW' && gameMode === 'multi' && player2.active) {
+        if (event.code === 'KeyW' && (gameMode === 'multi' || gameMode === 'ai-coop') && player2.active) {
             if (typeof shootProjectile === 'function') {
                 shootProjectile(player2);
             }
@@ -66,7 +66,7 @@ function handleInput() {
         player1.dx = 0;
     }
 
-    if (gameMode === 'multi') {
+    if (gameMode === 'multi' || gameMode === 'ai-coop') {
         if (keys['KeyA'] && player2.active) {
             player2.dx = -PLAYER_SPEED;
         } else if (keys['KeyD'] && player2.active) {

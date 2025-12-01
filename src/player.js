@@ -365,6 +365,14 @@ function resetPlayers(mode = 'new-game') {
             player2.score = 0;
         }
         player2.x = canvas.width / 4; // Default position (not used if inactive)
+    } else if (gameMode === 'ai-coop') { // AI Co-Op mode
+        player1.x = canvas.width / 3 - player1.width / 2;
+        player2.x = canvas.width * 2 / 3 - player2.width / 2;
+        
+        if (isNewGame) {
+            player1.active = true;
+            player2.active = true; // AI controls P2
+        }
     } else { // Multiplayer
         player1.x = canvas.width / 3 - player1.width / 2;
         player2.x = canvas.width * 2 / 3 - player2.width / 2;

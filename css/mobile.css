@@ -145,6 +145,8 @@
     }
     
     h1, .awesome-heading { font-size: 2rem; }
+    .title-main { font-size: 2.5rem; }
+    .title-sub { font-size: 0.9rem; }
     
     .controls-info, .powerups-info { 
         margin: 0;
@@ -207,15 +209,14 @@
     }
     .controls-note { font-size: 0.8rem; }
     
-    .panda-header {
-        top: 10px;
-        right: 10px;
-        padding: 0.25rem; /* Even smaller on mobile */
+    .panda-corner {
+        bottom: 5px;
+        right: 5px;
     }
     
-    .panda-header img {
-        max-width: 35px; /* Smaller on mobile */
-        max-height: 35px;
+    .panda-corner img {
+        width: 50px;
+        height: 50px;
     }
     
     .powerup-icon { width: 35px; height: 35px; font-size: 1rem; }
@@ -281,15 +282,16 @@
         padding: var(--spacing-sm);
     }
     
-    .panda-header {
-        top: 5px;
-        right: 5px;
-        padding: 0.2rem;
+    .panda-corner {
+        display: none; /* Hide panda on very small screens */
     }
     
-    .panda-header img {
-        max-width: 30px; /* Even smaller on very small screens */
-        max-height: 30px;
+    .title-main { 
+        font-size: 2rem; 
+    }
+    
+    .title-sub { 
+        font-size: 0.8rem; 
     }
     
     #actionButton {

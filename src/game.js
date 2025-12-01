@@ -67,6 +67,11 @@ function showModeSelectPrompt() {
     const messageText = document.getElementById('messageText');
     const actionButton = document.getElementById('actionButton');
 
+    // Stop background music when returning to mode selection
+    if (typeof stopBackgroundMusic === 'function') {
+        stopBackgroundMusic();
+    }
+
     if (!messageBox || !messageText || !actionButton) {
         console.error("Message box elements not found for mode selection! Defaulting to single player.");
         gameMode = 'single';
@@ -293,6 +298,11 @@ function checkGameOver() {
         gameRunning = false;
         gameOver = true;
         
+        // Stop background music
+        if (typeof stopBackgroundMusic === 'function') {
+            stopBackgroundMusic();
+        }
+        
         // Clear all power-up timers using centralized function
         if (gameFunctions.removePowerUp) {
             if (player1.activePowerUp) removePowerUp(player1);
@@ -396,6 +406,11 @@ function startNewGame() {
         startLevel(1);
     } else {
         initializeLevel();
+    }
+    
+    // Start background music
+    if (typeof playBackgroundMusic === 'function') {
+        playBackgroundMusic();
     }
     
     animationFrameId = requestAnimationFrame(gameLoop);

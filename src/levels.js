@@ -161,6 +161,11 @@ function gameComplete() {
     levelTransitioning = false;
     gameOver = true;
     
+    // Stop background music
+    if (typeof stopBackgroundMusic === 'function') {
+        stopBackgroundMusic();
+    }
+    
     // Calculate final scores
     const player1FinalScore = player1.score;
     const player2FinalScore = (gameMode === 'multi' && player2) ? player2.score : 0;

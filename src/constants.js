@@ -54,6 +54,7 @@ const OBSTACLE_HEIGHT = 80; // Increased from default
 // ========== SOUND SYSTEM ==========
 let soundEnabled = true;
 let sounds = {}; // Sound objects storage
+let backgroundMusic = null; // Background music audio object
 
 // ========== PLAYER OBJECTS ==========
 let player1 = {

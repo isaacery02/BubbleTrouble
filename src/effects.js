@@ -44,11 +44,17 @@ function toggleSound() {
             soundToggle.classList.remove('audio-disabled');
             soundToggle.classList.remove('muted');
             console.log('Sound enabled');
+            // Resume background music if game is running
+            if (gameRunning && backgroundMusic) {
+                playBackgroundMusic();
+            }
         } else {
             soundToggle.textContent = '🔇 Muted';
             soundToggle.classList.add('audio-disabled');
             soundToggle.classList.add('muted');
             console.log('Sound disabled');
+            // Pause background music
+            stopBackgroundMusic();
         }
     }
     
@@ -64,7 +70,50 @@ function initializeSounds() {
     loadSound('levelup', 'media/levelup.wav');
     loadSound('gameover', 'media/gameover.wav');
     loadSound('start', 'media/start.wav');
+    
+    // Load background music
+    try {
+        backgroundMusic = new Audio('media/background.wav');
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.3; // Set to 30% volume so it doesn't overpower sound effects
+        backgroundMusic.preload = 'auto';
+        backgroundMusic.addEventListener('error', (e) => {
+            console.log('Background music not found or failed to load');
+            backgroundMusic = null;
+        });
+    } catch (error) {
+        console.log('Failed to initialize background music');
+        backgroundMusic = null;
+    }
+    
     console.log('Sound system initialized with', Object.keys(sounds).length, 'sounds');
+}
+
+function playBackgroundMusic() {
+    if (!soundEnabled || !backgroundMusic) {
+        return;
+    }
+    
+    try {
+        backgroundMusic.currentTime = 0;
+        const playPromise = backgroundMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                console.log('Background music autoplay blocked - will play after user interaction');
+            });
+        }
+    } catch (error) {
+        console.log('Failed to play background music');
+    }
+}
+
+function stopBackgroundMusic() {
+    if (backgroundMusic) {
+        try {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+        } catch (error) {}
+    }
 }
 
 // Particle system

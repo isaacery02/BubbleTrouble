@@ -466,7 +466,7 @@ window.addEventListener('DOMContentLoaded', () => {
         restartBtn.addEventListener('click', () => {
             isPaused = false;
             hidePauseOverlay();
-            startNewGame();
+            showModeSelectPrompt(); // Return to mode selection
         });
     }
 
@@ -477,7 +477,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (e.code === 'KeyR') {
             isPaused = false;
             hidePauseOverlay();
-            startNewGame();
+            showModeSelectPrompt(); // Return to mode selection
         }
         if (e.code === 'KeyM') {
             // Use direct toggle instead of clicking button

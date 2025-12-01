@@ -194,9 +194,23 @@ function initializeObstacles() {
         // Get a random position for this level
         const position = getRandomObstaclePosition();
         
-        console.log(`Placing obstacle at (${position.x}, ${position.y}) for level ${currentLevel}`);
+        // Randomize obstacle size for variety
+        const shapes = [
+            { width: 120, height: 80 },   // Default rectangle
+            { width: 80, height: 120 },   // Tall rectangle
+            { width: 100, height: 100 },  // Square
+            { width: 150, height: 60 },   // Wide flat
+            { width: 60, height: 150 },   // Thin tall
+            { width: 140, height: 70 },   // Wide rectangle
+            { width: 90, height: 90 },    // Small square
+            { width: 160, height: 50 }    // Very wide
+        ];
         
-        obstacles.push(new Obstacle(position.x, position.y, OBSTACLE_WIDTH, OBSTACLE_HEIGHT));
+        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+        
+        console.log(`Placing obstacle at (${position.x}, ${position.y}) size ${randomShape.width}x${randomShape.height} for level ${currentLevel}`);
+        
+        obstacles.push(new Obstacle(position.x, position.y, randomShape.width, randomShape.height));
     }
 }
 

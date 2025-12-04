@@ -15,6 +15,10 @@ let levelStartTime = 0;
 let levelTimeLimit = 0; // 0 means no time limit, >0 for challenge levels
 let isTimeChallengeLevel = false;
 
+// ========== FRAME RATE CONTROL ==========
+let lastFrameTime = 0;
+const targetFrameTime = 1000 / 60; // Target 60 FPS (16.67ms per frame)
+
 // ========== GAME OBJECTS ARRAYS ==========
 let bubbles = [];
 let powerUps = [];
@@ -22,7 +26,7 @@ let particles = [];
 let obstacles = [];
 
 // ========== BUBBLE CONSTANTS ==========
-const BUBBLE_BASE_SPEED = 2;        // THIS SHOULD BE CONST
+const BUBBLE_BASE_SPEED = 2.5;      // Increased by 25% (was 2)
 let BUBBLE_SPEED = BUBBLE_BASE_SPEED; // This is 'let', reset by resetBubbleSpeed()
 let bubbleSpeedMultiplier = 1.0;    // This is 'let', reset by resetBubbleSpeed()
 
@@ -32,7 +36,7 @@ const bubbleBounceFactor = 0.92; // <--- ADD THIS LINE
                                     // If it's 'let' and changes, it MUST be reset in startNewGame or resetBubbleSpeed
 
 // ========== PLAYER CONSTANTS ==========
-const PLAYER_SPEED = 5;             // THIS SHOULD BE CONST
+const PLAYER_SPEED = 6.25;          // Increased by 25% (was 5)
 const PLAYER_WIDTH = 30;
 const PLAYER_HEIGHT = 30;
 

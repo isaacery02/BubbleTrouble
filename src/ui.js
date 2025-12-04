@@ -282,43 +282,50 @@ function showBossIntro() {
     }, 4000);
 }
 
-function gameLoop() {
-    if (gameRunning && !gamePaused && !levelTransitioning) {
-        clearCanvas();
+function gameLoop(currentTime = 0) {
+    // Frame rate limiting - ensure consistent 60 FPS across all devices
+    const elapsed = currentTime - lastFrameTime;
+    
+    if (elapsed >= targetFrameTime) {
+        lastFrameTime = currentTime - (elapsed % targetFrameTime);
         
-        if (typeof handleInput === 'function') {
-            handleInput();
+        if (gameRunning && !gamePaused && !levelTransitioning) {
+            clearCanvas();
+            
+            if (typeof handleInput === 'function') {
+                handleInput();
+            }
+            if (typeof updateBubbles === 'function') {
+                updateBubbles();
+            }
+            if (typeof updateObstacles === 'function') {
+                updateObstacles();
+            }
+            if (typeof updatePlayers === 'function') {
+                updatePlayers();
+            }
+            if (typeof updateProjectiles === 'function') {
+                updateProjectiles();
+            }
+            if (typeof updatePowerUps === 'function') {
+                updatePowerUps();
+            }
+            if (typeof updatePlayerPowerUps === 'function') {
+                updatePlayerPowerUps();
+            }
+            if (typeof updateParticles === 'function') {
+                updateParticles();
+            }
+            if (typeof updateFloatingTexts === 'function') {
+                updateFloatingTexts();
+            }
+            if (typeof checkCollisions === 'function') {
+                checkCollisions();
+            }
+            
+            drawEverything();
+            checkGameOver();
         }
-        if (typeof updateBubbles === 'function') {
-            updateBubbles();
-        }
-        if (typeof updateObstacles === 'function') {
-            updateObstacles();
-        }
-        if (typeof updatePlayers === 'function') {
-            updatePlayers();
-        }
-        if (typeof updateProjectiles === 'function') {
-            updateProjectiles();
-        }
-        if (typeof updatePowerUps === 'function') {
-            updatePowerUps();
-        }
-        if (typeof updatePlayerPowerUps === 'function') {
-            updatePlayerPowerUps();
-        }
-        if (typeof updateParticles === 'function') {
-            updateParticles();
-        }
-        if (typeof updateFloatingTexts === 'function') {
-            updateFloatingTexts();
-        }
-        if (typeof checkCollisions === 'function') {
-            checkCollisions();
-        }
-        
-        drawEverything();
-        checkGameOver();
     }
     
     requestAnimationFrame(gameLoop);

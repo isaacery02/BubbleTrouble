@@ -47,6 +47,11 @@ function updateProjectiles() {
     players.forEach(playerObj => {
         for (let i = playerObj.projectiles.length - 1; i >= 0; i--) {
             const projectile = playerObj.projectiles[i];
+            
+            // Safety check - projectile might have been removed by another system
+            if (!projectile) {
+                continue;
+            }
 
             // Move projectile
             projectile.x += projectile.dx;

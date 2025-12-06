@@ -185,16 +185,28 @@ function getRandomObstaclePosition() {
     return { x: validPositions[0].x, y: validPositions[0].y };
 }
 
+function checkObstacleOverlap(x, y, width, height) {
+    if (typeof obstacles === 'undefined' || !obstacles.length) return false;
+    
+    return obstacles.some(obstacle => {
+        return (
+            x < obstacle.x + obstacle.width &&
+            x + width > obstacle.x &&
+            y < obstacle.y + obstacle.height &&
+            y + height > obstacle.y
+        );
+    });
+}
+
 function initializeObstacles() {
     obstacles = [];
     
     const config = getLevelConfig(currentLevel);
     
     if (config && config.hasObstacle) {
-        // Get a random position for this level
-        const position = getRandomObstaclePosition();
-        
-        // Randomize obstacle size for variety
+        const numObstacles = Math.floor(Math.random() * 4) + 1; // 1 to 4
+        console.log(`Trying to place ${numObstacles} obstacles for level ${currentLevel}`);
+
         const shapes = [
             { width: 120, height: 80 },   // Default rectangle
             { width: 80, height: 120 },   // Tall rectangle
@@ -205,12 +217,27 @@ function initializeObstacles() {
             { width: 90, height: 90 },    // Small square
             { width: 160, height: 50 }    // Very wide
         ];
-        
-        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
-        
-        console.log(`Placing obstacle at (${position.x}, ${position.y}) size ${randomShape.width}x${randomShape.height} for level ${currentLevel}`);
-        
-        obstacles.push(new Obstacle(position.x, position.y, randomShape.width, randomShape.height));
+
+        for (let i = 0; i < numObstacles; i++) {
+            let position;
+            let randomShape;
+            let overlap = true;
+            let attempts = 0;
+
+            while (overlap && attempts < 20) {
+                position = getRandomObstaclePosition();
+                randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+                overlap = checkObstacleOverlap(position.x, position.y, randomShape.width, randomShape.height);
+                attempts++;
+            }
+
+            if (!overlap) {
+                console.log(`Placing obstacle ${i+1} at (${position.x}, ${position.y}) size ${randomShape.width}x${randomShape.height}`);
+                obstacles.push(new Obstacle(position.x, position.y, randomShape.width, randomShape.height));
+            } else {
+                console.warn(`Could not place obstacle ${i + 1} without overlap after 20 attempts.`);
+            }
+        }
     }
 }
 

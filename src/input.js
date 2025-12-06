@@ -59,18 +59,18 @@ function handleInput() {
 
     // Handle movement (these can be continuous)
     if (keys['ArrowLeft'] && player1.active) {
-        player1.dx = -PLAYER_SPEED;
+        player1.dx = -player1.speed;
     } else if (keys['ArrowRight'] && player1.active) {
-        player1.dx = PLAYER_SPEED;
+        player1.dx = player1.speed;
     } else if (player1.active) {
         player1.dx = 0;
     }
 
     if (gameMode === 'multi' || gameMode === 'ai-coop') {
         if (keys['KeyA'] && player2.active) {
-            player2.dx = -PLAYER_SPEED;
+            player2.dx = -player2.speed;
         } else if (keys['KeyD'] && player2.active) {
-            player2.dx = PLAYER_SPEED;
+            player2.dx = player2.speed;
         } else if (player2.active) {
             player2.dx = 0;
         }

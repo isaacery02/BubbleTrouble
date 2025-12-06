@@ -31,7 +31,7 @@ class Bubble {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.type = type; // 'normal' or 'golden'
+        this.type = type; // 'normal', 'golden', or 'boss'
         
         // --- MODIFICATION START ---
         // Directly use BUBBLE_BASE_SPEED from the global scope for initial velocity calculations.
@@ -43,8 +43,8 @@ class Bubble {
         // but it won't affect the initial dx/dy here.
         this.currentBubbleSpeed = speed; 
 
-        // Golden bubbles move 1.5x faster
-        const speedMultiplier = this.type === 'golden' ? 1.5 : 1.0;
+        // Golden bubbles move 1.5x faster, boss bubbles move 1.2x faster
+        const speedMultiplier = this.type === 'golden' ? 1.5 : (this.type === 'boss' ? 1.2 : 1.0);
         this.dx = (Math.random() - 0.5) * initialCalculationSpeed * 3 * speedMultiplier; 
         this.dy = -Math.random() * initialCalculationSpeed * 1.5 * speedMultiplier - (initialCalculationSpeed * 0.5);
         // --- MODIFICATION END ---
@@ -55,7 +55,10 @@ class Bubble {
         this.bounces = 0;
         this.lastBounceTime = 0;
         this.isFrozen = false; // Initialize isFrozen state
-        this.pointMultiplier = this.type === 'golden' ? 3 : 1; // 3x points for golden
+        this.pointMultiplier = this.type === 'golden' ? 3 : (this.type === 'boss' ? 5 : 1); // 3x points for golden, 5x for boss
+        if (this.type === 'boss') {
+            this.health = 10;
+        }
     }
     
     update() {
@@ -78,6 +81,8 @@ class Bubble {
     }
     
     getColorForSize(radius) {
+        // Boss bubbles are always a deep purple
+        if (this.type === 'boss') return '#483d8b';
         // Golden bubbles are always golden
         if (this.type === 'golden') return '#FFD700';
         
@@ -117,6 +122,19 @@ class Bubble {
                 ctx.arc(sparkleX, sparkleY, 2, 0, Math.PI * 2);
                 ctx.fill();
             }
+        } else if (this.type === 'boss') {
+            // Pulsating purple glow for boss bubbles
+            const bossGlow = ctx.createRadialGradient(
+                this.x, this.y, 0,
+                this.x, this.y, currentRadius + 15 + Math.sin(this.pulsePhase) * 3
+            );
+            bossGlow.addColorStop(0, '#483d8b' + '99'); // Purple with transparency
+            bossGlow.addColorStop(0.7, '#483d8b' + '44');
+            bossGlow.addColorStop(1, '#483d8b' + '00');
+            ctx.fillStyle = bossGlow;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, currentRadius + 15 + Math.sin(this.pulsePhase) * 3, 0, Math.PI * 2);
+            ctx.fill();
         }
         
         // Outer glow
@@ -178,83 +196,7 @@ function drawBubbles() {
     bubbles.forEach(bubble => bubble.draw());
 }
 
-function initializeBubbles() {
-    bubbles = []; // Clear existing bubbles
-    const config = getLevelConfig(currentLevel);
-    
-    // Safety check: if config is null, log error and return
-    if (!config) {
-        console.error(`Invalid level config for level ${currentLevel}`);
-        return;
-    }
-    
-    for (let i = 0; i < config.bubbleCount; i++) {
-        let x, y;
-        let attempts = 0;
-        const maxAttempts = 50;
-        
-        do {
-            // Calculate safe position
-            x = Math.max(config.size, Math.min(canvas.width - config.size, 
-                (canvas.width / (config.bubbleCount + 1)) * (i + 1)));
-            y = Math.max(config.size, canvas.height / 4);
-            
-            // Check for obstacle conflicts
-            if (typeof checkObstacleConflict === 'function' && checkObstacleConflict(x, y, config.size)) {
-                // Try alternative positions
-                const alternatives = [
-                    { x: x, y: canvas.height / 6 },
-                    { x: x + 50, y: y },
-                    { x: x - 50, y: y },
-                    { x: x, y: canvas.height / 3 },
-                    { x: canvas.width * 0.2 * (i + 1), y: canvas.height / 5 }
-                ];
-                
-                let foundSafe = false;
-                for (const alt of alternatives) {
-                    if (alt.x >= config.size && alt.x <= canvas.width - config.size &&
-                        alt.y >= config.size && alt.y <= canvas.height - 100) {
-                        
-                        if (!checkObstacleConflict(alt.x, alt.y, config.size)) {
-                            x = alt.x;
-                            y = alt.y;
-                            foundSafe = true;
-                            break;
-                        }
-                    }
-                }
-                
-                if (!foundSafe) {
-                    x = Math.random() * (canvas.width - config.size * 2) + config.size;
-                    y = Math.random() * (canvas.height / 3) + config.size;
-                }
-            }
-            
-            attempts++;
-        } while (typeof checkObstacleConflict === 'function' && 
-                 checkObstacleConflict(x, y, config.size) && 
-                 attempts < maxAttempts);
-        
-        if (attempts >= maxAttempts) {
-            console.warn(`Could not find safe spawn position for bubble ${i + 1}, using fallback`);
-            x = canvas.width / 2;
-            y = config.size + 10;
-        }
-        
-        const bubble = new Bubble(x, y, config.size, config.speed);
-        
-        // Validate bubble before adding
-        if (isFinite(bubble.x) && isFinite(bubble.y) && isFinite(bubble.radius)) {
-            bubbles.push(bubble);
-        } else {
-            console.error('Invalid bubble created:', bubble);
-        }
-    }
-    
 
-    // Add a global variable to track this
-    window.currentBubbleCount = bubbles.length;
-}
 
 function calculatePoints(radius) {
     if (radius > 40) return 100;
@@ -272,6 +214,8 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
     // Show bonus text for golden bubbles
     if (bubble.type === 'golden' && typeof createFloatingText === 'function') {
         createFloatingText(bubble.x, bubble.y, `+${points} GOLD!`, '#FFD700');
+    } else if (bubble.type === 'boss' && typeof createFloatingText === 'function') {
+        createFloatingText(bubble.x, bubble.y, `+${points} BOSS HIT!`, '#483d8b');
     }
     
     // Create hit particles
@@ -281,7 +225,21 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
     
     // Play pop sound
     if (typeof playSound === 'function') {
-        playSound('pop');
+        playSound('hit');
+    }
+
+    if (bubble.type === 'boss') {
+        bubble.health--;
+        if (bubble.health <= 0) {
+            // Remove the original bubble
+            bubbles.splice(bubbleIndex, 1);
+            
+            // Chance to drop power-up
+            if (Math.random() < POWER_UP_DROP_CHANCE && typeof createPowerUp === 'function') {
+                createPowerUp(bubble.x, bubble.y);
+            }
+        }
+        return;
     }
     
     // Check if bubble should split
@@ -289,8 +247,8 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
     if (bubble.radius > minRadius) {
         // Create two smaller bubbles with much stronger explosive physics
         const newRadius = bubble.radius * 0.7;
-        const explosiveForce = 6 + (bubble.radius / 8); // Much stronger explosive force
-        const upwardForce = 4 + (bubble.radius / 12); // Strong upward component
+        const explosiveForce = 2 + (bubble.radius / 12);
+        const upwardForce = 1 + (bubble.radius / 20);
         
         // Preserve bubble type (golden stays golden when split)
         const bubbleType = bubble.type || 'normal';
@@ -300,7 +258,7 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
             bubble.x - newRadius * 0.8, // Slightly closer spawn
             bubble.y,
             newRadius,
-            bubble.baseSpeed,
+            bubble.currentBubbleSpeed,
             bubbleType // Preserve type
         );
         // Strong leftward and upward velocity
@@ -312,7 +270,7 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
             bubble.x + newRadius * 0.8, // Slightly closer spawn
             bubble.y,
             newRadius,
-            bubble.baseSpeed,
+            bubble.currentBubbleSpeed,
             bubbleType // Preserve type
         );
         // Strong rightward and upward velocity

@@ -24,10 +24,16 @@ function validateGameFunctions() {
     gameFunctions.resetPlayers = typeof resetPlayers === 'function';
     gameFunctions.startLevel = typeof startLevel === 'function';
     gameFunctions.initializeObstacles = typeof initializeObstacles === 'function';
-    gameFunctions.initializeBubbles = typeof initializeBubbles === 'function';
+    gameFunctions.initializeLevelBubbles = typeof initializeLevelBubbles === 'function';
     gameFunctions.clearCanvas = typeof clearCanvas === 'function';
+    gameFunctions.createPowerUp = typeof createPowerUp === 'function';
     
     console.log('Game functions validated:', Object.keys(gameFunctions).filter(k => gameFunctions[k]).length, '/', Object.keys(gameFunctions).length);
+    
+    // Warn about missing critical functions
+    if (!gameFunctions.createPowerUp) {
+        console.error('CRITICAL: createPowerUp function not found! Powerups will not drop.');
+    }
 }
 
 // Initialize canvas and context (variables are declared in constants.js)
@@ -40,6 +46,23 @@ function resizeCanvas() {
     canvas.width = 1000;
     canvas.height = 800;
     console.log("Canvas set to fixed size:", canvas.width, "x", canvas.height);
+
+    // If mode select is visible, re-trigger animations
+    const messageBox = document.getElementById('messageBox');
+    if (messageBox && messageBox.style.display !== 'none') {
+        const p1Button = document.getElementById('singlePlayerButton');
+        const p2Button = document.getElementById('multiPlayerButton');
+        const aiButton = document.getElementById('aiCoopButton');
+        
+        if (p1Button && p2Button && aiButton) {
+            // Remove and re-add the class to restart the animation
+            [p1Button, p2Button, aiButton].forEach(btn => {
+                btn.classList.remove('animate-in');
+                // Use a timeout to ensure the class removal is processed before re-adding
+                setTimeout(() => btn.classList.add('animate-in'), 10);
+            });
+        }
+    }
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -371,9 +394,6 @@ function startNewGame() {
     
     if (gameFunctions.resetBubbleSpeed) {
         resetBubbleSpeed();
-    } else {
-        if (typeof BUBBLE_BASE_SPEED !== 'undefined') BUBBLE_SPEED = BUBBLE_BASE_SPEED; else BUBBLE_SPEED = 2;
-        if (typeof bubbleSpeedMultiplier !== 'undefined') bubbleSpeedMultiplier = 1.0; else bubbleSpeedMultiplier = 1.0;
     }
     
     gameRunning = true;
@@ -437,9 +457,9 @@ function initializeLevel() {
         initializeObstacles();
         console.log('Obstacles initialized for level', currentLevel);
     }
-    // Bubbles are initialized in bubbles.js
-    if (gameFunctions.initializeBubbles) {
-        initializeBubbles();
+    // Bubbles are initialized in levels.js
+    if (gameFunctions.initializeLevelBubbles) {
+        initializeLevelBubbles();
         console.log('Bubbles initialized for level', currentLevel, '- Count:', bubbles.length);
     }
 }

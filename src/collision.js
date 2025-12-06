@@ -93,66 +93,7 @@ function playerCollidesWith(playerObj, bubble) {
     return distanceSquared < radiusSum * radiusSum; // Compare squared distances
 }
 
-function handleBubbleHit(bubble, bubbleIndex, playerObj) {
-    // Award points
-    const points = Math.floor(100 / bubble.radius * 10);
-    playerObj.score += points;
-    
-    // Update score display
-    const scoreElement = document.getElementById(`score${playerObj.id}`);
-    if (scoreElement) {
-        scoreElement.textContent = playerObj.score;
-    }
-    
-    // Create particles
-    if (typeof createParticles === 'function') {
-        createParticles(bubble.x, bubble.y, bubble.color, 15);
-    }
-    
-    // Play pop sound
-    if (typeof playSound === 'function') {
-        playSound('pop');
-    }
-    
-    // Split bubble if large enough
-    if (bubble.radius > 15) {
-        const newRadius = bubble.radius / 2;
-        const newSpeed = bubble.speed * 1.2;
-        
-        // Create two smaller bubbles
-        const bubble1 = new Bubble(
-            bubble.x - newRadius,
-            bubble.y,
-            newRadius,
-            newSpeed
-        );
-        bubble1.dx = -Math.abs(bubble.dx) - 1;
-        bubble1.dy = bubble.dy - 2;
-        
-        const bubble2 = new Bubble(
-            bubble.x + newRadius,
-            bubble.y,
-            newRadius,
-            newSpeed
-        );
-        bubble2.dx = Math.abs(bubble.dx) + 1;
-        bubble2.dy = bubble.dy - 2;
-        
-        bubbles.push(bubble1, bubble2);
-    }
-    
-    // Chance to drop power-up
-    if (Math.random() < POWER_UP_DROP_CHANCE) {
-        if (typeof createPowerUp === 'function') {
-            createPowerUp(bubble.x, bubble.y);
-        }
-    }
-    
-    // Remove the original bubble
-    bubbles.splice(bubbleIndex, 1);
-    
-    console.log(`Bubble popped! Player ${playerObj.id} scored ${points} points. Score: ${playerObj.score}`);
-}
+
 
 function checkPowerUpCollisions() {
     if (typeof powerUps === 'undefined') return;

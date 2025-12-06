@@ -140,8 +140,8 @@ function evaluateThreats() {
     const immediateRadius = 30; // Only emergency evasion for extremely close bubbles
     
     bubbles.forEach(bubble => {
-        const bubbleCenterX = bubble.x + bubble.size;
-        const bubbleCenterY = bubble.y + bubble.size;
+        const bubbleCenterX = bubble.x + bubble.radius;
+        const bubbleCenterY = bubble.y + bubble.radius;
         const distance = Math.hypot(bubbleCenterX - aiCenterX, bubbleCenterY - aiCenterY);
         
         if (distance < immediateRadius) {
@@ -218,7 +218,7 @@ function calculateBubblePriority(bubble) {
     let priority = 0;
     
     // Larger bubbles = higher priority (more points, spawn more bubbles)
-    priority += bubble.size / 10;
+    priority += bubble.radius / 10;
     
     // Lower bubbles = higher priority (more dangerous)
     priority += (canvas.height - bubble.y) / 100;
@@ -226,8 +226,8 @@ function calculateBubblePriority(bubble) {
     // Bubbles near human player = higher priority (protective)
     if (player1 && player1.active) {
         const distToHuman = Math.hypot(
-            (bubble.x + bubble.size) - (player1.x + player1.width / 2),
-            (bubble.y + bubble.size) - (player1.y + player1.height / 2)
+            (bubble.x + bubble.radius) - (player1.x + player1.width / 2),
+            (bubble.y + bubble.radius) - (player1.y + player1.height / 2)
         );
         if (distToHuman < 200) {
             priority += (200 - distToHuman) / 50 * AI_CONFIG.helpfulness;
@@ -241,7 +241,7 @@ function calculateBubblePriority(bubble) {
 function handleThreat(threat) {
     if (!aiPlayer || !aiPlayer.active) return;
     
-    const bubbleX = threat.bubble.x + threat.bubble.size;
+    const bubbleX = threat.bubble.x + threat.bubble.radius;
     const aiCenterX = aiPlayer.x + aiPlayer.width / 2;
     
     // Move away from bubble
@@ -266,7 +266,7 @@ function handleNearbyThreats(threats) {
     if (!aiPlayer || !aiPlayer.active || threats.length === 0) return;
     
     const closestThreat = threats[0];
-    const bubbleX = closestThreat.bubble.x + closestThreat.bubble.size;
+    const bubbleX = closestThreat.bubble.x + closestThreat.bubble.radius;
     const aiCenterX = aiPlayer.x + aiPlayer.width / 2;
     const horizontalDist = Math.abs(bubbleX - aiCenterX);
     

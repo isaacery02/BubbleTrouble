@@ -32,7 +32,7 @@ function getLevelConfig(level) {
     }
 }
 
-function initializeBubbles() {
+function initializeLevelBubbles() {
     bubbles = [];
     const config = getLevelConfig(currentLevel);
     
@@ -51,16 +51,18 @@ function initializeBubbles() {
     }
     
     // Boss level: create one giant bubble
-    const isBossLevel = (currentLevel % 5 === 0);
+    const isBossLevel = (currentLevel > 1 && currentLevel % 5 === 0);
+    console.log(`initializeBubbles: currentLevel=${currentLevel}, isBossLevel=${isBossLevel}`);
     if (isBossLevel) {
         const bossSize = 80; // Giant bubble
         const x = canvas.width / 2;
         const y = canvas.height / 3;
-        const bossBubble = new Bubble(x, y, bossSize, config.speed, 'normal');
+        const bossBubble = new Bubble(x, y, bossSize, config.speed, 'boss');
         if (isFinite(bossBubble.x) && isFinite(bossBubble.y) && isFinite(bossBubble.radius)) {
             bubbles.push(bossBubble);
             console.log(`Boss bubble created at (${x}, ${y}) with size ${bossSize}`);
         }
+        console.log(`Boss level - returning early. Bubbles array length: ${bubbles.length}`);
         return; // Only the boss bubble
     }
     
@@ -200,15 +202,15 @@ function startLevel(level) {
     console.log(`Starting level ${level}`);
     
     currentLevel = Math.max(1, level);
-    levelStartTime = Date.now();
     levelTransitioning = false;
     
-    // Every 3rd level is a time challenge (3, 6, 9, etc.)
-    isTimeChallengeLevel = (currentLevel % 3 === 0);
-    levelTimeLimit = isTimeChallengeLevel ? 45 : 0; // 45 seconds for challenge levels
-    
     // Every 5th level is a boss level (5, 10)
-    const isBossLevel = (currentLevel % 5 === 0);
+    const isBossLevel = (currentLevel > 1 && currentLevel % 5 === 0);
+    
+    // A level is a time challenge if it's the level right before a boss level, or a multiple of 3.
+    // A boss level cannot be a time challenge.
+    isTimeChallengeLevel = !isBossLevel && (currentLevel > 1 && (currentLevel % 3 === 0 || (currentLevel + 1) % 5 === 0));
+    levelTimeLimit = isTimeChallengeLevel ? 45 : 0; // 45 seconds for challenge levels
     
     // Check if level exists
     const config = getLevelConfig(currentLevel);
@@ -217,48 +219,53 @@ function startLevel(level) {
         gameComplete();
         return;
     }
-    
+
+    const initializeAndStartLevel = () => {
+        // Update level display
+        const levelDisplay = document.getElementById('levelDisplay');
+        if (levelDisplay) {
+            levelDisplay.textContent = `Level ${currentLevel}${isTimeChallengeLevel ? ' ⏱️' : ''}`;
+        } else {
+            console.log("Level display element not found - skipping UI update");
+        }
+        
+        // Clear existing game objects
+        bubbles = [];
+        powerUps.length = 0;
+        particles.length = 0;
+        obstacles = [];
+        
+        // Reset player projectiles
+        player1.projectiles = [];
+        if (player2) {
+            player2.projectiles = [];
+        }
+        
+        // Initialize level
+        if (typeof initializeObstacles === 'function') {
+            initializeObstacles();
+        }
+        initializeLevelBubbles();
+        
+        // Resume game
+        levelStartTime = Date.now(); // Reset timer after intro
+        gameRunning = true;
+        gamePaused = false;
+        
+        console.log(`Level ${currentLevel} started with ${bubbles.length} bubbles`);
+    };
+
     // Show boss intro for boss levels
     if (isBossLevel && typeof showBossIntro === 'function') {
-        showBossIntro();
+        showBossIntro(initializeAndStartLevel);
     }
-    
     // Show time challenge announcement
-    if (isTimeChallengeLevel && !isBossLevel && typeof showTimeChallengeIntro === 'function') {
-        showTimeChallengeIntro();
+    else if (isTimeChallengeLevel && typeof showTimeChallengeIntro === 'function') {
+        showTimeChallengeIntro(initializeAndStartLevel);
     }
-    
-    // Update level display
-    const levelDisplay = document.getElementById('levelDisplay');
-    if (levelDisplay) {
-        levelDisplay.textContent = `Level ${currentLevel}${isTimeChallengeLevel ? ' ⏱️' : ''}`;
-    } else {
-        console.log("Level display element not found - skipping UI update");
+    else {
+        initializeAndStartLevel();
     }
-    
-    // Clear existing game objects
-    bubbles = [];
-    powerUps.length = 0;
-    particles.length = 0;
-    obstacles = [];
-    
-    // Reset player projectiles
-    player1.projectiles = [];
-    if (player2) {
-        player2.projectiles = [];
-    }
-    
-    // Initialize level
-    if (typeof initializeObstacles === 'function') {
-        initializeObstacles();
-    }
-    initializeBubbles();
-    
-    // Resume game
-    gameRunning = true;
-    gamePaused = false;
-    
-    console.log(`Level ${currentLevel} started with ${bubbles.length} bubbles`);
 }
 
 console.log("=== LEVELS.JS LOADED ===");

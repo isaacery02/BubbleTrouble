@@ -246,7 +246,7 @@
     .mode-title { font-size: 0.75rem; }
     .mode-subtitle { font-size: 0.6rem; }
     .mode-buttons-container { 
-        flex-direction: column; 
+        flex-direction: row; 
         align-items: center;
         gap: 8px; 
         margin-top: 8px; 

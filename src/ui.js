@@ -120,6 +120,12 @@ function drawLevelInfo() {
             p1PowerUpY += 15;
         }
     }
+
+    // Add obstacle count for debugging
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.font = '14px Inter';
+    ctx.fillText(`Obstacles: ${obstacles.length}`, 10, 115);
     
     if ((gameMode === 'multi' || gameMode === 'ai-coop') && player2.active && player2.activePowerUp && player2.powerUpEndTime) {
         let p2PowerUpY = 80;
@@ -174,7 +180,7 @@ function resetPlayerPowerUps() {
 }
 
 // Time challenge functions
-function showTimeChallengeIntro() {
+function showTimeChallengeIntro(callback) {
     const overlay = document.createElement('div');
     overlay.id = 'timeChallengeOverlay';
     overlay.style.cssText = `
@@ -218,10 +224,16 @@ function showTimeChallengeIntro() {
     
     overlay.appendChild(content);
     document.body.appendChild(overlay);
+
+    gamePaused = true;
     
     setTimeout(() => {
         overlay.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => overlay.remove(), 300);
+        setTimeout(() => {
+            overlay.remove();
+            gamePaused = false;
+            if (callback) callback();
+        }, 300);
     }, 3000);
 }
 
@@ -237,7 +249,7 @@ function handleTimeChallengeFailure() {
     );
 }
 
-function showBossIntro() {
+function showBossIntro(callback) {
     const overlay = document.createElement('div');
     overlay.id = 'bossIntroOverlay';
     overlay.style.cssText = `
@@ -275,60 +287,17 @@ function showBossIntro() {
     
     overlay.appendChild(content);
     document.body.appendChild(overlay);
+
+    gamePaused = true;
     
     setTimeout(() => {
         overlay.style.animation = 'fadeOut 0.5s ease-out';
-        setTimeout(() => overlay.remove(), 500);
+        setTimeout(() => {
+            overlay.remove();
+            gamePaused = false;
+            if (callback) callback();
+        }, 500);
     }, 4000);
-}
-
-function gameLoop(currentTime = 0) {
-    // Frame rate limiting - ensure consistent 60 FPS across all devices
-    const elapsed = currentTime - lastFrameTime;
-    
-    if (elapsed >= targetFrameTime) {
-        lastFrameTime = currentTime - (elapsed % targetFrameTime);
-        
-        if (gameRunning && !gamePaused && !levelTransitioning) {
-            clearCanvas();
-            
-            if (typeof handleInput === 'function') {
-                handleInput();
-            }
-            if (typeof updateBubbles === 'function') {
-                updateBubbles();
-            }
-            if (typeof updateObstacles === 'function') {
-                updateObstacles();
-            }
-            if (typeof updatePlayers === 'function') {
-                updatePlayers();
-            }
-            if (typeof updateProjectiles === 'function') {
-                updateProjectiles();
-            }
-            if (typeof updatePowerUps === 'function') {
-                updatePowerUps();
-            }
-            if (typeof updatePlayerPowerUps === 'function') {
-                updatePlayerPowerUps();
-            }
-            if (typeof updateParticles === 'function') {
-                updateParticles();
-            }
-            if (typeof updateFloatingTexts === 'function') {
-                updateFloatingTexts();
-            }
-            if (typeof checkCollisions === 'function') {
-                checkCollisions();
-            }
-            
-            drawEverything();
-            checkGameOver();
-        }
-    }
-    
-    requestAnimationFrame(gameLoop);
 }
 
 console.log("=== UI.JS LOADED ===");

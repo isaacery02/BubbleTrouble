@@ -16,8 +16,8 @@ class FloatingText {
     
     update() {
         this.y += this.dy * deltaTime;
-        this.alpha = 1 - (this.age / this.lifetime);
         this.age += deltaTime;
+        this.alpha = Math.max(0, 1 - (this.age / this.lifetime));
         return this.age < this.lifetime;
     }
     

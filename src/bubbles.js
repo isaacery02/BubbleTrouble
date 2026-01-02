@@ -216,6 +216,8 @@ function handleBubbleHit(bubble, bubbleIndex, playerObj) {
         createFloatingText(bubble.x, bubble.y, `+${points} GOLD!`, '#FFD700');
     } else if (bubble.type === 'boss' && typeof createFloatingText === 'function') {
         createFloatingText(bubble.x, bubble.y, `+${points} BOSS HIT!`, '#483d8b');
+    } else if (typeof createFloatingText === 'function') {
+        createFloatingText(bubble.x, bubble.y, `+${points}`, '#FFFFFF');
     }
     
     // Create hit particles

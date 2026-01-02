@@ -241,13 +241,17 @@ function gameLoop(timestamp) {
     }
     
     // Calculate delta time for frame-rate independence
-    if (!lastFrameTime) lastFrameTime = timestamp;
-    const elapsed = timestamp - lastFrameTime;
-    deltaTime = elapsed / (1000 / targetFPS); // Normalize to 60 FPS
-    lastFrameTime = timestamp;
-    
-    // Cap delta time to prevent huge jumps (e.g., when tab is inactive)
-    if (deltaTime > 3) deltaTime = 1;
+    if (!lastFrameTime) {
+        lastFrameTime = timestamp;
+        deltaTime = 1; // Use default 1 on first frame
+    } else {
+        const elapsed = timestamp - lastFrameTime;
+        deltaTime = elapsed / (1000 / targetFPS); // Normalize to 60 FPS
+        lastFrameTime = timestamp;
+        
+        // Cap delta time to prevent huge jumps (e.g., when tab is inactive)
+        if (deltaTime > 3 || deltaTime <= 0) deltaTime = 1;
+    }
     
     // Clear canvas using centralized function from ui.js
     if (gameFunctions.clearCanvas) {

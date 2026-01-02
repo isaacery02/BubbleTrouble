@@ -63,12 +63,12 @@ class Bubble {
     
     update() {
         if (!this.isFrozen) { // Only update physics if not frozen
-            // Apply gravity
-            this.dy += bubbleGravity; // Gravity applied once here
+            // Apply gravity with delta time
+            this.dy += bubbleGravity * deltaTime;
             
-            // Update position
-            this.x += this.dx;
-            this.y += this.dy;
+            // Update position with delta time
+            this.x += this.dx * deltaTime;
+            this.y += this.dy * deltaTime;
             
             // Reduce damping significantly - only apply to very small movements
             if (Math.abs(this.dx) < 0.5 && Math.abs(this.dy) < 0.5) {

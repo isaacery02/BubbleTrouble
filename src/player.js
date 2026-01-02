@@ -7,8 +7,8 @@ function updatePlayers() {
 function updatePlayer(playerObj) {
     if (!playerObj.active) return;
     
-    // Update position
-    playerObj.x += playerObj.dx;
+    // Update position with delta time for frame-rate independence
+    playerObj.x += playerObj.dx * deltaTime;
     
     // Keep player within canvas bounds
     if (playerObj.x < 0) {

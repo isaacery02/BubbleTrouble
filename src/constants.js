@@ -17,7 +17,8 @@ let isTimeChallengeLevel = false;
 
 // ========== FRAME RATE CONTROL ==========
 let lastFrameTime = 0;
-const targetFrameTime = 1000 / 60; // Target 60 FPS (16.67ms per frame)
+const targetFPS = 60; // Target 60 FPS for delta time calculation
+let deltaTime = 1; // Delta time multiplier (1 = normal speed at 60fps)
 
 // ========== GAME OBJECTS ARRAYS ==========
 let bubbles = [];

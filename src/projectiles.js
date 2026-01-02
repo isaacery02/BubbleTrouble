@@ -53,9 +53,9 @@ function updateProjectiles() {
                 continue;
             }
 
-            // Move projectile
-            projectile.x += projectile.dx;
-            projectile.y += projectile.dy;
+            // Move projectile with delta time
+            projectile.x += projectile.dx * deltaTime;
+            projectile.y += projectile.dy * deltaTime;
 
             // Remove projectile if it goes off screen (ANY direction)
             if (projectile.y + projectile.height < 0 ||           // Top

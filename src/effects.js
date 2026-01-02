@@ -130,11 +130,11 @@ class Particle {
     }
     
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.1; // gravity
-        this.vx *= 0.99; // air resistance
-        this.life--;
+        this.x += this.vx * deltaTime;
+        this.y += this.vy * deltaTime;
+        this.vy += 0.1 * deltaTime; // gravity
+        this.vx *= Math.pow(0.99, deltaTime); // air resistance
+        this.life -= deltaTime;
         return this.life > 0;
     }
     

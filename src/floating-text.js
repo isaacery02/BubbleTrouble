@@ -15,9 +15,9 @@ class FloatingText {
     }
     
     update() {
-        this.y += this.dy;
+        this.y += this.dy * deltaTime;
         this.alpha = 1 - (this.age / this.lifetime);
-        this.age++;
+        this.age += deltaTime;
         return this.age < this.lifetime;
     }
     

@@ -233,12 +233,22 @@ let isPaused = false;
 let pauseOverlay = null;
 
 // Main game loop
-function gameLoop() {
+function gameLoop(timestamp) {
     if (isPaused) return; // <--- Add this line
     if (!gameRunning || gamePaused) {
         animationFrameId = requestAnimationFrame(gameLoop);
         return;
     }
+    
+    // Calculate delta time for frame-rate independence
+    if (!lastFrameTime) lastFrameTime = timestamp;
+    const elapsed = timestamp - lastFrameTime;
+    deltaTime = elapsed / (1000 / targetFPS); // Normalize to 60 FPS
+    lastFrameTime = timestamp;
+    
+    // Cap delta time to prevent huge jumps (e.g., when tab is inactive)
+    if (deltaTime > 3) deltaTime = 1;
+    
     // Clear canvas using centralized function from ui.js
     if (gameFunctions.clearCanvas) {
         clearCanvas();
@@ -262,6 +272,7 @@ function updateGameSystems() {
     if (gameFunctions.updatePowerUps) updatePowerUps();
     if (gameFunctions.updateRescueBubbles) updateRescueBubbles();
     if (gameFunctions.updateParticles) updateParticles();
+    if (typeof updateFloatingTexts === 'function') updateFloatingTexts();
     if (gameFunctions.checkCollisions) checkCollisions();
     if (gameFunctions.checkRescueBubbleCollisions) checkRescueBubbleCollisions();
     if (gameMode === 'ai-coop' && typeof updateAI === 'function') updateAI();

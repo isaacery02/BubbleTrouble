@@ -20,9 +20,9 @@ class RescueBubble {
     }
 
     update() {
-        // Move the bubble
-        this.x += this.dx;
-        this.y += this.dy;
+        // Move the bubble with delta time
+        this.x += this.dx * deltaTime;
+        this.y += this.dy * deltaTime;
 
         // Bounce off walls
         if (this.x <= this.size/2 || this.x >= canvas.width - this.size/2) {
